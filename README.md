@@ -7,6 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
 > 🚀 **Live Web Application:** **[https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/](https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/)**  
+> 📖 **Full Technical Project Explanation:** **[Read EXPLANATION.md](./EXPLANATION.md)**  
 > **College-Level Machine Learning Term Project**  
 > An end-to-end Natural Language Processing (NLP) and Machine Learning system for automated multi-class text document categorization, rigorous model benchmarking, and real-time interactive inference.
 
