@@ -1,10 +1,12 @@
 # Classifying Text Documents Using Machine Learning
 
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-v1.3+-orange.svg)](https://scikit-learn.org/)
-[![Streamlit](https://img.shields.io/badge/streamlit-v1.30+-red.svg)](https://streamlit.io/)
+[![Streamlit](https://img.shields.io/badge/streamlit-v1.64+-red.svg)](https://streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
+> 🚀 **Live Web Application:** **[https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/](https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/)**  
 > **College-Level Machine Learning Term Project**  
 > An end-to-end Natural Language Processing (NLP) and Machine Learning system for automated multi-class text document categorization, rigorous model benchmarking, and real-time interactive inference.
 
@@ -218,6 +220,8 @@ All models were evaluated on the held-out stratified test set (20% of data) usin
 ---
 
 ## Streamlit Web Application
+
+🌐 **Live Cloud Deployment**: **[https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/](https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/)**
 
 The interactive web application (`app.py`) provides:
 - **🔮 Live Document Classifier**:
