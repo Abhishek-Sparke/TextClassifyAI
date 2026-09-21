@@ -29,7 +29,7 @@ DEFAULT_CATEGORIES = [
 # Friendly human-readable category display names
 CATEGORY_DISPLAY_NAMES = {
     'comp.graphics': 'Computer Graphics',
-    'rec.sport.baseball': 'Baseball',
+    'rec.sport.baseball': 'Sports',
     'sci.space': 'Space Science',
     'talk.politics.misc': 'Politics',
     'rec.autos': 'Automobiles',

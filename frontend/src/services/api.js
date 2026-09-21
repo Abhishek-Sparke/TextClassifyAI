@@ -23,9 +23,9 @@ const DOMAIN_VOCABULARIES = {
     baseWeight: 1.15
   },
   "rec.sport.baseball": {
-    name: "Baseball",
+    name: "Sports",
     badge: "Sports",
-    icon: "⚾",
+    icon: "⚽",
     keywords: [
       "baseball", "pitcher", "pitching", "inning", "hitter", "strikeout", "run",
       "homerun", "game", "team", "player", "base", "ball", "league", "bat", "batter",

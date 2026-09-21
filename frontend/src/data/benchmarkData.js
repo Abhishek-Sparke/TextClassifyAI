@@ -29,9 +29,9 @@ export const CATEGORIES = [
   },
   {
     id: "rec.sport.baseball",
-    name: "Baseball",
+    name: "Sports",
     badge: "Sports",
-    icon: "⚾",
+    icon: "⚽",
     color: "amber",
     count: 951,
     percentage: 26.3,
@@ -122,12 +122,12 @@ export const MODEL_PERFORMANCE = [
 ];
 
 // 4x4 Confusion Matrix corresponding to the SVM test split (N = 721)
-// Classes: [Computer Graphics, Baseball, Space Science, Politics]
+// Classes: [Computer Graphics, Sports, Space Science, Politics]
 export const CONFUSION_MATRIX = {
-  labels: ["Graphics", "Baseball", "Space", "Politics"],
+  labels: ["Graphics", "Sports", "Space", "Politics"],
   matrix: [
     [174, 3, 11, 3],   // Actual Graphics: 174 correctly classified
-    [2, 182, 4, 2],    // Actual Baseball: 182 correctly classified
+    [2, 182, 4, 2],    // Actual Sports: 182 correctly classified
     [9, 5, 172, 5],    // Actual Space: 172 correctly classified
     [12, 6, 12, 119]   // Actual Politics: 119 correctly classified
   ]

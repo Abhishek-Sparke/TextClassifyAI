@@ -43,9 +43,7 @@ def get_category_icon(category_name: str, raw_class: str = "") -> str:
         return "💻"
     elif any(k in combined for k in ["graphic", "rendering", "3d", "art", "design", "comp.graphics"]):
         return "🎨"
-    elif any(k in combined for k in ["baseball"]):
-        return "⚾"
-    elif any(k in combined for k in ["sport", "soccer", "game", "hockey"]):
+    elif any(k in combined for k in ["sport", "baseball", "soccer", "game", "hockey"]):
         return "⚽"
     elif any(k in combined for k in ["politic", "congress", "law", "government"]):
         return "🏛️"
@@ -59,7 +57,7 @@ def get_category_icon(category_name: str, raw_class: str = "") -> str:
 
 CATEGORY_NAMES = {
     "comp.graphics": "Computer Graphics",
-    "rec.sport.baseball": "Baseball",
+    "rec.sport.baseball": "Sports",
     "sci.space": "Space Science",
     "talk.politics.misc": "Politics"
 }
