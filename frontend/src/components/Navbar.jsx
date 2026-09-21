@@ -15,11 +15,11 @@ import {
 
 export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode, apiStatus }) {
   const navItems = [
-    { id: 'playground', label: 'Predict Playground', icon: Sparkles },
-    { id: 'benchmarks', label: 'Model Benchmarks', icon: BarChart3 },
+    { id: 'playground', label: 'Classify', icon: Sparkles },
+    { id: 'benchmarks', label: 'Analytics', icon: BarChart3 },
+    { id: 'dataset', label: 'Dataset', icon: Database },
+    { id: 'pipeline', label: 'How It Works', icon: GitFork },
     { id: 'confusion', label: 'Confusion Matrix', icon: Grid3X3 },
-    { id: 'pipeline', label: 'NLP Pipeline', icon: GitFork },
-    { id: 'dataset', label: 'Dataset & Classes', icon: Database },
   ];
 
   return (

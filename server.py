@@ -27,11 +27,35 @@ from src.models import get_prediction_probabilities
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
 
 CATEGORY_ICONS = {
-    "comp.graphics": "💻",
+    "comp.graphics": "🎨",
     "rec.sport.baseball": "⚾",
     "sci.space": "🚀",
-    "talk.politics.misc": "🏛️"
+    "talk.politics.misc": "🏛️",
+    "rec.autos": "🚗",
+    "sci.med": "🩺"
 }
+
+def get_category_icon(category_name: str, raw_class: str = "") -> str:
+    combined = f"{category_name} {raw_class}".lower()
+    if any(k in combined for k in ["business", "trade", "revenue", "profit", "finance", "investor", "market"]):
+        return "💼"
+    elif any(k in combined for k in ["tech", "computer", "hardware", "software", "sys", "gpu", "compiler"]):
+        return "💻"
+    elif any(k in combined for k in ["graphic", "rendering", "3d", "art", "design", "comp.graphics"]):
+        return "🎨"
+    elif any(k in combined for k in ["baseball"]):
+        return "⚾"
+    elif any(k in combined for k in ["sport", "soccer", "game", "hockey"]):
+        return "⚽"
+    elif any(k in combined for k in ["politic", "congress", "law", "government"]):
+        return "🏛️"
+    elif any(k in combined for k in ["entertain", "movie", "film", "cinema", "music"]):
+        return "🎬"
+    elif any(k in combined for k in ["space", "nasa", "astronomy", "telescope", "orbit", "sci.space"]):
+        return "🚀"
+    elif any(k in combined for k in ["auto", "car", "engine", "vehicle", "rec.autos"]):
+        return "🚗"
+    return CATEGORY_ICONS.get(raw_class, "📄")
 
 CATEGORY_NAMES = {
     "comp.graphics": "Computer Graphics",
@@ -123,17 +147,18 @@ async def classify_text(request):
     prediction_idx = model.predict(vector)[0]
     category_id = categories[prediction_idx] if prediction_idx < len(categories) else str(prediction_idx)
     category_name = CATEGORY_NAMES.get(category_id, category_id)
-    icon = CATEGORY_ICONS.get(category_id, "📄")
+    icon = get_category_icon(category_name, category_id)
 
     # 5. Probabilities
     probs = get_prediction_probabilities(model, vector)[0]
     prob_distribution = []
     for i, p in enumerate(probs):
         c_id = categories[i] if i < len(categories) else f"cat_{i}"
+        c_name = CATEGORY_NAMES.get(c_id, c_id)
         prob_distribution.append({
             "categoryId": c_id,
-            "name": CATEGORY_NAMES.get(c_id, c_id),
-            "icon": CATEGORY_ICONS.get(c_id, "📄"),
+            "name": c_name,
+            "icon": get_category_icon(c_name, c_id),
             "probability": round(float(p) * 100, 2)
         })
     prob_distribution.sort(key=lambda x: x["probability"], reverse=True)

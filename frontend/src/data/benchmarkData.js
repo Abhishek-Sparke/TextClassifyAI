@@ -135,32 +135,39 @@ export const CONFUSION_MATRIX = {
 
 export const SAMPLE_DOCUMENTS = [
   {
-    title: "James Webb Deep Field & Planetary Orbit",
-    category: "Space Science",
-    icon: "🚀",
-    preview: "The space telescope captured deep field infrared spectroscopy of newly discovered nebulae in orbit around distant stars...",
-    fullText: "The James Webb Space Telescope and Hubble instruments have captured extraordinary deep-space spectra of distant stellar nebulae. NASA scientists and astrophysicists are analyzing orbital trajectories and gravitational anomalies to calibrate propulsion thrust for deep-space probes exploring the outer solar system."
-  },
-  {
-    title: "Major League Baseball Game Final Inning",
-    category: "Baseball",
-    icon: "⚾",
-    preview: "The starting pitcher tossed a two-hit shutout into the ninth inning before a dramatic walk-off grand slam...",
-    fullText: "The starting pitcher dominated the game with eleven strikeouts across eight scoreless innings. In the bottom of the ninth, with two runners on base, the batter crushed a 98-mph fastball over the left field wall for a game-winning home run, thrilling the stadium crowd."
-  },
-  {
     title: "Real-time Raytracing & Shader Rendering",
-    category: "Computer Graphics",
+    category: "Technology",
     icon: "💻",
-    preview: "Modern 3D graphics hardware accelerates real-time raytracing shaders and polygon rasterization using compute cores...",
-    fullText: "Next-generation GPU architectures compute real-time ray-traced reflections and global illumination using dedicated hardware shaders. High-resolution texture buffers and anti-aliasing passes ensure photorealistic rendering of complex 3D polygon meshes at 120 frames per second."
+    preview: "Modern 3D graphics hardware accelerates real-time raytracing shaders and polygon rasterization...",
+    fullText: "Modern real-time ray tracing requires hardware-accelerated GPUs with dedicated shader cores. The 3D rendering pipeline transforms polygon meshes and texture maps using Vulkan and DirectX, computing vertex lighting, anti-aliasing, reflections, and shadow maps at high refresh rates."
   },
   {
-    title: "Congressional Debate on International Treaties",
+    title: "Major League Baseball Championship Game",
+    category: "Sports",
+    icon: "⚾",
+    preview: "The starting pitcher delivered a dominant performance with nine strikeouts over seven scoreless innings...",
+    fullText: "The starting pitcher delivered a dominant performance with nine strikeouts over seven scoreless innings. In the bottom of the ninth, the clean-up hitter drove in two runs with a solid line drive over the outfield fence, securing the championship victory as the stadium erupted."
+  },
+  {
+    title: "Quarterly Financial Growth & Earnings",
+    category: "Business",
+    icon: "💼",
+    preview: "The company reported increased revenue during the financial quarter. Investors are expecting stronger profits...",
+    fullText: "The company reported increased revenue during the financial quarter. Investors are expecting stronger profits as the organization expands its products into international markets."
+  },
+  {
+    title: "Congressional Legislative Debate & Reform",
     category: "Politics",
     icon: "🏛️",
-    preview: "The senate held a bipartisan debate on foreign trade treaties, budget expenditures, and executive appointments...",
-    fullText: "Congressional lawmakers convened to debate the ratification of international trade pacts, federal fiscal policy, and judicial confirmations. Both majority and minority committee members presented arguments regarding executive authority, public taxation, and constitutional civil rights protections."
+    preview: "Congress held an extensive legislative debate on national fiscal reform, international trade treaties...",
+    fullText: "Congress held an extensive legislative debate on national fiscal reform, international trade treaties, and civil rights. Leaders presented constitutional arguments regarding government budget allocation, judicial oversight, and executive appointments."
+  },
+  {
+    title: "International Cinema Awards & Directing",
+    category: "Entertainment",
+    icon: "🎬",
+    preview: "The critically acclaimed feature film received multiple nominations at the international cinema awards...",
+    fullText: "The critically acclaimed feature film received multiple nominations at the international cinema awards. Critics praised the director's visionary storytelling, the orchestral musical score, and the lead actor's stirring theatrical performance."
   }
 ];
 
