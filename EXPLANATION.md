@@ -1,7 +1,7 @@
 # Project Explanation & Technical Documentation
 
 **Project Name:** Classifying Text Documents Using Machine Learning  
-**Repository:** [Abhishek-Sparke/mlproj](https://github.com/Abhishek-Sparke/mlproj)  
+**Repository:** [Abhishek-Sparke/TextClassifyAI](https://github.com/Abhishek-Sparke/TextClassifyAI)  
 **Domain:** Natural Language Processing (NLP) & Supervised Machine Learning  
 
 ---
