@@ -12,10 +12,16 @@ import {
   AlertCircle,
   Copy,
   BookOpen,
-  Filter
+  Filter,
+  UploadCloud,
+  PlusCircle,
+  FileText,
+  Trash2,
+  FolderOpen
 } from 'lucide-react';
 import { SAMPLE_DOCUMENTS, MODEL_PERFORMANCE, CATEGORIES } from '../data/benchmarkData';
-import { classifyDocument } from '../services/api';
+import { classifyDocument, readDocumentFile } from '../services/api';
+import DocumentUploadModal from './DocumentUploadModal';
 
 export default function Playground({ apiStatus }) {
   const [inputText, setInputText] = useState(SAMPLE_DOCUMENTS[0].fullText);
@@ -24,6 +30,21 @@ export default function Playground({ apiStatus }) {
   const [result, setResult] = useState(null);
   const [showPreprocessed, setShowPreprocessed] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  // User Documents Library state (persisted to localStorage)
+  const [userDocuments, setUserDocuments] = useState(() => {
+    try {
+      const saved = localStorage.getItem('textclassify_user_docs');
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
+  const [exampleTab, setExampleTab] = useState('presets'); // 'presets' | 'custom'
+  const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
+  const [activeFileMeta, setActiveFileMeta] = useState(null);
+  const [isDragOver, setIsDragOver] = useState(false);
+
 
   // Compute word & char counts
   const charCount = inputText.length;
@@ -59,12 +80,89 @@ export default function Playground({ apiStatus }) {
   const handleClear = () => {
     setInputText('');
     setResult(null);
+    setActiveFileMeta(null);
   };
 
   const handleCopyText = () => {
     navigator.clipboard.writeText(inputText);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  // Add Custom Document to Library
+  const handleAddDocument = (newDoc) => {
+    const updated = [newDoc, ...userDocuments];
+    setUserDocuments(updated);
+    try {
+      localStorage.setItem('textclassify_user_docs', JSON.stringify(updated));
+    } catch (err) {
+      console.error("Failed to save to localStorage:", err);
+    }
+    setExampleTab('custom');
+    setInputText(newDoc.fullText);
+    handleClassify(newDoc.fullText, selectedModel);
+  };
+
+  // Delete Custom Document from Library
+  const handleDeleteDocument = (docId, e) => {
+    e.stopPropagation();
+    const updated = userDocuments.filter(d => d.id !== docId);
+    setUserDocuments(updated);
+    try {
+      localStorage.setItem('textclassify_user_docs', JSON.stringify(updated));
+    } catch (err) {
+      console.error("Failed to save to localStorage:", err);
+    }
+  };
+
+  // Direct File Upload into Playground
+  const handleDirectFileUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const parsed = await readDocumentFile(file);
+      setActiveFileMeta({
+        name: parsed.filename,
+        size: (parsed.size / 1024).toFixed(1) + ' KB',
+        words: parsed.wordCount
+      });
+      setInputText(parsed.text);
+      handleClassify(parsed.text, selectedModel);
+    } catch (err) {
+      console.error("File upload failed:", err);
+    }
+  };
+
+  // Drag and Drop on Input Area
+  const handleInputDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setIsDragOver(true);
+    } else if (e.type === "dragleave") {
+      setIsDragOver(false);
+    }
+  };
+
+  const handleInputDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0];
+      try {
+        const parsed = await readDocumentFile(file);
+        setActiveFileMeta({
+          name: parsed.filename,
+          size: (parsed.size / 1024).toFixed(1) + ' KB',
+          words: parsed.wordCount
+        });
+        setInputText(parsed.text);
+        handleClassify(parsed.text, selectedModel);
+      } catch (err) {
+        console.error("Drop failed:", err);
+      }
+    }
   };
 
   // Preprocessed text preview generator for client preview
@@ -100,29 +198,117 @@ export default function Playground({ apiStatus }) {
         </div>
       </div>
 
-      {/* Compact TRY AN EXAMPLE toolbar */}
-      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-2.5">
-          <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-            <BookOpen className="w-3.5 h-3.5 text-indigo-500" />
-            TRY AN EXAMPLE
-          </span>
-          <span className="text-[11px] text-slate-400">Click any preset to populate document</span>
-        </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
-          {SAMPLE_DOCUMENTS.map((sample, idx) => (
+      {/* DOCUMENT PRESET & CUSTOM DOCUMENTS TOOLBAR */}
+      <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-4 shadow-sm space-y-3">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          
+          {/* Tab Switcher: Presets vs My Documents */}
+          <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl">
             <button
-              key={idx}
-              onClick={() => handleSampleClick(sample)}
-              className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30 transition-all text-left group"
+              onClick={() => setExampleTab('presets')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                exampleTab === 'presets'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
             >
-              <span className="text-base">{sample.icon}</span>
-              <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
-                {sample.category}
-              </span>
+              <BookOpen className="w-3.5 h-3.5" />
+              Standard Presets
             </button>
-          ))}
+            <button
+              onClick={() => setExampleTab('custom')}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                exampleTab === 'custom'
+                  ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-xs'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <FolderOpen className="w-3.5 h-3.5" />
+              My Documents
+              {userDocuments.length > 0 && (
+                <span className="px-1.5 py-0.2 rounded-full text-[10px] bg-indigo-100 dark:bg-indigo-950 text-indigo-700 dark:text-indigo-300">
+                  {userDocuments.length}
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Quick Add / Upload Document Button */}
+          <button
+            onClick={() => setIsUploadModalOpen(true)}
+            className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold transition-all shadow-xs hover:shadow-indigo-500/25"
+          >
+            <PlusCircle className="w-3.5 h-3.5" />
+            + Add Document
+          </button>
         </div>
+
+        {/* Presets List */}
+        {exampleTab === 'presets' && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 pt-1">
+            {SAMPLE_DOCUMENTS.map((sample, idx) => (
+              <button
+                key={idx}
+                onClick={() => handleSampleClick(sample)}
+                className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 hover:border-indigo-500 dark:hover:border-indigo-500 hover:bg-indigo-50/50 dark:hover:bg-indigo-950/30 transition-all text-left group"
+              >
+                <span className="text-base">{sample.icon}</span>
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                  {sample.category}
+                </span>
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* User Added Custom Documents */}
+        {exampleTab === 'custom' && (
+          <div className="pt-1">
+            {userDocuments.length > 0 ? (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2.5">
+                {userDocuments.map((doc) => (
+                  <div
+                    key={doc.id}
+                    onClick={() => {
+                      setInputText(doc.fullText);
+                      handleClassify(doc.fullText, selectedModel);
+                    }}
+                    className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 hover:border-indigo-500 hover:bg-indigo-50/30 dark:hover:bg-indigo-950/30 transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0 pr-2">
+                      <span className="text-base shrink-0">{doc.icon || '📄'}</span>
+                      <div className="min-w-0">
+                        <div className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400">
+                          {doc.title}
+                        </div>
+                        <div className="text-[10px] text-slate-400 truncate">
+                          {doc.wordCount || doc.fullText.split(/\s+/).length} words • {doc.category || 'Custom'}
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      onClick={(e) => handleDeleteDocument(doc.id, e)}
+                      title="Delete document"
+                      className="p-1 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors shrink-0"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-6 border-2 border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                <FileText className="w-6 h-6 text-slate-400 mx-auto mb-1.5" />
+                <div className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                  No custom documents added yet
+                </div>
+                <div className="text-[11px] text-slate-400 mt-0.5">
+                  Click the "+ Add Document" button above to add custom articles or import files.
+                </div>
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Main Two-Column Playground Layout */}
@@ -159,20 +345,43 @@ export default function Playground({ apiStatus }) {
           </div>
 
           {/* Text Input Card */}
-          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-3">
-            <div className="flex items-center justify-between">
+          <div 
+            onDragEnter={handleInputDrag}
+            onDragLeave={handleInputDrag}
+            onDragOver={handleInputDrag}
+            onDrop={handleInputDrop}
+            className={`bg-white dark:bg-slate-900 rounded-2xl border transition-all p-5 shadow-sm space-y-3 ${
+              isDragOver 
+                ? 'border-indigo-500 ring-2 ring-indigo-500/20 bg-indigo-50/20 dark:bg-indigo-950/20' 
+                : 'border-slate-200 dark:border-slate-800'
+            }`}
+          >
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <span className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
                   DOCUMENT INPUT
                 </span>
-                <span className="text-xs text-slate-400 dark:text-slate-500">
-                  "Paste the text you want to classify."
+                <span className="text-xs text-slate-400 dark:text-slate-500 hidden sm:inline">
+                  "Paste text or drop a file"
                 </span>
               </div>
-              <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400">
+              
+              <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+                {/* Upload File Button */}
+                <label className="cursor-pointer hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700">
+                  <UploadCloud className="w-3.5 h-3.5" />
+                  <span>Upload File</span>
+                  <input
+                    type="file"
+                    onChange={handleDirectFileUpload}
+                    accept=".txt,.md,.json,.csv"
+                    className="hidden"
+                  />
+                </label>
+
                 <button
                   onClick={handleCopyText}
-                  className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors flex items-center gap-1"
+                  className="hover:text-slate-800 dark:hover:text-slate-200 transition-colors flex items-center gap-1 px-1.5 py-1"
                   title="Copy text"
                 >
                   <Copy className="w-3.5 h-3.5" />
@@ -180,7 +389,7 @@ export default function Playground({ apiStatus }) {
                 </button>
                 <button
                   onClick={handleClear}
-                  className="hover:text-red-600 dark:hover:text-red-400 transition-colors flex items-center gap-1"
+                  className="hover:text-red-600 dark:hover:text-red-400 transition-colors flex items-center gap-1 px-1.5 py-1"
                   title="Clear text"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
@@ -188,6 +397,23 @@ export default function Playground({ apiStatus }) {
                 </button>
               </div>
             </div>
+
+            {/* Active File Loaded Indicator */}
+            {activeFileMeta && (
+              <div className="flex items-center justify-between px-3 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800/80 text-indigo-700 dark:text-indigo-300 text-xs">
+                <div className="flex items-center gap-2">
+                  <FileText className="w-3.5 h-3.5" />
+                  <span className="font-semibold">{activeFileMeta.name}</span>
+                  <span className="text-indigo-400 dark:text-indigo-400">({activeFileMeta.size} • {activeFileMeta.words} words)</span>
+                </div>
+                <button 
+                  onClick={() => setActiveFileMeta(null)}
+                  className="text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-200"
+                >
+                  ✕
+                </button>
+              </div>
+            )}
 
             <div className="relative">
               <textarea
@@ -199,7 +425,7 @@ export default function Playground({ apiStatus }) {
                     handleClassify();
                   }
                 }}
-                placeholder="Paste news articles, technical document abstracts, science reports, or political debates here..."
+                placeholder="Paste news articles, technical document abstracts, science reports, political debates, or drag and drop files here..."
                 className="w-full p-4 rounded-xl text-sm leading-relaxed bg-slate-50 dark:bg-slate-950/70 border border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 placeholder:text-slate-400 dark:placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all font-sans resize-y"
               />
             </div>
@@ -410,6 +636,15 @@ export default function Playground({ apiStatus }) {
 
       </div>
 
+      {/* Add / Upload Document Modal */}
+      <DocumentUploadModal
+        isOpen={isUploadModalOpen}
+        onClose={() => setIsUploadModalOpen(false)}
+        onAddDocument={handleAddDocument}
+        selectedModel={selectedModel}
+      />
+
     </div>
   );
 }
+

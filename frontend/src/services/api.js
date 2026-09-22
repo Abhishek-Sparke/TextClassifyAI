@@ -181,3 +181,125 @@ export async function classifyDocument(text, modelId = "svm") {
     }, 280); // brief realistic latency
   });
 }
+
+/**
+ * Classifies multiple documents in bulk with backend and client-side fallbacks
+ */
+export async function classifyBatchDocuments(documents, modelId = "svm") {
+  try {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 4000);
+
+    const response = await fetch("http://localhost:8000/api/classify-batch", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ documents, model: modelId }),
+      signal: controller.signal
+    });
+
+    clearTimeout(timeoutId);
+
+    if (response.ok) {
+      return await response.json();
+    }
+  } catch (err) {
+    // Fallback to client side loop
+  }
+
+  // Client-side batch fallback
+  const results = [];
+  const startTime = performance.now();
+  for (let i = 0; i < documents.length; i++) {
+    const doc = documents[i];
+    const text = doc.text || "";
+    if (!text.trim()) continue;
+    const pred = runClientSideInference(text, modelId);
+    results.push({
+      id: doc.id || `doc_${i + 1}`,
+      title: doc.title || `Document ${i + 1}`,
+      category: pred.category,
+      categoryId: pred.categoryId,
+      icon: pred.icon,
+      confidence: pred.confidence,
+      topKeywords: pred.topKeywords,
+      wordCount: text.trim().split(/\s+/).length,
+      snippet: text.slice(0, 180) + (text.length > 180 ? "..." : "")
+    });
+  }
+
+  return {
+    results,
+    total: results.length,
+    modelUsed: modelId,
+    processingTime: Number(((performance.now() - startTime) / 1000).toFixed(2))
+  };
+}
+
+/**
+ * Parses uploaded file (txt, md, json, csv) into text content and metadata
+ */
+export function readDocumentFile(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = (e) => {
+      const content = e.target.result;
+      const extension = file.name.split('.').pop().toLowerCase();
+      let extractedText = content;
+      let parsedBatch = null;
+
+      // Special handling for JSON (supports single doc or array of docs)
+      if (extension === 'json') {
+        try {
+          const parsed = JSON.parse(content);
+          if (Array.isArray(parsed)) {
+            parsedBatch = parsed.map((item, idx) => ({
+              id: item.id || idx + 1,
+              title: item.title || item.name || `Record ${idx + 1}`,
+              text: item.text || item.content || item.body || JSON.stringify(item)
+            }));
+            extractedText = parsedBatch[0]?.text || content;
+          } else if (typeof parsed === 'object') {
+            extractedText = parsed.text || parsed.content || parsed.body || content;
+          }
+        } catch (err) {
+          extractedText = content;
+        }
+      } 
+      // Special handling for CSV (extract lines or text column)
+      else if (extension === 'csv') {
+        const lines = content.split(/\r?\n/).filter(line => line.trim().length > 0);
+        if (lines.length > 1) {
+          const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
+          const textIdx = headers.findIndex(h => h.includes('text') || h.includes('document') || h.includes('content') || h.includes('body'));
+          
+          if (textIdx !== -1) {
+            parsedBatch = lines.slice(1).map((line, idx) => {
+              const parts = line.split(',');
+              const textVal = parts[textIdx] ? parts[textIdx].replace(/^["']|["']$/g, '').trim() : line;
+              return {
+                id: idx + 1,
+                title: `Row ${idx + 1}`,
+                text: textVal
+              };
+            }).filter(d => d.text.length > 0);
+            extractedText = parsedBatch[0]?.text || content;
+          }
+        }
+      }
+
+      resolve({
+        filename: file.name,
+        size: file.size,
+        type: file.type || 'text/plain',
+        text: extractedText,
+        wordCount: extractedText.trim() ? extractedText.trim().split(/\s+/).length : 0,
+        batchItems: parsedBatch
+      });
+    };
+
+    reader.onerror = (err) => reject(err);
+    reader.readAsText(file);
+  });
+}
+

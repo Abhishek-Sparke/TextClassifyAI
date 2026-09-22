@@ -182,12 +182,116 @@ async def classify_text(request):
     })
 
 
+async def classify_batch(request):
+    try:
+        data = await request.json()
+    except Exception:
+        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+
+    docs = data.get("documents", [])
+    model_id = data.get("model", "svm")
+
+    if not isinstance(docs, list) or len(docs) == 0:
+        return JSONResponse({"error": "documents must be a non-empty list"}, status_code=400)
+
+    start_time = time.time()
+
+    id_mapping = {
+        "svm": "Support Vector Machine",
+        "logistic_regression": "Logistic Regression",
+        "naive_bayes": "Multinomial Naive Bayes",
+        "random_forest": "Random Forest"
+    }
+    model_key = id_mapping.get(model_id, "Support Vector Machine")
+    model = models_dict.get(model_key, best_model)
+
+    results = []
+    for doc in docs:
+        doc_id = doc.get("id") or doc.get("title") or f"doc_{len(results)+1}"
+        title = doc.get("title", f"Document {len(results)+1}")
+        raw_text = doc.get("text", "").strip()
+
+        if not raw_text:
+            continue
+
+        clean_text = preprocess_document(raw_text, apply_lemmatization=True)
+        if not clean_text.strip():
+            clean_text = raw_text.lower()
+
+        vector = vectorizer.transform([clean_text])
+        prediction_idx = model.predict(vector)[0]
+        cat_id = categories[prediction_idx] if prediction_idx < len(categories) else str(prediction_idx)
+        cat_name = CATEGORY_NAMES.get(cat_id, cat_id)
+        icon = get_category_icon(cat_name, cat_id)
+
+        probs = get_prediction_probabilities(model, vector)[0]
+        confidence = round(float(np.max(probs)) * 100, 2) if len(probs) > 0 else 99.0
+
+        keywords_raw = get_top_tfidf_terms_for_document(vectorizer, vector, top_n=5)
+        top_keywords = [{"term": term, "weight": round(float(w), 3)} for term, w in keywords_raw]
+
+        word_count = len(raw_text.split())
+
+        results.append({
+            "id": doc_id,
+            "title": title,
+            "category": cat_name,
+            "categoryId": cat_id,
+            "icon": icon,
+            "confidence": confidence,
+            "topKeywords": top_keywords,
+            "wordCount": word_count,
+            "snippet": raw_text[:180] + ("..." if len(raw_text) > 180 else "")
+        })
+
+    elapsed = round(time.time() - start_time, 3)
+
+    return JSONResponse({
+        "results": results,
+        "total": len(results),
+        "modelUsed": model_key,
+        "processingTime": elapsed
+    })
+
+
+async def upload_document(request):
+    try:
+        form = await request.form()
+        uploaded_file = form.get("file")
+        if not uploaded_file:
+            return JSONResponse({"error": "No file uploaded in form data"}, status_code=400)
+
+        contents = await uploaded_file.read()
+        filename = uploaded_file.filename or "uploaded_document.txt"
+        
+        # Decode contents
+        try:
+            text = contents.decode("utf-8")
+        except UnicodeDecodeError:
+            try:
+                text = contents.decode("latin-1")
+            except Exception:
+                text = str(contents)
+
+        words = text.split()
+        return JSONResponse({
+            "filename": filename,
+            "size": len(contents),
+            "wordCount": len(words),
+            "text": text
+        })
+    except Exception as e:
+        return JSONResponse({"error": f"Upload failed: {str(e)}"}, status_code=500)
+
+
 # -----------------------------------------------------------------------------
 # Starlette Application Setup with CORS
 # -----------------------------------------------------------------------------
 routes = [
     Route("/api/health", health_check, methods=["GET"]),
     Route("/api/classify", classify_text, methods=["POST"]),
+    Route("/api/classify-batch", classify_batch, methods=["POST"]),
+    Route("/api/upload", upload_document, methods=["POST"]),
 ]
 
 middleware = [

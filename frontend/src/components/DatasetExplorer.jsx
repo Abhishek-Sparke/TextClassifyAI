@@ -146,6 +146,67 @@ export default function DatasetExplorer() {
         ))}
       </div>
 
+      {/* User Added Documents Section */}
+      {(() => {
+        let userDocs = [];
+        try {
+          const saved = localStorage.getItem('textclassify_user_docs');
+          if (saved) userDocs = JSON.parse(saved);
+        } catch (e) {}
+
+        return (
+          <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-indigo-50 dark:bg-indigo-950/60 border border-indigo-200 dark:border-indigo-800 flex items-center justify-center text-indigo-600 dark:text-indigo-400">
+                  <FileText className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900 dark:text-white">
+                    User-Added Documents Library
+                  </h3>
+                  <p className="text-xs text-slate-400">
+                    Custom documents added by you via the Playground or document upload
+                  </p>
+                </div>
+              </div>
+              <span className="px-3 py-1 rounded-full text-xs font-bold bg-indigo-50 dark:bg-indigo-950 text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800">
+                {userDocs.length} Custom Documents
+              </span>
+            </div>
+
+            {userDocs.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {userDocs.map((doc, idx) => (
+                  <div key={idx} className="p-3.5 rounded-xl bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-800 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <div className="text-xs font-bold text-slate-800 dark:text-slate-200 truncate flex items-center gap-1.5">
+                        <span>{doc.icon || '📄'}</span>
+                        <span className="truncate">{doc.title}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {doc.wordCount || doc.fullText.split(/\s+/).length} words
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 line-clamp-2">
+                      {doc.fullText}
+                    </p>
+                    <div className="text-[10px] font-semibold text-indigo-600 dark:text-indigo-400">
+                      Category: {doc.category || 'Custom'}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-xs text-slate-400 py-3 text-center border border-dashed border-slate-200 dark:border-slate-800 rounded-xl">
+                No custom documents saved yet. You can add documents in the Playground tab.
+              </div>
+            )}
+          </div>
+        );
+      })()}
+
     </div>
   );
 }
+

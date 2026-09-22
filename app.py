@@ -712,6 +712,10 @@ def main():
         st.session_state.last_prediction = None
     if 'recent_classifications' not in st.session_state:
         st.session_state.recent_classifications = []
+    if 'user_documents' not in st.session_state:
+        st.session_state.user_documents = []
+    if 'batch_results' not in st.session_state:
+        st.session_state.batch_results = None
 
     vectorizer, best_model, all_models, metadata = load_project_artifacts()
 
@@ -915,22 +919,165 @@ def main():
                 </div>
             ''', unsafe_allow_html=True)
 
-            # Compact "TRY AN EXAMPLE" toolbar
-            st.markdown("<div style='font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;'>TRY AN EXAMPLE</div>", unsafe_allow_html=True)
-            
-            ex_cols = st.columns(len(EXAMPLE_DOCUMENTS))
-            for i, (ex_label, ex_text) in enumerate(EXAMPLE_DOCUMENTS.items()):
-                with ex_cols[i]:
-                    if st.button(ex_label, key=f"btn_ex_{i}", use_container_width=True):
-                        st.session_state.doc_input = ex_text
+            # Document Source Tabs: Standard Examples vs My Documents
+            tab_src_1, tab_src_2 = st.tabs(["📚 Standard Presets", f"📁 My Documents ({len(st.session_state.user_documents)})"])
+
+            with tab_src_1:
+                st.markdown("<div style='font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;'>SELECT EXAMPLE</div>", unsafe_allow_html=True)
+                ex_cols = st.columns(len(EXAMPLE_DOCUMENTS))
+                for i, (ex_label, ex_text) in enumerate(EXAMPLE_DOCUMENTS.items()):
+                    with ex_cols[i]:
+                        if st.button(ex_label, key=f"btn_ex_{i}", use_container_width=True):
+                            st.session_state.doc_input = ex_text
+                            st.rerun()
+
+            with tab_src_2:
+                if st.session_state.user_documents:
+                    st.markdown("<div style='font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;'>SAVED CUSTOM DOCUMENTS</div>", unsafe_allow_html=True)
+                    for idx, udoc in enumerate(st.session_state.user_documents):
+                        col_doc_btn, col_doc_del = st.columns([5, 1])
+                        with col_doc_btn:
+                            doc_title = udoc.get('title', f'Document {idx+1}')
+                            doc_cat = udoc.get('category', 'Custom')
+                            if st.button(f"📄 {doc_title} ({doc_cat})", key=f"btn_udoc_{idx}", use_container_width=True):
+                                st.session_state.doc_input = udoc.get('text', '')
+                                st.rerun()
+                        with col_doc_del:
+                            if st.button("🗑️", key=f"btn_del_udoc_{idx}", help="Delete document"):
+                                st.session_state.user_documents.pop(idx)
+                                st.rerun()
+                else:
+                    st.caption("No custom documents added yet. Use the 'Add Document' form below to save custom text.")
+
+            # Expander 1: Upload Document File
+            with st.expander("📂 Upload Document File (.txt, .md, .csv, .json)"):
+                uploaded_doc = st.file_uploader(
+                    "Choose a document file",
+                    type=["txt", "md", "csv", "json"],
+                    key="st_doc_file_uploader",
+                    label_visibility="collapsed"
+                )
+                if uploaded_doc is not None:
+                    try:
+                        raw_bytes = uploaded_doc.read()
+                        try:
+                            file_str = raw_bytes.decode('utf-8')
+                        except UnicodeDecodeError:
+                            file_str = raw_bytes.decode('latin-1', errors='ignore')
+
+                        fname = uploaded_doc.name
+                        ext = fname.split('.')[-1].lower()
+
+                        # Extract text from json/csv if appropriate
+                        if ext == 'json':
+                            try:
+                                j_data = json.loads(file_str)
+                                if isinstance(j_data, list):
+                                    file_str = "\n\n".join([item.get('text', item.get('content', str(item))) for item in j_data if isinstance(item, dict)])
+                                elif isinstance(j_data, dict):
+                                    file_str = j_data.get('text', j_data.get('content', file_str))
+                            except Exception:
+                                pass
+                        elif ext == 'csv':
+                            try:
+                                df_uploaded = pd.read_csv(pd.io.common.BytesIO(raw_bytes))
+                                text_cols = [c for c in df_uploaded.columns if any(k in c.lower() for k in ['text', 'content', 'body', 'doc'])]
+                                if text_cols:
+                                    file_str = "\n\n".join(df_uploaded[text_cols[0]].dropna().astype(str).tolist())
+                            except Exception:
+                                pass
+
+                        st.session_state.doc_input = file_str
+                        st.success(f"✅ Loaded '{fname}' ({len(raw_bytes)/1024:.1f} KB, {len(file_str.split())} words)")
+                    except Exception as e:
+                        st.error(f"Error reading file: {e}")
+
+            # Expander 2: Add to Custom Library (My Documents)
+            with st.expander("➕ Save Current Document to My Documents"):
+                save_title = st.text_input("Document Title", placeholder="e.g. James Webb Telescope Science Bulletin", key="input_save_title")
+                save_cat = st.selectbox("Assign Category", ["Auto-detect"] + list(categories), key="select_save_cat")
+                if st.button("Save to Library", key="btn_save_to_lib"):
+                    if st.session_state.doc_input.strip():
+                        new_item = {
+                            "title": save_title.strip() or f"Doc {len(st.session_state.user_documents)+1}",
+                            "text": st.session_state.doc_input.strip(),
+                            "category": save_cat,
+                            "time": time.strftime("%H:%M")
+                        }
+                        st.session_state.user_documents.append(new_item)
+                        st.success(f"Saved '{new_item['title']}' to My Documents!")
                         st.rerun()
+                    else:
+                        st.warning("Please enter or upload document text first.")
+
+            # Expander 3: Batch Document Classification
+            with st.expander("⚡ Batch Process Multiple Documents"):
+                st.caption("Upload multiple text files or a CSV with a 'text' column to classify in bulk.")
+                batch_files = st.file_uploader(
+                    "Upload files for batch processing",
+                    type=["txt", "md", "csv"],
+                    accept_multiple_files=True,
+                    key="batch_file_uploader"
+                )
+                if batch_files and st.button("Run Batch Classification", key="btn_run_batch"):
+                    batch_records = []
+                    for b_file in batch_files:
+                        b_bytes = b_file.read()
+                        try:
+                            b_text = b_bytes.decode('utf-8')
+                        except UnicodeDecodeError:
+                            b_text = b_bytes.decode('latin-1', errors='ignore')
+
+                        if b_file.name.endswith('.csv'):
+                            try:
+                                df_b = pd.read_csv(pd.io.common.BytesIO(b_bytes))
+                                text_c = [c for c in df_b.columns if any(k in c.lower() for k in ['text', 'content', 'body', 'doc'])]
+                                col_name = text_c[0] if text_c else df_b.columns[0]
+                                for r_idx, r_val in enumerate(df_b[col_name].dropna()):
+                                    batch_records.append({"title": f"{b_file.name} (row {r_idx+1})", "text": str(r_val)})
+                            except Exception:
+                                batch_records.append({"title": b_file.name, "text": b_text})
+                        else:
+                            batch_records.append({"title": b_file.name, "text": b_text})
+
+                    if batch_records:
+                        with st.spinner(f"Classifying {len(batch_records)} documents..."):
+                            b_results = []
+                            for rec in batch_records:
+                                c_clean = preprocess_document(rec["text"], apply_lemmatization=True)
+                                vec = vectorizer.transform([c_clean if c_clean.strip() else rec["text"].lower()])
+                                pred_idx = best_model.predict(vec)[0]
+                                cat_id = categories[pred_idx] if pred_idx < len(categories) else str(pred_idx)
+                                cat_name = cat_display.get(cat_id, cat_id)
+                                probs = get_prediction_probabilities(best_model, vec)[0]
+                                conf = round(float(np.max(probs)) * 100, 1) if len(probs) > 0 else 99.0
+                                b_results.append({
+                                    "Document Title": rec["title"],
+                                    "Predicted Category": cat_name,
+                                    "Confidence (%)": conf,
+                                    "Word Count": len(rec["text"].split()),
+                                    "Snippet": rec["text"][:120] + "..."
+                                })
+                            st.session_state.batch_results = b_results
+
+                if st.session_state.batch_results:
+                    df_batch_res = pd.DataFrame(st.session_state.batch_results)
+                    st.dataframe(df_batch_res, use_container_width=True, hide_index=True)
+                    csv_data = df_batch_res.to_csv(index=False).encode('utf-8')
+                    st.download_button(
+                        "📥 Download Batch Results (CSV)",
+                        data=csv_data,
+                        file_name=f"textclassify_batch_{int(time.time())}.csv",
+                        mime="text/csv",
+                        use_container_width=True
+                    )
 
             # Large Textarea
             input_text = st.text_area(
                 "Document Text Area",
                 value=st.session_state.doc_input,
-                height=240,
-                placeholder="Paste the text you want to classify here (e.g. news reports, business analyses, technical articles, research abstracts)...",
+                height=220,
+                placeholder="Paste the text you want to classify here, or use the file uploader above...",
                 label_visibility="collapsed"
             )
             st.session_state.doc_input = input_text
