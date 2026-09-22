@@ -1,0 +1,209 @@
+================================================================================
+PROJECT EXPLANATION: CLASSIFYING TEXT DOCUMENTS USING MACHINE LEARNING
+================================================================================
+
+1. PROJECT OVERVIEW
+--------------------------------------------------------------------------------
+This project is an end-to-end Natural Language Processing (NLP) and Machine
+Learning system for automated multi-class text document categorization, model
+benchmarking, and real-time interactive inference.
+
+With unstructured text growing across news feeds, enterprise knowledge bases, 
+and digital repositories, manual document classification is costly and unscalable.
+This project automates classification by converting raw text into numeric feature
+vectors, training multiple supervised machine learning models, evaluating their
+performance, and deploying the solution through modern interactive interfaces.
+
+
+2. DATASET SPECIFICATION
+--------------------------------------------------------------------------------
+- Corpus: 20 Newsgroups benchmark dataset (via scikit-learn).
+- Default Semantic Categories:
+    1. comp.graphics      - Computer Graphics, 3D Rendering, Algorithms, GPUs
+    2. rec.sport.baseball - Sports, Baseball, Teams, Players, Scores
+    3. sci.space          - Space Science, Astronomy, NASA, Orbit, Planetary
+    4. talk.politics.misc - Governance, Policy, International Relations, Law
+- Total Documents in Selected Subset: 3,613 documents
+- Document Length Range: 1 word to 9,196 words (Mean: ~200 words, Median: 82 words)
+- Data Leakage Prevention:
+    * All newsgroup metadata ('headers', 'footers', 'quotes') is stripped out
+      to prevent classifiers from taking shortcuts on email domains or signatures.
+    * A stratified 80% train / 20% test split is performed BEFORE feature fitting.
+
+
+3. DATA PREPROCESSING PIPELINE
+--------------------------------------------------------------------------------
+Located in: src/preprocessing.py
+
+Raw text documents undergo multi-stage linguistic cleaning:
+1. Missing Value Filtering: Null, non-string, or empty entries are rejected.
+2. Case Normalization: All characters converted to lowercase.
+3. Artifact Removal: Regex patterns strip out email addresses, URLs, and residual
+   header tokens (e.g., 'From:', 'Subject:', 'Lines:').
+4. Punctuation & Noise Stripping: Symbols, special punctuation, and non-ASCII
+   glyphs are removed.
+5. Tokenization: Words are tokenized matching alphabetic strings with length >= 2.
+6. Stopword Removal: Common non-discriminative English words ("the", "is", "at",
+   "which") are removed using the NLTK English stopwords list.
+7. Lemmatization: Words are reduced to canonical dictionary base forms using NLTK's
+   WordNetLemmatizer (e.g., "studying" -> "study", "spaceships" -> "spaceship"),
+   with PorterStemmer as an automatic fallback.
+
+
+4. FEATURE EXTRACTION (TF-IDF)
+--------------------------------------------------------------------------------
+Located in: src/features.py
+
+Text cannot be ingested directly into linear models; it must be mapped into
+numerical vectors using Term Frequency - Inverse Document Frequency (TF-IDF).
+
+- Configuration:
+    * N-gram Range: (1, 2) - captures both individual words and 2-word phrases
+      (e.g., "space shuttle", "computer graphics", "home run").
+    * Maximum Features: 5,000 top vocabulary terms.
+    * Sublinear TF: Replaces term frequency tf with 1 + log(tf), mitigating
+      skew from heavily repeated words in lengthy documents.
+    * Minimum Document Frequency (min_df): 2 occurrences across the corpus.
+    * Normalization: L2 Euclidean norm so vector length does not bias results.
+
+- Data Leakage Guard:
+    * The vectorizer is strictly 'fit' on the training split ONLY.
+    * Test data and live user inputs are strictly 'transformed' using the learned
+      vocabulary and IDF weights.
+
+
+5. MACHINE LEARNING CLASSIFIERS & BENCHMARKS
+--------------------------------------------------------------------------------
+Located in: src/models.py and src/evaluate.py
+
+Four distinct supervised algorithms are trained and compared:
+
+1. Multinomial Naive Bayes (MultinomialNB)
+   - Probabilistic generative model using Bayes' theorem with word independence.
+   - Smoothing: Laplace smoothing (alpha = 0.1).
+   - Strengths: Extremely fast training (0.004s), low memory footprint.
+
+2. Logistic Regression (LogisticRegression)
+   - Linear discriminative classifier with cross-entropy loss.
+   - Regularization: L2 penalty (C = 1.0), solver = 'lbfgs'.
+   - Strengths: High interpretability, well-calibrated confidence probabilities.
+
+3. Support Vector Machine (LinearSVC + CalibratedClassifierCV)
+   - Finds maximum-margin hyperplanes separating category vector clouds.
+   - Calibration: Wrapped with CalibratedClassifierCV (sigmoid / Platt scaling)
+     to generate calibrated class probabilities.
+   - Outcome: Best performing model across all evaluation metrics.
+
+4. Random Forest (RandomForestClassifier)
+   - Ensemble of 150 randomized decision trees.
+   - Strengths: Non-linear decision boundaries, resists extreme outliers.
+
+Experimental Results on 20% Test Split:
++---------------------------+----------+-----------+--------+----------+---------------+
+| Model                     | Accuracy | Precision | Recall | F1-Score | Training Time |
++---------------------------+----------+-----------+--------+----------+---------------+
+| Support Vector Machine    | 89.74%   | 89.75%    | 89.74% | 0.8974   | 0.114 s       |
+| Logistic Regression       | 89.32%   | 89.35%    | 89.32% | 0.8931   | 0.144 s       |
+| Multinomial Naive Bayes   | 89.04%   | 89.06%    | 89.04% | 0.8902   | 0.004 s       |
+| Random Forest             | 83.50%   | 83.74%    | 83.50% | 0.8337   | 0.369 s       |
++---------------------------+----------+-----------+--------+----------+---------------+
+
+
+6. MODEL EXPLAINABILITY & FEATURE ATTRIBUTION
+--------------------------------------------------------------------------------
+To prevent "black-box" decision making, the system provides transparent explainability:
+1. Global Class Salience: Mean TF-IDF scores identify the strongest discriminative
+   vocabulary terms per class (e.g., 'orbit', 'nasa', 'launch' for Space Science).
+2. Local Document Attribution: For every prediction, the top TF-IDF terms from the
+   submitted document are highlighted with their relative weights, explaining exactly
+   why the classifier reached its conclusion.
+
+
+7. APPLICATION ECOSYSTEM & DEPLOYMENT
+--------------------------------------------------------------------------------
+The project provides two independent user interfaces:
+
+A. Streamlit Web App (app.py)
+   - Self-contained web interface with custom dark AI SaaS aesthetic.
+   - Features:
+       * Live document classification with confidence meters.
+       * Probability distribution breakdown across all 4 categories.
+       * Top extracted keyword tags with TF-IDF weights.
+       * Interactive Model Comparison & Benchmark tables.
+       * Dataset Explorer with class distributions and length histograms.
+       * Confusion Matrix heatmaps.
+   - Live URL: https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/
+
+B. Decoupled Web Stack
+   - Backend API (server.py):
+       * Built with Starlette and Uvicorn.
+       * Exposes /api/health and /api/classify endpoints.
+       * Returns predictions, probabilities, extracted keywords, and latencies.
+   - Frontend Dashboard (frontend/):
+       * Modern Single Page Application built with React, Vite, and Tailwind CSS.
+       * Modular components: Playground, ModelBenchmarks, ConfusionMatrix,
+         DatasetExplorer, PipelineViewer.
+
+
+8. PROJECT REPOSITORY STRUCTURE
+--------------------------------------------------------------------------------
+mlproj/
+├── PROJECT_EXPLANATION.txt     # Complete plain-text documentation (this file)
+├── README.md                   # Markdown overview and usage guide
+├── EXPLANATION.md              # In-depth technical guide
+├── app.py                      # Production Streamlit web application
+├── server.py                   # High-performance Starlette REST inference API
+├── train.py                    # End-to-end training, benchmarking & serialization
+├── requirements.txt            # Python dependencies (scikit-learn, streamlit, etc.)
+├── Dockerfile                  # Containerization specification
+│
+├── src/                        # Core modular Python package
+│   ├── __init__.py
+│   ├── dataset.py              # Data loading, stats, and stratified split logic
+│   ├── preprocessing.py        # Text cleaning, regex stripping & lemmatization
+│   ├── features.py             # TF-IDF vectorizer configuration & explainability
+│   ├── models.py               # Model definitions, training, and probability extraction
+│   └── evaluate.py             # Evaluation metrics, confusion matrices, and plots
+│
+├── models/                     # Saved joblib binaries and metadata
+│   ├── best_model.joblib       # Serialized Calibrated Linear SVM
+│   ├── all_models.joblib       # Dictionary containing all 4 trained models
+│   ├── tfidf_vectorizer.joblib # Trained TF-IDF vectorizer (vocabulary & IDF)
+│   └── model_metadata.json     # Benchmark metrics, classes, and dataset statistics
+│
+├── visualizations/             # Generated evaluation charts
+│   ├── confusion_matrices.png  # Heatmaps for all 4 models
+│   ├── model_comparison.png    # Bar chart comparing accuracy and F1-score
+│   ├── class_distribution.png  # Training vs test split distribution
+│   └── top_keywords.png        # Distinctive keywords per class
+│
+└── frontend/                   # Modern React + Vite web dashboard
+    ├── index.html
+    ├── package.json
+    ├── vite.config.js
+    └── src/
+        ├── App.jsx
+        └── components/
+            ├── Playground.jsx       # Interactive text classification UI
+            ├── ModelBenchmarks.jsx  # Accuracy, precision, recall comparison
+            ├── ConfusionMatrix.jsx  # Visual confusion matrix inspector
+            ├── DatasetExplorer.jsx  # Dataset analysis & statistics
+            └── PipelineViewer.jsx   # Architectural flowchart component
+
+
+9. EXECUTION INSTRUCTIONS
+--------------------------------------------------------------------------------
+1. Train Models & Generate Artifacts:
+   python train.py
+
+2. Run Streamlit Application:
+   streamlit run app.py
+
+3. Run Decoupled Backend & Frontend:
+   # Terminal 1 - API Server:
+   python server.py
+
+   # Terminal 2 - React Frontend:
+   cd frontend
+   npm run dev
+================================================================================
