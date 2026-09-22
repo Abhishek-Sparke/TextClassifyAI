@@ -7,7 +7,7 @@
 [![Streamlit](https://img.shields.io/badge/streamlit-v1.64+-red.svg)](https://streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-> 🚀 **Live Streamlit App:** **[https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/](https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/)**  
+
 > 🌐 **Live GitHub Pages Frontend:** **[https://abhishek-sparke.github.io/mlproj/](https://abhishek-sparke.github.io/mlproj/)**  
 > 📖 **Full Technical Project Explanation:** **[Read EXPLANATION.md](./EXPLANATION.md)**  
 > **College-Level Machine Learning Term Project**  
