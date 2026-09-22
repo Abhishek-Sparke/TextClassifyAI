@@ -9,6 +9,16 @@
 
 import { CATEGORIES } from '../data/benchmarkData';
 
+/**
+ * Production API Base URL
+ * Uses VITE_API_URL environment variable if provided, or localhost if running locally,
+ * or empty string if deployed standalone on Vercel/GitHub Pages (triggers zero-latency client-side ML engine).
+ */
+export const API_BASE_URL = 
+  import.meta.env.VITE_API_URL || 
+  (typeof window !== 'undefined' && window.__API_BASE_URL__) || 
+  (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:8000' : '');
+
 // Vocabulary weights extracted from the trained TF-IDF model
 const DOMAIN_VOCABULARIES = {
   "comp.graphics": {
@@ -149,29 +159,31 @@ export async function classifyDocument(text, modelId = "svm") {
 
   const modelName = modelDisplayNames[modelId] || "Support Vector Machine";
 
-  // Attempt local FastAPI connection with 1.2s timeout
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 1200);
+  // Attempt backend API connection if configured
+  if (API_BASE_URL) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 1500);
 
-    const response = await fetch("http://localhost:8000/api/classify", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ text, model: modelId }),
-      signal: controller.signal
-    });
+      const response = await fetch(`${API_BASE_URL}/api/classify`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text, model: modelId }),
+        signal: controller.signal
+      });
 
-    clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
 
-    if (response.ok) {
-      const data = await response.json();
-      return {
-        ...data,
-        isClientSide: false
-      };
+      if (response.ok) {
+        const data = await response.json();
+        return {
+          ...data,
+          isClientSide: false
+        };
+      }
+    } catch (err) {
+      // Backend unavailable or timed out; fall back to client-side engine
     }
-  } catch (err) {
-    // Local API unavailable or timed out; fall back to client-side engine
   }
 
   // Graceful client-side inference
@@ -186,24 +198,26 @@ export async function classifyDocument(text, modelId = "svm") {
  * Classifies multiple documents in bulk with backend and client-side fallbacks
  */
 export async function classifyBatchDocuments(documents, modelId = "svm") {
-  try {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 4000);
+  if (API_BASE_URL) {
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 4000);
 
-    const response = await fetch("http://localhost:8000/api/classify-batch", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ documents, model: modelId }),
-      signal: controller.signal
-    });
+      const response = await fetch(`${API_BASE_URL}/api/classify-batch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ documents, model: modelId }),
+        signal: controller.signal
+      });
 
-    clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
 
-    if (response.ok) {
-      return await response.json();
+      if (response.ok) {
+        return await response.json();
+      }
+    } catch (err) {
+      // Fallback to client side loop
     }
-  } catch (err) {
-    // Fallback to client side loop
   }
 
   // Client-side batch fallback

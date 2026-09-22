@@ -6,6 +6,7 @@ import ConfusionMatrix from './components/ConfusionMatrix';
 import PipelineViewer from './components/PipelineViewer';
 import DatasetExplorer from './components/DatasetExplorer';
 import Footer from './components/Footer';
+import { API_BASE_URL } from './services/api';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('playground');
@@ -32,13 +33,17 @@ export default function App() {
     }
   }, [darkMode]);
 
-  // Ping backend to check if Python FastAPI / Starlette server is available
+  // Ping backend to check if Python server is available
   useEffect(() => {
     const checkBackend = async () => {
+      if (!API_BASE_URL) {
+        setApiStatus({ connected: false, checking: false });
+        return;
+      }
       try {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 1200);
-        const res = await fetch('http://localhost:8000/api/health', { signal: controller.signal });
+        const res = await fetch(`${API_BASE_URL}/api/health`, { signal: controller.signal });
         clearTimeout(timeoutId);
         if (res.ok) {
           setApiStatus({ connected: true, checking: false });
