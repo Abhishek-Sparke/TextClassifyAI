@@ -1,12 +1,14 @@
 # Classifying Text Documents Using Machine Learning
 
 [![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FAbhishek-Sparke%2Fmlproj)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![Scikit-Learn](https://img.shields.io/badge/scikit--learn-v1.3+-orange.svg)](https://scikit-learn.org/)
 [![Streamlit](https://img.shields.io/badge/streamlit-v1.64+-red.svg)](https://streamlit.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-> 🚀 **Live Web Application:** **[https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/](https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/)**  
+> 🚀 **Live Streamlit App:** **[https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/](https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/)**  
+> 🌐 **Live GitHub Pages Frontend:** **[https://abhishek-sparke.github.io/mlproj/](https://abhishek-sparke.github.io/mlproj/)**  
 > 📖 **Full Technical Project Explanation:** **[Read EXPLANATION.md](./EXPLANATION.md)**  
 > **College-Level Machine Learning Term Project**  
 > An end-to-end Natural Language Processing (NLP) and Machine Learning system for automated multi-class text document categorization, rigorous model benchmarking, and real-time interactive inference.
