@@ -45,7 +45,7 @@ def run_pipeline():
     print("=" * 80)
 
     # 1. Dataset Loading
-    print("\n[Step 1/7] Loading Dataset (20 Newsgroups)...")
+    print("\n[Step 1/7] Loading Multi-Domain Dataset (100,000 Documents, 26 Categories)...")
     df, target_names = load_newsgroup_dataset(categories=DEFAULT_CATEGORIES, remove_metadata=True)
     stats = get_dataset_statistics(df, target_names)
 
@@ -84,9 +84,9 @@ def run_pipeline():
     print("\n[Step 4/7] TF-IDF Feature Extraction...")
     print(" -> Strict Ordering: Fitting vectorizer ONLY on training set to prevent data leakage.")
     vectorizer = build_tfidf_vectorizer(
-        max_features=5000,
+        max_features=8000,
         ngram_range=(1, 2),
-        min_df=2,
+        min_df=3,
         sublinear_tf=True
     )
     X_train_tfidf, X_test_tfidf, vectorizer = extract_features(vectorizer, X_train_raw, X_test_raw)

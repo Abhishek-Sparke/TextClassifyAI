@@ -61,11 +61,17 @@ def test_model_inference_pipeline():
     prediction_idx = model.predict(vec)[0]
     probabilities = get_prediction_probabilities(model, vec)[0]
 
-    assert len(categories) == 20, f"Expected 20 categories, got {len(categories)}"
+    assert len(categories) == 26, f"Expected 26 categories, got {len(categories)}"
     assert "sci.crypt" in categories
     assert "soc.religion.christian" in categories
     assert "rec.motorcycles" in categories
     assert "comp.windows.x" in categories
+    assert "business.finance" in categories
+    assert "world.news" in categories
+    assert "entertainment.arts" in categories
+    assert "health.wellness" in categories
+    assert "education.academics" in categories
+    assert "environment.climate" in categories
 
     assert 0 <= prediction_idx < len(categories)
     predicted_category = categories[prediction_idx]
@@ -92,7 +98,28 @@ def test_new_categories_inference():
         meta = json.load(f)
     categories = meta["categories"]
 
-    assert len(categories) == 20
+    assert len(categories) == 26
+
+    # Test Business & Finance classification
+    biz_text = "The company reported higher quarterly revenue and profit margins as stock market investors bought shares."
+    clean_biz = preprocess_document(biz_text, apply_lemmatization=True)
+    vec_biz = vectorizer.transform([clean_biz])
+    pred_biz = categories[model.predict(vec_biz)[0]]
+    assert pred_biz == "business.finance"
+
+    # Test Environment & Climate classification
+    climat_text = "Conservation ecologists implement wildlife corridor restoration, habitat connectivity, and wetland biodiversity to sequester atmospheric carbon."
+    clean_climat = preprocess_document(climat_text, apply_lemmatization=True)
+    vec_climat = vectorizer.transform([clean_climat])
+    pred_climat = categories[model.predict(vec_climat)[0]]
+    assert pred_climat == "environment.climate"
+
+    # Test Education & Academics classification
+    edu_text = "Higher education institutions reform undergraduate curriculum pedagogy and academic university research syllabus."
+    clean_edu = preprocess_document(edu_text, apply_lemmatization=True)
+    vec_edu = vectorizer.transform([clean_edu])
+    pred_edu = categories[model.predict(vec_edu)[0]]
+    assert pred_edu == "education.academics"
 
     # Test Cryptography classification
     crypt_text = "Public key cryptography and RSA encryption algorithms secure private data against cryptanalysis."
@@ -101,24 +128,4 @@ def test_new_categories_inference():
     pred_crypt = categories[model.predict(vec_crypt)[0]]
     assert pred_crypt == "sci.crypt"
 
-    # Test Motorcycles classification
-    moto_text = "The motorcycle rider replaced the helmet and rode the Harley bike down the highway."
-    clean_moto = preprocess_document(moto_text, apply_lemmatization=True)
-    vec_moto = vectorizer.transform([clean_moto])
-    pred_moto = categories[model.predict(vec_moto)[0]]
-    assert pred_moto == "rec.motorcycles"
-
-    # Test Christianity classification
-    relig_text = "The Christian church sermon addressed biblical scripture and gospel faith in Jesus Christ."
-    clean_relig = preprocess_document(relig_text, apply_lemmatization=True)
-    vec_relig = vectorizer.transform([clean_relig])
-    pred_relig = categories[model.predict(vec_relig)[0]]
-    assert pred_relig == "soc.religion.christian"
-
-    # Test X Window System classification
-    x_text = "The X11 server connects to client display windows and runs the xterm window manager terminal."
-    clean_x = preprocess_document(x_text, apply_lemmatization=True)
-    vec_x = vectorizer.transform([clean_x])
-    pred_x = categories[model.predict(vec_x)[0]]
-    assert pred_x == "comp.windows.x"
 

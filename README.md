@@ -8,6 +8,7 @@
 
 > 🌐 **Live Web Application (GitHub Pages):** **[https://abhishek-sparke.github.io/TextClassifyAI/](https://abhishek-sparke.github.io/TextClassifyAI/)**  
 > ▲ **Live Vercel Deployment:** **[https://textclassify-ai.vercel.app/](https://textclassify-ai.vercel.app/)**  
+> 📊 **Dedicated Dataset Documentation:** **[Read DATASET.md](./DATASET.md)**  
 > 📖 **Full Technical Project Explanation:** **[Read EXPLANATION.md](./EXPLANATION.md)**  
 > **College-Level Machine Learning Term Project**  
 > An end-to-end Natural Language Processing (NLP) and Machine Learning system for automated multi-class text document categorization, rigorous model benchmarking, and real-time interactive inference.
@@ -112,11 +113,18 @@ This project delivers a complete, modular Machine Learning solution that automat
 
 ## Dataset Description
 
-The project uses the standard benchmark **20 Newsgroups Dataset** (available via `sklearn.datasets.fetch_20newsgroups`), comprising 18,278 clean documents partitioned across all 20 distinct subject areas:
+The project utilizes an enterprise-scale multi-domain text classification benchmark comprising **100,000 clean documents (1 Lakh)** partitioned across **26 distinct subject areas**, combining the standard **20 Newsgroups**, **AG News**, **Rotten Tomatoes**, and curated domain corpora. The complete dataset is serialized inside the repository at [`data/dataset_100k.parquet`](./data/dataset_100k.parquet) (25.33 MB).
 
+For full class distributions, token statistics, and provenance, see **[`DATASET.md`](./DATASET.md)**.
+
+* **Global Affairs & News:** `world.news` (25,000 docs)
+* **Business & Economy:** `business.finance` (25,000 docs)
+* **Culture & Media:** `entertainment.arts` (8,000 docs)
+* **Healthcare & Wellness:** `health.wellness` (7,917 docs), `sci.med` (956 docs)
+* **Education & Academia:** `education.academics` (7,917 docs)
+* **Sustainability & Science:** `environment.climate` (7,919 docs), `sci.space` (953 docs), `sci.crypt` (962 docs), `sci.electronics` (955 docs)
 * **Computers & Tech:** `comp.graphics`, `comp.os.ms-windows.misc`, `comp.sys.ibm.pc.hardware`, `comp.sys.mac.hardware`, `comp.windows.x`
 * **Recreation & Sports:** `rec.autos`, `rec.motorcycles`, `rec.sport.baseball`, `rec.sport.hockey`
-* **Science & Medicine:** `sci.crypt`, `sci.electronics`, `sci.med`, `sci.space`
 * **Politics & Society:** `talk.politics.guns`, `talk.politics.mideast`, `talk.politics.misc`
 * **Religion & Philosophy:** `alt.atheism`, `soc.religion.christian`, `talk.religion.misc`
 * **Commerce:** `misc.forsale`
@@ -206,10 +214,10 @@ All models were evaluated on the held-out stratified test set (20% of data) usin
  
 | Machine Learning Model | Accuracy | Precision (Weighted) | Recall (Weighted) | F1-Score (Weighted) | F1-Score (Macro) | Training Time (s) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Multinomial Naive Bayes** 🏆 | **72.54%** | **0.7283** | **0.7254** | **0.7212** | **0.7113** | **0.062s** |
-| **Support Vector Machine (Linear SVM)** | **72.24%** | **0.7195** | **0.7224** | **0.7192** | **0.7091** | 12.760s |
-| **Logistic Regression** | **72.13%** | **0.7199** | **0.7213** | **0.7174** | **0.7065** | 9.871s |
-| **Random Forest** | **61.05%** | **0.6860** | **0.6105** | **0.6222** | **0.6075** | 10.880s |
+| **Support Vector Machine (Linear SVM)** 🏆 | **91.32%** | **0.9101** | **0.9132** | **0.9108** | **0.7590** | 17.216s |
+| **Logistic Regression** | **90.64%** | **0.9035** | **0.9064** | **0.9026** | **0.7473** | 14.810s |
+| **Multinomial Naive Bayes** | **90.55%** | **0.9048** | **0.9055** | **0.9035** | **0.7525** | **0.068s** |
+| **Random Forest** | 71.59% | 0.7656 | 0.7159 | 0.6468 | 0.2469 | 1.507s |
 
 *(Exact values are generated dynamically when running `train.py`).*
 

@@ -163,6 +163,7 @@ def preprocess_document(text: Optional[str], apply_lemmatization: bool = True) -
 def preprocess_corpus(texts: List[str], apply_lemmatization: bool = True) -> List[str]:
     """
     Applies the preprocessing pipeline to a collection (list) of documents.
+    Utilizes multi-threaded batch parallelization for large corpora (e.g. 100,000 docs).
 
     Parameters
     ----------
@@ -176,4 +177,12 @@ def preprocess_corpus(texts: List[str], apply_lemmatization: bool = True) -> Lis
     list of str
         List of preprocessed text documents.
     """
+    if len(texts) > 5000:
+        try:
+            from joblib import Parallel, delayed
+            return Parallel(n_jobs=-1, batch_size=250, prefer="threads")(
+                delayed(preprocess_document)(doc, apply_lemmatization) for doc in texts
+            )
+        except Exception:
+            pass
     return [preprocess_document(doc, apply_lemmatization=apply_lemmatization) for doc in texts]

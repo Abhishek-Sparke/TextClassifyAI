@@ -655,6 +655,16 @@ def get_category_icon(category_name: str, raw_class: str = "") -> str:
     combined = f"{category_name} {raw_class}".lower()
     if any(k in combined for k in ["business", "trade", "revenue", "profit", "finance", "investor", "market", "economy"]):
         return "💼"
+    elif any(k in combined for k in ["world", "global", "international", "diplomacy"]):
+        return "🌐"
+    elif any(k in combined for k in ["entertain", "movie", "film", "cinema", "theatre", "actor", "music", "hollywood", "arts"]):
+        return "🎬"
+    elif any(k in combined for k in ["education", "academic", "university", "curriculum", "pedagogy", "school"]):
+        return "🎓"
+    elif any(k in combined for k in ["environment", "climate", "solar", "renewable", "ecology", "carbon"]):
+        return "🌱"
+    elif any(k in combined for k in ["wellness", "med", "health", "doctor", "clinical", "disease", "sci.med"]):
+        return "🧘"
     elif any(k in combined for k in ["tech", "computer", "hardware", "software", "sys", "gpu", "compiler", "os"]):
         return "💻"
     elif any(k in combined for k in ["graphic", "rendering", "3d", "art", "design", "comp.graphics"]):
@@ -663,17 +673,13 @@ def get_category_icon(category_name: str, raw_class: str = "") -> str:
         return "⚽"
     elif any(k in combined for k in ["politic", "congress", "law", "legislation", "constitution", "government", "senate"]):
         return "🏛️"
-    elif any(k in combined for k in ["entertain", "movie", "film", "cinema", "theatre", "actor", "music", "hollywood"]):
-        return "🎬"
     elif any(k in combined for k in ["space", "nasa", "astronomy", "telescope", "orbit", "mars", "galaxy", "sci.space"]):
         return "🚀"
     elif any(k in combined for k in ["auto", "car", "engine", "vehicle", "transmission", "rec.autos"]):
         return "🚗"
-    elif any(k in combined for k in ["med", "health", "doctor", "clinical", "disease", "sci.med"]):
-        return "🩺"
     elif any(k in combined for k in ["sale", "forsale", "price", "offer", "discount"]):
         return "🏷️"
-    elif any(k in combined for k in ["relig", "faith", "church", "god", "christian"]):
+    elif any(k in combined for k in ["relig", "faith", "church", "god", "christian", "atheism"]):
         return "🕊️"
     return "📄"
 

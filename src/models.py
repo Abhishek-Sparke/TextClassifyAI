@@ -41,22 +41,23 @@ def get_models(random_state: int = 42) -> Dict[str, Any]:
     # Softmax / multiclass regression with L2 regularization
     lr = LogisticRegression(
         C=1.0,
-        max_iter=1000,
+        max_iter=300,
         solver='lbfgs',
-        random_state=random_state
+        random_state=random_state,
+        n_jobs=-1
     )
 
     # 3. Support Vector Machine (SVM)
     # CalibratedClassifierCV wraps LinearSVC with Platt scaling / isotonic regression
     # to provide calibrated class probabilities (predict_proba) for the UI
     base_svm = LinearSVC(C=1.0, random_state=random_state, dual='auto')
-    svm = CalibratedClassifierCV(estimator=base_svm, cv=3)
+    svm = CalibratedClassifierCV(estimator=base_svm, cv=2)
 
     # 4. Random Forest Classifier
-    # Non-linear ensemble model with 150 estimators
+    # High efficiency ensemble for 100,000 documents
     rf = RandomForestClassifier(
-        n_estimators=150,
-        max_depth=30,
+        n_estimators=80,
+        max_depth=25,
         random_state=random_state,
         n_jobs=-1
     )

@@ -8,9 +8,9 @@
 
 ## 1. Executive Summary
 
-This project implements an end-to-end Natural Language Processing (NLP) and Machine Learning system designed to automatically classify unstructured text documents across the complete **20 categories** of the **20 Newsgroups** benchmark dataset. It features a complete pipeline: data ingestion across all 20 thematic newsgroups (~18,278 documents), multi-stage text cleaning, stratified train-test splitting (80% train / 20% test), **Term Frequency–Inverse Document Frequency (TF-IDF)** feature extraction (5,000 unigrams and bigrams), and competitive benchmarking across **four supervised machine learning classifiers**.
+This project implements an end-to-end Natural Language Processing (NLP) and Machine Learning system designed to automatically classify unstructured text documents across **26 categories** at enterprise scale on **100,000 documents (1 Lakh)**. It features a complete pipeline: large-scale multi-domain data ingestion across 26 distinct categories (including the 20 Newsgroups benchmark, AG News, Rotten Tomatoes, and curated domains), multi-stage text cleaning, stratified train-test splitting (80% train / 20% test: 79,990 training / 19,998 test), **Term Frequency–Inverse Document Frequency (TF-IDF)** feature extraction (8,000 unigrams and bigrams), and competitive benchmarking across **four supervised machine learning classifiers**.
 
-The system achieves a **72.54% accuracy and 72.12% F1-score** across all 20 diverse, highly competitive classes using **Multinomial Naive Bayes** with Laplace smoothing, closely followed by **Linear Support Vector Machine (72.24%)** and **Logistic Regression (72.13%)**. It is deployed as both a high-performance **REST API** (`server.py`), a modern **React dashboard** (`frontend/`), and an interactive **Streamlit web application** (`app.py`).
+The system achieves a stellar **91.32% accuracy and 91.08% F1-score** across all 26 classes using **Support Vector Machine (Linear SVM with CalibratedClassifierCV)**, closely followed by **Logistic Regression (90.64%)** and **Multinomial Naive Bayes (90.55%)**. It is deployed as both a high-performance **REST API** (`server.py`), a modern **React dashboard** (`frontend/`), and an interactive **Streamlit web application** (`app.py`).
 
 ---
 
@@ -92,15 +92,23 @@ The project uses the standard **20 Newsgroups** text collection, covering all 20
 | `sci.space` | **Space Science** | NASA missions, orbit, satellites, rocketry | 953 |
 | `soc.religion.christian` | **Christianity** | Christian theology, biblical studies, faith | 974 |
 | `talk.politics.guns` | **Gun Politics** | Second Amendment rights, firearm legislation | 885 |
-| `talk.politics.mideast` | **Middle East Politics** | Geopolitical conflicts, treaties, foreign affairs | 917 |
-| `talk.politics.misc` | **Politics** | Government policy, constitutional law, rights | 756 |
-| `talk.religion.misc` | **Religion** | Comparative religion, philosophy, ethics | 604 |
-| **Total** | | **Comprehensive 20-Class Corpus** | **18,278** |
+| `talk.politics.mideast` | **Middle East Politics** | Geopolitical conflicts, treaties, foreign affairs | 914 |
+| `talk.politics.misc` | **Politics** | Government policy, constitutional law, rights | 754 |
+| `talk.religion.misc` | **Religion** | Comparative religion, philosophy, ethics | 603 |
+| `business.finance` | **Business & Finance** | Equities, corporate earnings, stock markets, banking | 25,000 |
+| `world.news` | **World News** | International diplomacy, geopolitical summits, treaties | 25,000 |
+| `entertainment.arts` | **Entertainment & Arts** | Cinema, film critiques, Hollywood, music, performances | 8,000 |
+| `health.wellness` | **Health & Wellness** | Nutrition, cardiovascular conditioning, preventive health | 7,917 |
+| `education.academics` | **Education & Academics** | University pedagogy, curricula, syllabi, higher ed | 7,917 |
+| `environment.climate` | **Environment & Climate** | Climate science, renewable energy, carbon emissions | 7,919 |
+| **Total** | | **Enterprise-Scale 26-Class Multi-Domain Corpus** | **100,000** |
 
 ### Key Dataset Statistics:
-* **Total Documents:** 18,278 clean documents (14,608 training / 3,653 test)
-* **Mean Word Count:** 187.3 words per document (median: 86 words)
-* **Metadata Stripping:** Email headers (`From:`, `Subject:`), footers, and quote blocks are removed to ensure the models learn actual document semantics rather than memorizing sender metadata.
+* **Total Documents:** 100,000 clean documents (79,990 training / 19,998 test)
+* **Number of Classes:** 26 semantic categories
+* **TF-IDF Feature Space:** 8,000 unigrams and bigrams
+* **Mean Word Count:** 65.7 words per document (median: 40 words)
+* **Metadata Stripping & Cleansing:** Headers, footers, quote blocks, URLs, and emails are stripped to guarantee models learn domain text semantics without metadata shortcut leakage.
 
 ---
 
@@ -112,6 +120,7 @@ Raw human text contains non-informative noise that expands vocabulary size and d
 2. **Regex Cleansing:** Strips web URLs (`http\S+`), email addresses (`\S+@\S+`), numbers/digits, and non-alphanumeric punctuation.
 3. **Stopword Elimination:** Filters out ubiquitous English filler words (*"the"*, *"is"*, *"at"*, *"which"*, *"on"*) using NLTK's English stopword corpus.
 4. **Lemmatization & Stemming:** Normalizes words to morphological roots (e.g., *"satellites"* $\rightarrow$ *"satellit"*, *"encryption"* $\rightarrow$ *"encrypt"*).
+5. **Parallel Batching:** Utilizes multi-threaded batch parallelization to process 100,000 documents rapidly in ~40 seconds.
 
 ### Step 2: Strict Prevention of Data Leakage
 A critical best practice in machine learning:
@@ -125,8 +134,8 @@ Each preprocessed document is converted into a vector of numerical weights using
 $$\text{TF-IDF}(t, d, D) = \text{TF}(t, d) \times \log\left(\frac{1 + |D|}{1 + |\{d \in D : t \in d\}|}\right) + 1$$
 
 Configuration Highlights:
-* **N-gram Range $(1, 2)$:** Captures both single words (*"orbit"*) and contextual two-word phrases (*"space station"*, *"for sale"*).
-* **Vocabulary Cap ($5,000$ features):** Retains top informative n-grams while eliminating trailing one-off misspellings.
+* **N-gram Range $(1, 2)$:** Captures both single words (*"orbit"*) and contextual two-word phrases (*"space station"*, *"for sale"*, *"renewable energy"*).
+* **Vocabulary Cap ($8,000$ features):** Retains top informative n-grams across 26 domains.
 * **Sublinear Term Frequency Scaling:** Replaces raw term count $\text{TF}$ with $1 + \log(\text{TF})$ to prevent documents with repeated words from dominating vector magnitude.
 * **L2 Normalization:** Normalizes all document vectors to unit Euclidean length ($\|\mathbf{x}\|_2 = 1$).
 
@@ -134,30 +143,30 @@ Configuration Highlights:
 
 Four diverse classification paradigms are evaluated under identical conditions:
 
-1. **Multinomial Naive Bayes:**
+1. **Support Vector Machine (Linear SVM with CalibratedClassifierCV):**
+   * Finds maximum-margin hyperplanes separating 26 classes in 8,000-dimensional TF-IDF space.
+   * Uses `LinearSVC(C=1.0)` wrapped with `CalibratedClassifierCV(cv=2)` to produce calibrated class posterior probabilities via Platt scaling (**91.32% accuracy**).
+2. **Logistic Regression (Multinomial Softmax):**
+   * Multinomial cross-entropy with $L_2$ regularization using the `lbfgs` quasi-Newton solver (**90.64% accuracy**).
+3. **Multinomial Naive Bayes:**
    * Probabilistic classifier using Bayes' theorem with Laplace smoothing ($\alpha = 0.1$):
      $$P(y|x) \propto P(y) \prod_{i=1}^n P(x_i|y)$$
-   * Achieves the highest overall accuracy (**72.54%**) and lightning-fast training in **0.062 seconds**.
-2. **Support Vector Machine (Linear SVM with CalibratedClassifierCV):**
-   * Finds maximum-margin hyperplanes separating 20 classes in 5,000-dimensional TF-IDF space.
-   * Uses `LinearSVC(C=1.0)` wrapped with `CalibratedClassifierCV(cv=3)` to produce well-calibrated class posterior probabilities via Platt scaling (72.24% accuracy).
-3. **Logistic Regression (Multinomial Softmax):**
-   * Multinomial cross-entropy with $L_2$ regularization using the `lbfgs` quasi-Newton solver (72.13% accuracy).
+   * Achieves **90.55% accuracy** with blazing fast training in **0.068 seconds** on 80,000 samples.
 4. **Random Forest Classifier:**
-   * Non-linear ensemble consisting of 150 decision trees trained via bootstrap aggregating (bagging) with random feature sub-sampling (61.05% accuracy).
+   * Non-linear ensemble consisting of 80 decision trees trained via bootstrap aggregating (bagging) with random feature sub-sampling (**71.59% accuracy**).
 
 ---
 
 ## 6. Experimental Results & Performance Benchmarks
 
-All models were evaluated on the held-out test split (3,653 unseen documents across 20 classes):
+All models were evaluated on the held-out 20% test split (19,998 unseen documents across 26 classes):
 
 | Classifier | Accuracy | Precision (Weighted) | Recall (Weighted) | F1-Score (Weighted) | F1-Score (Macro) | Training Latency |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Multinomial Naive Bayes** 🏆 | **72.54%** | **72.83%** | **72.54%** | **72.12%** | **71.13%** | **0.062 s** |
-| **Support Vector Machine (Linear SVM)** | 72.24% | 71.95% | 72.24% | 71.92% | 70.91% | 12.760 s |
-| **Logistic Regression** | 72.13% | 71.99% | 72.13% | 71.74% | 70.65% | 9.871 s |
-| **Random Forest** | 61.05% | 68.60% | 61.05% | 62.22% | 60.75% | 10.880 s |
+| **Support Vector Machine (Linear SVM)** 🏆 | **91.32%** | **91.01%** | **91.32%** | **91.08%** | **75.90%** | **17.216 s** |
+| **Logistic Regression** | 90.64% | 90.35% | 90.64% | 90.26% | 74.73% | 14.810 s |
+| **Multinomial Naive Bayes** | 90.55% | 90.48% | 90.55% | 90.35% | 75.25% | 0.068 s |
+| **Random Forest** | 71.59% | 76.56% | 71.59% | 64.68% | 24.69% | 1.507 s |
 
 ### Performance Analysis & Key Takeaway:
 * **Why Naive Bayes & Linear Models Excel:** In 20-class classification with 5,000 sparse TF-IDF features, generative and maximum-margin methods handle conditional word frequencies with superior calibration. Naive Bayes performs exceptionally well due to the high topical distinctiveness of the 20 newsgroups.

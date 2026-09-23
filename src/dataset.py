@@ -17,53 +17,15 @@ from sklearn.datasets._twenty_newsgroups import (
 )
 from sklearn.model_selection import train_test_split
 
-# Complete 20 categories from the 20 Newsgroups benchmark dataset:
-DEFAULT_CATEGORIES = [
-    'alt.atheism',
-    'comp.graphics',
-    'comp.os.ms-windows.misc',
-    'comp.sys.ibm.pc.hardware',
-    'comp.sys.mac.hardware',
-    'comp.windows.x',
-    'misc.forsale',
-    'rec.autos',
-    'rec.motorcycles',
-    'rec.sport.baseball',
-    'rec.sport.hockey',
-    'sci.crypt',
-    'sci.electronics',
-    'sci.med',
-    'sci.space',
-    'soc.religion.christian',
-    'talk.politics.guns',
-    'talk.politics.mideast',
-    'talk.politics.misc',
-    'talk.religion.misc'
-]
+from src.data_loader_100k import (
+    ALL_26_CATEGORIES,
+    CATEGORY_DISPLAY_NAMES_26,
+    build_and_cache_100k_dataset
+)
 
-# Friendly human-readable category display names
-CATEGORY_DISPLAY_NAMES = {
-    'alt.atheism': 'Atheism',
-    'comp.graphics': 'Computer Graphics',
-    'comp.os.ms-windows.misc': 'MS Windows',
-    'comp.sys.ibm.pc.hardware': 'IBM PC Hardware',
-    'comp.sys.mac.hardware': 'Mac Hardware',
-    'comp.windows.x': 'X Window System',
-    'misc.forsale': 'For Sale',
-    'rec.autos': 'Automobiles',
-    'rec.motorcycles': 'Motorcycles',
-    'rec.sport.baseball': 'Baseball',
-    'rec.sport.hockey': 'Hockey',
-    'sci.crypt': 'Cryptography',
-    'sci.electronics': 'Electronics',
-    'sci.med': 'Medicine',
-    'sci.space': 'Space Science',
-    'soc.religion.christian': 'Christianity',
-    'talk.politics.guns': 'Gun Politics',
-    'talk.politics.mideast': 'Middle East Politics',
-    'talk.politics.misc': 'Politics',
-    'talk.religion.misc': 'Religion'
-}
+# 26 Categories: 20 Newsgroups + Business/Finance, World News, Entertainment, Health, Education, Environment
+DEFAULT_CATEGORIES = ALL_26_CATEGORIES
+CATEGORY_DISPLAY_NAMES = CATEGORY_DISPLAY_NAMES_26
 
 
 def clean_document_metadata(raw_text: str) -> str:
@@ -82,13 +44,12 @@ def load_newsgroup_dataset(
     subset: str = 'all'
 ) -> Tuple[pd.DataFrame, List[str]]:
     """
-    Fetches or loads the 20 Newsgroups dataset.
-    Prioritizes fast local folder loading if available, with graceful fallback.
+    Fetches or loads the multi-domain text classification dataset (100,000 documents, 26 classes).
 
     Parameters
     ----------
     categories : list of str, optional
-        List of category names to fetch. If None, uses DEFAULT_CATEGORIES.
+        List of category names to fetch. If None, uses DEFAULT_CATEGORIES (26 categories).
     remove_metadata : bool, default=True
         Whether to strip headers, footers, and quotes to prevent data leakage.
     subset : str, default='all'
@@ -102,6 +63,17 @@ def load_newsgroup_dataset(
         List of target class names.
     """
     selected_cats = categories if categories is not None else DEFAULT_CATEGORIES
+
+    # Check if multi-domain 100k dataset covers the requested categories
+    if set(selected_cats).issubset(set(ALL_26_CATEGORIES)):
+        print(f"[Dataset] Loading multi-domain 100k dataset for {len(selected_cats)} categories...")
+        df_100k = build_and_cache_100k_dataset()
+        if len(selected_cats) < len(ALL_26_CATEGORIES):
+            df_100k = df_100k[df_100k['category_name'].isin(selected_cats)].reset_index(drop=True)
+            # Reindex targets
+            cat_map = {cat: idx for idx, cat in enumerate(selected_cats)}
+            df_100k['target'] = df_100k['category_name'].map(cat_map)
+        return df_100k, selected_cats
 
     # Check for fast local directory
     data_home = get_data_home()

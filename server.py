@@ -46,7 +46,13 @@ CATEGORY_ICONS = {
     "talk.politics.guns": "🎯",
     "talk.politics.mideast": "🌍",
     "talk.politics.misc": "🏛️",
-    "talk.religion.misc": "🕊️"
+    "talk.religion.misc": "🕊️",
+    "business.finance": "💼",
+    "world.news": "🌐",
+    "entertainment.arts": "🎬",
+    "health.wellness": "🧘",
+    "education.academics": "🎓",
+    "environment.climate": "🌱"
 }
 
 def get_category_icon(category_name: str, raw_class: str = "") -> str:
@@ -73,6 +79,16 @@ def get_category_icon(category_name: str, raw_class: str = "") -> str:
         return "🏷️"
     elif any(k in combined for k in ["business", "trade", "revenue", "profit", "finance"]):
         return "💼"
+    elif any(k in combined for k in ["entertainment", "movie", "film", "cinema", "arts", "theatre", "music"]):
+        return "🎬"
+    elif any(k in combined for k in ["world", "global", "international", "diplomacy"]):
+        return "🌐"
+    elif any(k in combined for k in ["education", "academic", "university", "curriculum", "pedagogy"]):
+        return "🎓"
+    elif any(k in combined for k in ["environment", "climate", "solar", "renewable", "ecology", "carbon"]):
+        return "🌱"
+    elif any(k in combined for k in ["wellness", "med", "health", "doctor", "clinical", "disease"]):
+        return "🧘"
     elif any(k in combined for k in ["tech", "computer", "hardware", "software", "sys", "pc"]):
         return "🖥️"
     elif any(k in combined for k in ["graphic", "rendering", "3d", "art", "design"]):
@@ -85,8 +101,6 @@ def get_category_icon(category_name: str, raw_class: str = "") -> str:
         return "🚀"
     elif any(k in combined for k in ["auto", "car", "engine", "vehicle"]):
         return "🚗"
-    elif any(k in combined for k in ["med", "health", "doctor", "clinical", "disease"]):
-        return "🩺"
     return "📄"
 
 CATEGORY_NAMES = {
@@ -109,7 +123,13 @@ CATEGORY_NAMES = {
     "talk.politics.guns": "Gun Politics",
     "talk.politics.mideast": "Middle East Politics",
     "talk.politics.misc": "Politics",
-    "talk.religion.misc": "Religion"
+    "talk.religion.misc": "Religion",
+    "business.finance": "Business & Finance",
+    "world.news": "World News",
+    "entertainment.arts": "Entertainment & Arts",
+    "health.wellness": "Health & Wellness",
+    "education.academics": "Education & Academics",
+    "environment.climate": "Environment & Climate"
 }
 
 vectorizer = None

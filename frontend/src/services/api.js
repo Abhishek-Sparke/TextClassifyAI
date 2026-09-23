@@ -160,6 +160,48 @@ const DOMAIN_VOCABULARIES = {
     icon: "🕊️",
     keywords: ["religion", "religious", "god", "moral", "morality", "belief", "faith", "philosophy", "theology", "doctrine", "spiritual"],
     baseWeight: 1.12
+  },
+  "business.finance": {
+    name: "Business & Finance",
+    badge: "Economy",
+    icon: "💼",
+    keywords: ["market", "stock", "shares", "company", "revenue", "profit", "earnings", "banking", "economy", "trade", "investor", "dividend"],
+    baseWeight: 1.20
+  },
+  "world.news": {
+    name: "World News",
+    badge: "Global Affairs",
+    icon: "🌐",
+    keywords: ["minister", "president", "summit", "diplomacy", "treaty", "foreign", "un", "nation", "peace", "international", "government"],
+    baseWeight: 1.20
+  },
+  "entertainment.arts": {
+    name: "Entertainment & Arts",
+    badge: "Culture",
+    icon: "🎬",
+    keywords: ["film", "movie", "cinema", "director", "actor", "theatre", "performance", "music", "album", "critics", "hollywood", "awards"],
+    baseWeight: 1.20
+  },
+  "health.wellness": {
+    name: "Health & Wellness",
+    badge: "Healthcare",
+    icon: "🧘",
+    keywords: ["wellness", "fitness", "nutrition", "cardiovascular", "dietary", "exercise", "hypertension", "longevity", "immune", "clinical"],
+    baseWeight: 1.20
+  },
+  "education.academics": {
+    name: "Education & Academics",
+    badge: "Education",
+    icon: "🎓",
+    keywords: ["education", "academic", "university", "student", "curriculum", "pedagogy", "syllabus", "seminar", "faculty", "dissertation"],
+    baseWeight: 1.20
+  },
+  "environment.climate": {
+    name: "Environment & Climate",
+    badge: "Sustainability",
+    icon: "🌱",
+    keywords: ["climate", "environment", "carbon", "emissions", "renewable", "solar", "photovoltaic", "biodiversity", "ecosystem", "sequestration"],
+    baseWeight: 1.20
   }
 };
 

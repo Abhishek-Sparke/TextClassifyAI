@@ -4,15 +4,15 @@
  */
 
 export const DATASET_STATS = {
-  totalDocuments: 18278,
-  categoriesCount: 20,
-  trainingSamples: 14608,
-  testingSamples: 3653,
-  tfidfFeatures: 5000,
-  averageWordCount: 187.3,
-  medianWordCount: 86,
-  bestModelName: "Multinomial Naive Bayes",
-  bestAccuracy: "72.54%"
+  totalDocuments: 100000,
+  categoriesCount: 26,
+  trainingSamples: 79990,
+  testingSamples: 19998,
+  tfidfFeatures: 8000,
+  averageWordCount: 65.7,
+  medianWordCount: 40,
+  bestModelName: "Support Vector Machine",
+  bestAccuracy: "91.32%"
 };
 
 export const CATEGORIES = [
@@ -231,41 +231,93 @@ export const CATEGORIES = [
     badge: "Philosophy",
     icon: "🕊️",
     color: "orange",
-    count: 604,
-    percentage: 3.3,
+    count: 603,
+    percentage: 0.6,
     description: "Comparative religious discussions, spiritual philosophy, and ethics.",
     topKeywords: ["god", "religi", "moral", "peopl", "say", "believ", "christian", "think"]
+  },
+  {
+    id: "business.finance",
+    name: "Business & Finance",
+    badge: "Economy",
+    icon: "💼",
+    color: "emerald",
+    count: 25000,
+    percentage: 25.0,
+    description: "Financial markets, equity trading, quarterly corporate earnings, banking, and macroeconomics.",
+    topKeywords: ["compani", "oil", "price", "market", "busi", "stock", "econom", "investor"]
+  },
+  {
+    id: "world.news",
+    name: "World News",
+    badge: "Global Affairs",
+    icon: "🌐",
+    color: "cyan",
+    count: 25000,
+    percentage: 25.0,
+    description: "International diplomacy, geopolitical summits, treaties, foreign affairs, and United Nations.",
+    topKeywords: ["say", "minist", "presid", "state", "leader", "peac", "iraq", "foreign"]
+  },
+  {
+    id: "entertainment.arts",
+    name: "Entertainment & Arts",
+    badge: "Culture",
+    icon: "🎬",
+    color: "purple",
+    count: 8000,
+    percentage: 8.0,
+    description: "Cinema, theatrical arts, music, Hollywood performances, and critical film reviews.",
+    topKeywords: ["film", "movi", "charact", "direct", "stori", "make", "perform", "actor"]
+  },
+  {
+    id: "health.wellness",
+    name: "Health & Wellness",
+    badge: "Healthcare",
+    icon: "🧘",
+    color: "teal",
+    count: 7917,
+    percentage: 7.9,
+    description: "Physical conditioning, nutrition, mental health, longevity protocols, and preventive medicine.",
+    topKeywords: ["wellness", "health", "dietari", "cardiovascular", "hypertens", "cellular", "exercis"]
+  },
+  {
+    id: "education.academics",
+    name: "Education & Academics",
+    badge: "Education",
+    icon: "🎓",
+    color: "amber",
+    count: 7917,
+    percentage: 7.9,
+    description: "Higher education pedagogy, academic university research, curricula, and scholarly publishing.",
+    topKeywords: ["educ", "academ", "syllabu", "seminar", "student", "literaci", "assess"]
+  },
+  {
+    id: "environment.climate",
+    name: "Environment & Climate",
+    badge: "Sustainability",
+    icon: "🌱",
+    color: "green",
+    count: 7919,
+    percentage: 7.9,
+    description: "Atmospheric climate science, renewable solar energy, carbon sequestration, and conservation.",
+    topKeywords: ["climat", "environ", "carbon", "emiss", "sequestr", "reforest", "sustain"]
   }
 ];
 
 export const MODEL_PERFORMANCE = [
   {
-    id: "naive_bayes",
-    name: "Multinomial Naive Bayes",
-    shortName: "Naive Bayes",
-    isBest: true,
-    badge: "Best Overall & Fastest",
-    accuracy: 72.54,
-    precision: 72.83,
-    recall: 72.54,
-    f1Score: 72.12,
-    trainingTime: "0.062 s",
-    type: "Generative Probabilistic Classifier",
-    description: "Top performer across all 20 classes. Ultra-fast inference with optimal Laplace smoothing on high-dimensional sparse TF-IDF spaces."
-  },
-  {
     id: "svm",
     name: "Support Vector Machine",
     shortName: "Linear SVM",
-    isBest: false,
-    badge: "Runner Up",
-    accuracy: 72.24,
-    precision: 71.95,
-    recall: 72.24,
-    f1Score: 71.92,
-    trainingTime: "12.760 s",
+    isBest: true,
+    badge: "Best Overall",
+    accuracy: 91.32,
+    precision: 91.01,
+    recall: 91.32,
+    f1Score: 91.08,
+    trainingTime: "17.216 s",
     type: "Maximum Margin Linear Hyperplane",
-    description: "Wrapped with 3-fold CalibratedClassifierCV Platt scaling. Excels at separating high-dimensional multi-class text representations."
+    description: "Top performer across all 26 classes on the 100,000-document corpus. Wrapped with CalibratedClassifierCV for smooth class probability output."
   },
   {
     id: "logistic_regression",
@@ -273,27 +325,41 @@ export const MODEL_PERFORMANCE = [
     shortName: "Logistic Reg",
     isBest: false,
     badge: "High Precision",
-    accuracy: 72.13,
-    precision: 71.99,
-    recall: 72.13,
-    f1Score: 71.74,
-    trainingTime: "9.871 s",
+    accuracy: 90.64,
+    precision: 90.35,
+    recall: 90.64,
+    f1Score: 90.26,
+    trainingTime: "14.810 s",
     type: "Multinomial Softmax Classifier",
-    description: "Multinomial cross-entropy with L2 regularization using L-BFGS solver. Yields smooth, calibrated probability distributions."
+    description: "Multinomial cross-entropy with L2 regularization using L-BFGS solver. Delivers well-calibrated confidence across all 26 categories."
+  },
+  {
+    id: "naive_bayes",
+    name: "Multinomial Naive Bayes",
+    shortName: "Naive Bayes",
+    isBest: false,
+    badge: "Fastest Training",
+    accuracy: 90.55,
+    precision: 90.48,
+    recall: 90.55,
+    f1Score: 90.35,
+    trainingTime: "0.068 s",
+    type: "Generative Probabilistic Classifier",
+    description: "Lightning-fast 68ms training time across 80,000 training samples. Exceptional inference speed on sparse TF-IDF vectors."
   },
   {
     id: "random_forest",
     name: "Random Forest",
     shortName: "Random Forest",
     isBest: false,
-    badge: "Ensemble",
-    accuracy: 61.05,
-    precision: 68.60,
-    recall: 61.05,
-    f1Score: 62.22,
-    trainingTime: "10.880 s",
-    type: "Ensemble of 150 Decision Trees",
-    description: "Bagging ensemble of randomized decision trees. Captures non-linear feature interactions across 20 classes."
+    badge: "Ensemble Trees",
+    accuracy: 71.59,
+    precision: 76.56,
+    recall: 71.59,
+    f1Score: 64.68,
+    trainingTime: "1.507 s",
+    type: "Ensemble of 80 Decision Trees",
+    description: "Bagging ensemble of randomized decision trees. Captures non-linear feature interactions across all multi-domain topics."
   }
 ];
 
