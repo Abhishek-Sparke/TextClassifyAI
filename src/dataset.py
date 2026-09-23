@@ -18,12 +18,14 @@ from sklearn.datasets._twenty_newsgroups import (
 from sklearn.model_selection import train_test_split
 
 # Curated diverse categories representing distinct semantic domains:
-# Computers, Recreation/Sports, Science/Medicine, and Politics
+# Computers, Sports, Space Science, Politics, Medicine, and Automobiles
 DEFAULT_CATEGORIES = [
     'comp.graphics',
     'rec.sport.baseball',
     'sci.space',
-    'talk.politics.misc'
+    'talk.politics.misc',
+    'sci.med',
+    'rec.autos'
 ]
 
 # Friendly human-readable category display names

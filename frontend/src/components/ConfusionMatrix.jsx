@@ -73,7 +73,7 @@ export default function ConfusionMatrix() {
             Linear SVM Confusion Matrix
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-3xl">
-            Detailed 4x4 matrix representation showing true ground truth labels vs. model predictions across all {totalTestDocs} evaluated test documents.
+            Detailed {labels.length}x{labels.length} matrix representation showing true ground truth labels vs. model predictions across all {totalTestDocs} evaluated test documents.
           </p>
         </div>
 
@@ -111,7 +111,10 @@ export default function ConfusionMatrix() {
                 Predicted Class →
               </div>
 
-              <div className="grid grid-cols-5 gap-2 text-center text-xs items-center">
+              <div 
+                className="gap-2 text-center text-xs items-center"
+                style={{ display: 'grid', gridTemplateColumns: `repeat(${labels.length + 1}, minmax(0, 1fr))` }}
+              >
                 {/* Top left corner empty */}
                 <div className="p-2 text-[10px] font-bold text-slate-400 uppercase">
                   Actual Class ↓

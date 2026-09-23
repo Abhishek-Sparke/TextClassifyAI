@@ -181,7 +181,15 @@ def plot_confusion_matrices(
     fig, axes = plt.subplots(2, 2, figsize=(13, 11), dpi=300)
     axes = axes.flatten()
 
-    short_labels = [name.split('.')[-1].replace('_', ' ').capitalize() for name in target_names]
+    display_map = {
+        'comp.graphics': 'Graphics',
+        'rec.sport.baseball': 'Sports',
+        'sci.space': 'Space',
+        'talk.politics.misc': 'Politics',
+        'sci.med': 'Medicine',
+        'rec.autos': 'Autos'
+    }
+    short_labels = [display_map.get(name, name.split('.')[-1].capitalize()) for name in target_names]
 
     for idx, name in enumerate(model_names[:4]):
         cm = np.array(evaluation_results[name]['confusion_matrix'])

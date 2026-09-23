@@ -61,6 +61,10 @@ def test_model_inference_pipeline():
     prediction_idx = model.predict(vec)[0]
     probabilities = get_prediction_probabilities(model, vec)[0]
 
+    assert len(categories) == 6, f"Expected 6 categories, got {len(categories)}"
+    assert "sci.med" in categories
+    assert "rec.autos" in categories
+
     assert 0 <= prediction_idx < len(categories)
     predicted_category = categories[prediction_idx]
     assert isinstance(predicted_category, str)
@@ -76,3 +80,27 @@ def test_model_inference_pipeline():
     top_terms = get_top_tfidf_terms_for_document(vectorizer, vec, top_n=3)
     assert isinstance(top_terms, list)
     assert len(top_terms) > 0
+
+
+def test_new_categories_inference():
+    models_dir = "models"
+    model = joblib.load(os.path.join(models_dir, "best_model.joblib"))
+    vectorizer = joblib.load(os.path.join(models_dir, "tfidf_vectorizer.joblib"))
+    with open(os.path.join(models_dir, "model_metadata.json"), "r") as f:
+        meta = json.load(f)
+    categories = meta["categories"]
+
+    # Test Medicine classification
+    med_text = "Patients in the clinical trial received treatment with pharmaceutical antibiotic drugs for bacterial infection."
+    clean_med = preprocess_document(med_text, apply_lemmatization=True)
+    vec_med = vectorizer.transform([clean_med])
+    pred_med = categories[model.predict(vec_med)[0]]
+    assert pred_med == "sci.med"
+
+    # Test Automobile classification
+    auto_text = "The new sports car features a turbocharged engine, rear-wheel drive transmission, and high-speed tires."
+    clean_auto = preprocess_document(auto_text, apply_lemmatization=True)
+    vec_auto = vectorizer.transform([clean_auto])
+    pred_auto = categories[model.predict(vec_auto)[0]]
+    assert pred_auto == "rec.autos"
+

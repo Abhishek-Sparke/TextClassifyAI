@@ -207,15 +207,15 @@ All models were evaluated on the held-out stratified test set (20% of data) usin
 
 | Machine Learning Model | Accuracy | Precision (Weighted) | Recall (Weighted) | F1-Score (Weighted) | F1-Score (Macro) | Training Time (s) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Support Vector Machine (Linear SVM)** | **89.74%** | **0.8975** | **0.8974** | **0.8974** | **0.8963** | 0.114s |
-| **Logistic Regression** | **89.32%** | **0.8935** | **0.8932** | **0.8931** | **0.8925** | 0.144s |
-| **Multinomial Naive Bayes** | **89.04%** | **0.8906** | **0.8904** | **0.8902** | **0.8903** | **0.004s** |
-| **Random Forest** | **83.50%** | **0.8374** | **0.8350** | **0.8337** | **0.8323** | 0.369s |
+| **Support Vector Machine (Linear SVM)** | **87.07%** | **0.8707** | **0.8707** | **0.8706** | **0.8696** | 0.208s |
+| **Logistic Regression** | **86.34%** | **0.8639** | **0.8634** | **0.8633** | **0.8625** | 0.239s |
+| **Multinomial Naive Bayes** | **85.70%** | **0.8587** | **0.8570** | **0.8573** | **0.8564** | **0.006s** |
+| **Random Forest** | **78.42%** | **0.7966** | **0.7842** | **0.7839** | **0.7812** | 0.462s |
 
 *(Exact values are generated dynamically when running `train.py`).*
 
 ### Key Analytical Takeaways
-1. **SVM & Logistic Regression dominate text classification**: Linear boundaries perform exceptionally well in high-dimensional sparse TF-IDF spaces.
+1. **SVM & Logistic Regression dominate text classification**: Linear boundaries perform exceptionally well in high-dimensional sparse TF-IDF spaces across 6 diverse classes.
 2. **Naive Bayes provides the highest speed-to-performance ratio**: With an inference time under 1 millisecond, it is ideal for latency-sensitive deployments.
 3. **Random Forest suffers slightly on sparse text**: High-dimensional sparse feature spaces are challenging for axis-aligned decision trees compared to margin-based linear hyperplanes.
 
@@ -223,18 +223,18 @@ All models were evaluated on the held-out stratified test set (20% of data) usin
 
 ## Streamlit Web Application
 
-🌐 **Live Cloud Deployment**: **[https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/](https://abhishek-sparke-mlproj-app-cmlulp.streamlit.app/)**
+🌐 **Live Cloud Deployment**: **[https://abhishek-sparke-textclassifyai.streamlit.app/](https://abhishek-sparke-textclassifyai.streamlit.app/)**
 
 The interactive web application (`app.py`) provides:
 - **🔮 Live Document Classifier**:
-  - Paste any text document or select one of 4 curated presets.
+  - Paste any text document or select one of 6 curated presets across Computer Graphics, Automobiles, Sports, Medicine, Space Science, and Politics.
   - Predict the document class instantly.
-  - View confidence percentage and a probability breakdown bar chart across all categories.
+  - View confidence percentage and a probability breakdown bar chart across all 6 categories.
   - Inspect top TF-IDF keywords contributing to the decision.
 - **📊 Model Comparison Tab**:
   - Side-by-side metric table with best scores highlighted.
   - Multi-metric comparative bar chart.
-  - 2x2 confusion matrix heatmaps for error diagnosis.
+  - Confusion matrix heatmaps for error diagnosis.
 - **🔍 Feature & Keyword Analysis**:
   - Top distinguishing keywords per class.
   - Mathematical breakdown of the TF-IDF formula.

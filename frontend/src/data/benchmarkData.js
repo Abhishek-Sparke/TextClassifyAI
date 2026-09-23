@@ -1,18 +1,18 @@
 /**
  * Empirical Benchmark and Dataset Metadata
- * Grounded directly in the trained 20 Newsgroups pipeline results.
+ * Grounded directly in the trained 20 Newsgroups 6-class pipeline results.
  */
 
 export const DATASET_STATS = {
-  totalDocuments: 3613,
-  categoriesCount: 4,
-  trainingSamples: 2883,
-  testingSamples: 721,
+  totalDocuments: 5489,
+  categoriesCount: 6,
+  trainingSamples: 4391,
+  testingSamples: 1098,
   tfidfFeatures: 5000,
-  averageWordCount: 214.5,
-  medianWordCount: 142,
+  averageWordCount: 187.7,
+  medianWordCount: 83,
   bestModelName: "Support Vector Machine (Linear SVM)",
-  bestAccuracy: "89.74%"
+  bestAccuracy: "87.07%"
 };
 
 export const CATEGORIES = [
@@ -23,9 +23,20 @@ export const CATEGORIES = [
     icon: "💻",
     color: "indigo",
     count: 953,
-    percentage: 26.4,
+    percentage: 17.4,
     description: "3D rendering, GPU shaders, polygon meshes, OpenGL/Vulkan, anti-aliasing, and computer animation.",
     topKeywords: ["graphics", "image", "3d", "render", "polygon", "format", "color", "animation"]
+  },
+  {
+    id: "rec.autos",
+    name: "Automobiles",
+    badge: "Transport",
+    icon: "🚗",
+    color: "cyan",
+    count: 930,
+    percentage: 16.9,
+    description: "Automotive engineering, powertrains, vehicle mechanics, transmissions, engines, and road handling.",
+    topKeywords: ["car", "cars", "engine", "dealer", "speed", "miles", "drive", "oil"]
   },
   {
     id: "rec.sport.baseball",
@@ -34,9 +45,20 @@ export const CATEGORIES = [
     icon: "⚽",
     color: "amber",
     count: 951,
-    percentage: 26.3,
+    percentage: 17.3,
     description: "Major league baseball, pitching statistics, home runs, innings, playoffs, and roster strategies.",
     topKeywords: ["baseball", "pitcher", "inning", "hitter", "strikeout", "run", "game", "team"]
+  },
+  {
+    id: "sci.med",
+    name: "Medicine",
+    badge: "Healthcare",
+    icon: "🩺",
+    color: "rose",
+    count: 957,
+    percentage: 17.4,
+    description: "Clinical diagnosis, biomedical research, pharmacology, pathology, treatments, and medical science.",
+    topKeywords: ["doctor", "disease", "treatment", "pain", "medical", "patients", "clinical", "syndrome"]
   },
   {
     id: "sci.space",
@@ -45,7 +67,7 @@ export const CATEGORIES = [
     icon: "🚀",
     color: "sky",
     count: 953,
-    percentage: 26.4,
+    percentage: 17.4,
     description: "Planetary exploration, NASA missions, satellite orbital mechanics, space telescopes, and astrophysics.",
     topKeywords: ["space", "nasa", "orbit", "satellite", "launch", "rocket", "shuttle", "planetary"]
   },
@@ -56,7 +78,7 @@ export const CATEGORIES = [
     icon: "🏛️",
     color: "emerald",
     count: 756,
-    percentage: 20.9,
+    percentage: 13.8,
     description: "Congressional legislation, foreign policy treaties, civil rights, constitutional law, and governance.",
     topKeywords: ["government", "policy", "congress", "law", "president", "state", "rights", "political"]
   }
@@ -69,11 +91,11 @@ export const MODEL_PERFORMANCE = [
     shortName: "Linear SVM",
     isBest: true,
     badge: "Best Overall",
-    accuracy: 89.74,
-    precision: 89.75,
-    recall: 89.74,
-    f1Score: 89.74,
-    trainingTime: "0.114 s",
+    accuracy: 87.07,
+    precision: 87.07,
+    recall: 87.07,
+    f1Score: 87.06,
+    trainingTime: "0.208 s",
     type: "Maximum Margin Linear Hyperplane",
     description: "Excels in high-dimensional sparse TF-IDF spaces by maximizing the geometric margin between decision boundaries."
   },
@@ -83,11 +105,11 @@ export const MODEL_PERFORMANCE = [
     shortName: "Logistic Reg",
     isBest: false,
     badge: "Runner Up",
-    accuracy: 89.32,
-    precision: 89.35,
-    recall: 89.32,
-    f1Score: 89.31,
-    trainingTime: "0.144 s",
+    accuracy: 86.34,
+    precision: 86.39,
+    recall: 86.34,
+    f1Score: 86.33,
+    trainingTime: "0.239 s",
     type: "Multinomial Softmax Classifier",
     description: "Generates calibrated probabilistic predictions using multinomial cross-entropy with L2 regularization."
   },
@@ -97,11 +119,11 @@ export const MODEL_PERFORMANCE = [
     shortName: "Naive Bayes",
     isBest: false,
     badge: "Fastest Inference",
-    accuracy: 89.04,
-    precision: 89.06,
-    recall: 89.04,
-    f1Score: 89.02,
-    trainingTime: "0.004 s",
+    accuracy: 85.70,
+    precision: 85.87,
+    recall: 85.70,
+    f1Score: 85.73,
+    trainingTime: "0.006 s",
     type: "Generative Probabilistic Model",
     description: "Ultra-fast probabilistic classifier leveraging conditional word independence and Laplace smoothing."
   },
@@ -111,25 +133,27 @@ export const MODEL_PERFORMANCE = [
     shortName: "Random Forest",
     isBest: false,
     badge: "Ensemble",
-    accuracy: 83.50,
-    precision: 83.74,
-    recall: 83.50,
-    f1Score: 83.37,
-    trainingTime: "0.369 s",
+    accuracy: 78.42,
+    precision: 79.66,
+    recall: 78.42,
+    f1Score: 78.39,
+    trainingTime: "0.462 s",
     type: "Ensemble of 150 Decision Trees",
     description: "Bagging ensemble of randomized decision trees. Robust against non-linear patterns."
   }
 ];
 
-// 4x4 Confusion Matrix corresponding to the SVM test split (N = 721)
-// Classes: [Computer Graphics, Sports, Space Science, Politics]
+// 6x6 Confusion Matrix corresponding to the Linear SVM test split (N = 1098)
+// Order: [Graphics, Autos, Sports, Medicine, Space, Politics]
 export const CONFUSION_MATRIX = {
-  labels: ["Graphics", "Sports", "Space", "Politics"],
+  labels: ["Graphics", "Autos", "Sports", "Medicine", "Space", "Politics"],
   matrix: [
-    [174, 3, 11, 3],   // Actual Graphics: 174 correctly classified
-    [2, 182, 4, 2],    // Actual Sports: 182 correctly classified
-    [9, 5, 172, 5],    // Actual Space: 172 correctly classified
-    [12, 6, 12, 119]   // Actual Politics: 119 correctly classified
+    [167, 5, 4, 5, 6, 3],
+    [5, 166, 3, 5, 2, 5],
+    [3, 4, 171, 2, 4, 5],
+    [6, 1, 5, 164, 10, 5],
+    [7, 6, 4, 6, 162, 6],
+    [0, 6, 9, 3, 7, 126]
   ]
 };
 
@@ -142,18 +166,32 @@ export const SAMPLE_DOCUMENTS = [
     fullText: "Modern real-time ray tracing requires hardware-accelerated GPUs with dedicated shader cores. The 3D rendering pipeline transforms polygon meshes and texture maps using Vulkan and DirectX, computing vertex lighting, anti-aliasing, reflections, and shadow maps at high refresh rates."
   },
   {
+    title: "High-Performance Automotive Engineering",
+    category: "Automobiles",
+    icon: "🚗",
+    preview: "Turbocharged internal combustion engines optimize thermal efficiency through variable valve timing...",
+    fullText: "Turbocharged internal combustion engines optimize thermal efficiency through variable valve timing, dual-clutch transmission gearing, and electronic fuel injection. Aerodynamic chassis design combined with independent suspension improves torque delivery and brake caliper responsiveness."
+  },
+  {
     title: "Major League Baseball Championship Game",
     category: "Sports",
-    icon: "⚾",
+    icon: "⚽",
     preview: "The starting pitcher delivered a dominant performance with nine strikeouts over seven scoreless innings...",
     fullText: "The starting pitcher delivered a dominant performance with nine strikeouts over seven scoreless innings. In the bottom of the ninth, the clean-up hitter drove in two runs with a solid line drive over the outfield fence, securing the championship victory as the stadium erupted."
   },
   {
-    title: "Quarterly Financial Growth & Earnings",
-    category: "Business",
-    icon: "💼",
-    preview: "The company reported increased revenue during the financial quarter. Investors are expecting stronger profits...",
-    fullText: "The company reported increased revenue during the financial quarter. Investors are expecting stronger profits as the organization expands its products into international markets."
+    title: "Clinical Pharmacology & Diagnostic Medicine",
+    category: "Medicine",
+    icon: "🩺",
+    preview: "Patients presenting with acute cardiovascular symptoms received clinical assessment including biomarker enzyme assays...",
+    fullText: "Patients presenting with acute cardiovascular symptoms received clinical assessment including biomarker enzyme assays, electrocardiogram monitoring, and targeted antimicrobial therapies. Controlled clinical trials indicate significant efficacy in lowering blood serum cholesterol and mitigating chronic autoimmune inflammatory response."
+  },
+  {
+    title: "Deep Space Planetary Missions & Astrophysics",
+    category: "Science",
+    icon: "🚀",
+    preview: "NASA deep space exploration probes utilize gravitational slingshots and ion thrusters to navigate interplanetary trajectories...",
+    fullText: "NASA deep space exploration probes utilize gravitational slingshots and ion thrusters to navigate interplanetary trajectories. High-resolution spectroscopic imaging from orbital telescopes measures cosmic microwave radiation, solar flare flux, and planetary atmospheric composition."
   },
   {
     title: "Congressional Legislative Debate & Reform",
@@ -161,13 +199,6 @@ export const SAMPLE_DOCUMENTS = [
     icon: "🏛️",
     preview: "Congress held an extensive legislative debate on national fiscal reform, international trade treaties...",
     fullText: "Congress held an extensive legislative debate on national fiscal reform, international trade treaties, and civil rights. Leaders presented constitutional arguments regarding government budget allocation, judicial oversight, and executive appointments."
-  },
-  {
-    title: "International Cinema Awards & Directing",
-    category: "Entertainment",
-    icon: "🎬",
-    preview: "The critically acclaimed feature film received multiple nominations at the international cinema awards...",
-    fullText: "The critically acclaimed feature film received multiple nominations at the international cinema awards. Critics praised the director's visionary storytelling, the orchestral musical score, and the lead actor's stirring theatrical performance."
   }
 ];
 
@@ -177,7 +208,7 @@ export const PIPELINE_STEPS = [
     title: "Document Input",
     subtitle: "Raw Unstructured Text",
     description: "Accepts raw text documents, articles, emails, or forum posts in any character encoding.",
-    details: "Supports variable-length text from brief abstracts to multi-page essays."
+    details: "Supports variable-length text from brief abstracts to multi-page essays across 6 distinct domains."
   },
   {
     number: "02",
@@ -205,6 +236,6 @@ export const PIPELINE_STEPS = [
     title: "Predicted Category",
     subtitle: "Confidence & Explainability",
     description: "Outputs predicted category label, calibrated confidence score (%), and top influential TF-IDF key terms.",
-    details: "Provides instant probability distribution across all predefined topic categories."
+    details: "Provides instant probability distribution across all 6 predefined topic categories."
   }
 ];

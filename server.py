@@ -59,7 +59,9 @@ CATEGORY_NAMES = {
     "comp.graphics": "Computer Graphics",
     "rec.sport.baseball": "Sports",
     "sci.space": "Space Science",
-    "talk.politics.misc": "Politics"
+    "talk.politics.misc": "Politics",
+    "sci.med": "Medicine",
+    "rec.autos": "Automobiles"
 }
 
 vectorizer = None
