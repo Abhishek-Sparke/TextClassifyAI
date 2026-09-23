@@ -8,7 +8,9 @@ __pycache__/
 .DS_Store
 Thumbs.db
 frontend/node_modules/
+node_modules/
 frontend/.next/
 frontend/dist/
 frontend/build/
 scratch/
+
