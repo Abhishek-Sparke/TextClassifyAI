@@ -4,15 +4,15 @@
  */
 
 export const DATASET_STATS = {
-  totalDocuments: 2769,
+  totalDocuments: 2786,
   categoriesCount: 4,
-  trainingSamples: 2204,
-  testingSamples: 552,
+  trainingSamples: 2218,
+  testingSamples: 555,
   tfidfFeatures: 5000,
   averageWordCount: 197.7,
   medianWordCount: 59,
   bestModelName: "Multinomial Naive Bayes",
-  bestAccuracy: "86.59%"
+  bestAccuracy: "87.03%"
 };
 
 export const CATEGORIES = [
