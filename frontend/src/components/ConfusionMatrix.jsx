@@ -49,17 +49,19 @@ export default function ConfusionMatrix() {
   // Helper function to get background shading
   const getCellBg = (val, isDiagonal) => {
     if (isDiagonal) {
-      if (val > 120) return 'bg-indigo-600 text-white font-bold';
-      if (val > 80) return 'bg-indigo-500 text-white font-bold';
+      if (val > 1000) return 'bg-indigo-700 text-white font-bold';
+      if (val > 100) return 'bg-indigo-600 text-white font-bold';
+      if (val > 50) return 'bg-indigo-500 text-white font-bold';
       return 'bg-indigo-400 text-white font-bold';
     }
     if (val === 0) return 'bg-slate-50 dark:bg-slate-800/40 text-slate-300 dark:text-slate-600';
-    if (val <= 4) return 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-medium';
-    if (val <= 10) return 'bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-semibold';
+    if (val <= 5) return 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-medium';
+    if (val <= 25) return 'bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-semibold';
     return 'bg-rose-200 dark:bg-rose-950/70 text-rose-900 dark:text-rose-200 font-bold';
   };
 
   const isLargeMatrix = labels.length > 8;
+  const isSuperLargeMatrix = labels.length > 20;
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -106,7 +108,7 @@ export default function ConfusionMatrix() {
           </div>
 
           <div className="overflow-x-auto py-2">
-            <div className={isLargeMatrix ? "min-w-[820px]" : "min-w-[420px]"}>
+            <div className={isSuperLargeMatrix ? "min-w-[1020px]" : isLargeMatrix ? "min-w-[820px]" : "min-w-[420px]"}>
               
               {/* Predicted Label Header */}
               <div className="text-center text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-2">
@@ -114,15 +116,15 @@ export default function ConfusionMatrix() {
               </div>
 
               <div 
-                className={`text-center items-center ${isLargeMatrix ? 'gap-1 text-[11px]' : 'gap-2 text-xs'}`}
+                className={`text-center items-center ${isSuperLargeMatrix ? 'gap-0.5 text-[9.5px]' : isLargeMatrix ? 'gap-1 text-[11px]' : 'gap-2 text-xs'}`}
                 style={{ display: 'grid', gridTemplateColumns: `repeat(${labels.length + 1}, minmax(0, 1fr))` }}
               >
                 {/* Top left corner empty */}
-                <div className="p-1 text-[10px] font-bold text-slate-400 uppercase">
+                <div className="p-0.5 text-[9px] font-bold text-slate-400 uppercase">
                   Actual ↓
                 </div>
                 {labels.map((lbl, idx) => (
-                  <div key={idx} className="p-1 font-bold text-slate-700 dark:text-slate-300 truncate" title={lbl}>
+                  <div key={idx} className="p-0.5 font-bold text-slate-700 dark:text-slate-300 truncate" title={lbl}>
                     {lbl}
                   </div>
                 ))}
@@ -130,7 +132,7 @@ export default function ConfusionMatrix() {
                 {/* Matrix Rows */}
                 {matrix.map((row, rowIdx) => (
                   <React.Fragment key={rowIdx}>
-                    <div className="p-1 text-right font-bold text-slate-700 dark:text-slate-300 truncate" title={labels[rowIdx]}>
+                    <div className="p-0.5 text-right font-bold text-slate-700 dark:text-slate-300 truncate" title={labels[rowIdx]}>
                       {labels[rowIdx]}
                     </div>
                     {row.map((val, colIdx) => {
@@ -145,7 +147,7 @@ export default function ConfusionMatrix() {
                             isCorrect: isDiagonal
                           })}
                           onMouseLeave={() => setHoveredCell(null)}
-                          className={`${isLargeMatrix ? 'p-1.5 text-xs' : 'p-3.5 text-sm'} rounded-lg text-center transition-all duration-150 cursor-pointer shadow-xs ${getCellBg(val, isDiagonal)} hover:scale-110 hover:ring-2 hover:ring-indigo-400`}
+                          className={`${isSuperLargeMatrix ? 'p-1 text-[9px]' : isLargeMatrix ? 'p-1.5 text-xs' : 'p-3.5 text-sm'} rounded-xs sm:rounded-sm text-center transition-all duration-150 cursor-pointer shadow-xs ${getCellBg(val, isDiagonal)} hover:scale-125 hover:z-10 hover:ring-2 hover:ring-indigo-400`}
                         >
                           {val}
                         </div>

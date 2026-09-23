@@ -1,6 +1,6 @@
 /**
  * Empirical Benchmark and Dataset Metadata
- * Grounded directly in the trained 20 Newsgroups 20-class pipeline results.
+ * Grounded directly in the trained 100k Multi-Domain 26-class pipeline results.
  */
 
 export const DATASET_STATS = {
@@ -17,224 +17,15 @@ export const DATASET_STATS = {
 
 export const CATEGORIES = [
   {
-    id: "alt.atheism",
-    name: "Atheism",
-    badge: "Philosophy",
-    icon: "🕊️",
-    color: "rose",
-    count: 776,
-    percentage: 4.2,
-    description: "Atheism, religious criticism, secular philosophy, ethics, morality, and humanist reasoning.",
-    topKeywords: ["god", "atheist", "say", "religion", "one", "think", "moral", "peopl"]
-  },
-  {
-    id: "comp.graphics",
-    name: "Computer Graphics",
-    badge: "Technology",
-    icon: "🎨",
-    color: "indigo",
-    count: 953,
-    percentage: 5.2,
-    description: "3D rendering, GPU shaders, polygon meshes, raytracing, and image formats.",
-    topKeywords: ["graphic", "file", "imag", "program", "use", "format", "color", "anim"]
-  },
-  {
-    id: "comp.os.ms-windows.misc",
-    name: "MS Windows",
-    badge: "Operating Systems",
-    icon: "🪟",
-    color: "blue",
-    count: 946,
-    percentage: 5.2,
-    description: "Microsoft Windows drivers, system utilities, DLLs, and OS configuration.",
-    topKeywords: ["window", "file", "use", "driver", "program", "problem", "run", "applic"]
-  },
-  {
-    id: "comp.sys.ibm.pc.hardware",
-    name: "IBM PC Hardware",
-    badge: "Hardware",
-    icon: "🖥️",
-    color: "slate",
-    count: 962,
-    percentage: 5.3,
-    description: "IBM PC architecture, motherboards, IDE/SCSI controllers, BIOS, and bus cards.",
-    topKeywords: ["drive", "card", "scsi", "ide", "pc", "use", "system", "bus"]
-  },
-  {
-    id: "comp.sys.mac.hardware",
-    name: "Mac Hardware",
-    badge: "Apple Hardware",
-    icon: "🍏",
-    color: "emerald",
-    count: 925,
-    percentage: 5.1,
-    description: "Apple Macintosh hardware, PowerBook, Quadra, monitors, and SCSI devices.",
-    topKeywords: ["mac", "appl", "drive", "powerbook", "scsi", "quadra", "monitor", "problem"]
-  },
-  {
-    id: "comp.windows.x",
-    name: "X Window System",
-    badge: "Windowing Systems",
-    icon: "💻",
+    id: "world.news",
+    name: "World News",
+    badge: "Global Affairs",
+    icon: "🌐",
     color: "cyan",
-    count: 978,
-    percentage: 5.4,
-    description: "X11 window system, Xlib, Motif widgets, window managers, and display clients.",
-    topKeywords: ["window", "server", "use", "xterm", "widget", "motif", "display", "client"]
-  },
-  {
-    id: "misc.forsale",
-    name: "For Sale",
-    badge: "Commerce",
-    icon: "🏷️",
-    color: "amber",
-    count: 957,
-    percentage: 5.2,
-    description: "Classified ads, consumer goods, price offers, electronics, and shipping.",
-    topKeywords: ["sale", "offer", "new", "price", "ask", "sell", "ship", "condit"]
-  },
-  {
-    id: "rec.autos",
-    name: "Automobiles",
-    badge: "Automotive",
-    icon: "🚗",
-    color: "teal",
-    count: 930,
-    percentage: 5.1,
-    description: "Automotive mechanics, engine performance, transmissions, and road handling.",
-    topKeywords: ["car", "engin", "dealer", "drive", "price", "oil", "speed", "vehicl"]
-  },
-  {
-    id: "rec.motorcycles",
-    name: "Motorcycles",
-    badge: "Motorcycling",
-    icon: "🏍️",
-    color: "orange",
-    count: 964,
-    percentage: 5.3,
-    description: "Motorcycle engineering, riding gear, road maintenance, and motorcycle clubs.",
-    topKeywords: ["bike", "ride", "motorcycl", "rider", "helmet", "harley", "road", "gear"]
-  },
-  {
-    id: "rec.sport.baseball",
-    name: "Baseball",
-    badge: "Baseball",
-    icon: "⚾",
-    color: "yellow",
-    count: 951,
-    percentage: 5.2,
-    description: "Major League Baseball statistics, pitching rotations, home runs, and players.",
-    topKeywords: ["game", "team", "year", "player", "hit", "run", "basebal", "season"]
-  },
-  {
-    id: "rec.sport.hockey",
-    name: "Hockey",
-    badge: "Hockey",
-    icon: "🏒",
-    color: "sky",
-    count: 972,
-    percentage: 5.3,
-    description: "NHL ice hockey games, playoff tournaments, team rosters, and penalty points.",
-    topKeywords: ["game", "team", "play", "hockey", "season", "nhl", "player", "period"]
-  },
-  {
-    id: "sci.crypt",
-    name: "Cryptography",
-    badge: "Cryptography",
-    icon: "🔐",
-    color: "violet",
-    count: 962,
-    percentage: 5.3,
-    description: "Public-key cryptography, encryption algorithms, DES, RSA, and data security.",
-    topKeywords: ["key", "encrypt", "clipper", "chip", "secur", "govern", "privaci", "des"]
-  },
-  {
-    id: "sci.electronics",
-    name: "Electronics",
-    badge: "Electronics",
-    icon: "⚡",
-    color: "amber",
-    count: 956,
-    percentage: 5.2,
-    description: "Circuits, schematics, microcontrollers, radio frequency, and semiconductors.",
-    topKeywords: ["use", "circuit", "power", "voltag", "amp", "wire", "radio", "ground"]
-  },
-  {
-    id: "sci.med",
-    name: "Medicine",
-    badge: "Medicine",
-    icon: "🩺",
-    color: "red",
-    count: 957,
-    percentage: 5.2,
-    description: "Biomedical science, clinical diagnostics, therapeutics, pathology, and doctors.",
-    topKeywords: ["doctor", "diseas", "treatment", "pain", "medic", "patient", "clinic", "syndrom"]
-  },
-  {
-    id: "sci.space",
-    name: "Space Science",
-    badge: "Space Science",
-    icon: "🚀",
-    color: "fuchsia",
-    count: 953,
-    percentage: 5.2,
-    description: "Orbital mechanics, NASA missions, satellites, rockets, and astrophysics.",
-    topKeywords: ["space", "nasa", "orbit", "launch", "satellit", "moon", "shuttl", "mission"]
-  },
-  {
-    id: "soc.religion.christian",
-    name: "Christianity",
-    badge: "Religion",
-    icon: "✝️",
-    color: "purple",
-    count: 974,
-    percentage: 5.3,
-    description: "Christian theology, scripture analysis, biblical scholarship, and faith.",
-    topKeywords: ["god", "christian", "jesu", "church", "bibl", "christ", "faith", "sin"]
-  },
-  {
-    id: "talk.politics.guns",
-    name: "Gun Politics",
-    badge: "Politics",
-    icon: "🎯",
-    color: "stone",
-    count: 885,
-    percentage: 4.8,
-    description: "Firearms policy, Second Amendment rights, legislation, and gun control.",
-    topKeywords: ["gun", "firearm", "weapon", "right", "state", "law", "control", "amend"]
-  },
-  {
-    id: "talk.politics.mideast",
-    name: "Middle East Politics",
-    badge: "Geopolitics",
-    icon: "🌍",
-    color: "emerald",
-    count: 917,
-    percentage: 5.0,
-    description: "Middle Eastern geopolitical conflicts, peace treaties, and foreign affairs.",
-    topKeywords: ["israel", "israeli", "arab", "peopl", "jew", "palestinian", "war", "state"]
-  },
-  {
-    id: "talk.politics.misc",
-    name: "Politics",
-    badge: "Governance",
-    icon: "🏛️",
-    color: "pink",
-    count: 756,
-    percentage: 4.1,
-    description: "Government policy, international trade, constitutional rights, and law.",
-    topKeywords: ["govern", "peopl", "state", "law", "right", "presid", "polit", "tax"]
-  },
-  {
-    id: "talk.religion.misc",
-    name: "Religion",
-    badge: "Philosophy",
-    icon: "🕊️",
-    color: "orange",
-    count: 603,
-    percentage: 0.6,
-    description: "Comparative religious discussions, spiritual philosophy, and ethics.",
-    topKeywords: ["god", "religi", "moral", "peopl", "say", "believ", "christian", "think"]
+    count: 25000,
+    percentage: 25.0,
+    description: "International diplomacy, geopolitical summits, treaties, foreign affairs, and United Nations.",
+    topKeywords: ["say", "minist", "presid", "state", "leader", "peac", "iraq", "foreign"]
   },
   {
     id: "business.finance",
@@ -248,17 +39,6 @@ export const CATEGORIES = [
     topKeywords: ["compani", "oil", "price", "market", "busi", "stock", "econom", "investor"]
   },
   {
-    id: "world.news",
-    name: "World News",
-    badge: "Global Affairs",
-    icon: "🌐",
-    color: "cyan",
-    count: 25000,
-    percentage: 25.0,
-    description: "International diplomacy, geopolitical summits, treaties, foreign affairs, and United Nations.",
-    topKeywords: ["say", "minist", "presid", "state", "leader", "peac", "iraq", "foreign"]
-  },
-  {
     id: "entertainment.arts",
     name: "Entertainment & Arts",
     badge: "Culture",
@@ -268,6 +48,17 @@ export const CATEGORIES = [
     percentage: 8.0,
     description: "Cinema, theatrical arts, music, Hollywood performances, and critical film reviews.",
     topKeywords: ["film", "movi", "charact", "direct", "stori", "make", "perform", "actor"]
+  },
+  {
+    id: "environment.climate",
+    name: "Environment & Climate",
+    badge: "Sustainability",
+    icon: "🌱",
+    color: "green",
+    count: 7919,
+    percentage: 7.9,
+    description: "Atmospheric carbon modeling, renewable solar/wind energy, conservation ecology, and climate policy.",
+    topKeywords: ["climat", "environ", "carbon", "emiss", "sequestr", "sustain", "photovolta", "ecolog"]
   },
   {
     id: "health.wellness",
@@ -292,15 +83,224 @@ export const CATEGORIES = [
     topKeywords: ["educ", "academ", "syllabu", "seminar", "student", "literaci", "assess"]
   },
   {
-    id: "environment.climate",
-    name: "Environment & Climate",
-    badge: "Sustainability",
-    icon: "🌱",
-    color: "green",
-    count: 7919,
-    percentage: 7.9,
-    description: "Atmospheric climate science, renewable solar energy, carbon sequestration, and conservation.",
-    topKeywords: ["climat", "environ", "carbon", "emiss", "sequestr", "reforest", "sustain"]
+    id: "comp.graphics",
+    name: "Computer Graphics",
+    badge: "Technology",
+    icon: "🎨",
+    color: "indigo",
+    count: 952,
+    percentage: 1.0,
+    description: "3D rendering, GPU shaders, polygon meshes, raytracing, and image formats.",
+    topKeywords: ["graphic", "file", "imag", "program", "use", "format", "color", "anim"]
+  },
+  {
+    id: "comp.os.ms-windows.misc",
+    name: "MS Windows",
+    badge: "Operating Systems",
+    icon: "🪟",
+    color: "blue",
+    count: 945,
+    percentage: 0.9,
+    description: "Microsoft Windows drivers, system utilities, DLLs, and OS configuration.",
+    topKeywords: ["window", "file", "use", "driver", "program", "problem", "run", "applic"]
+  },
+  {
+    id: "comp.sys.ibm.pc.hardware",
+    name: "IBM PC Hardware",
+    badge: "Hardware",
+    icon: "🖥️",
+    color: "slate",
+    count: 962,
+    percentage: 1.0,
+    description: "IBM PC architecture, motherboards, IDE/SCSI controllers, BIOS, and bus cards.",
+    topKeywords: ["drive", "card", "scsi", "ide", "pc", "use", "system", "bus"]
+  },
+  {
+    id: "comp.sys.mac.hardware",
+    name: "Mac Hardware",
+    badge: "Apple Hardware",
+    icon: "🍏",
+    color: "emerald",
+    count: 923,
+    percentage: 0.9,
+    description: "Apple Macintosh hardware, PowerBook, Quadra, monitors, and SCSI devices.",
+    topKeywords: ["mac", "appl", "drive", "powerbook", "scsi", "quadra", "monitor", "problem"]
+  },
+  {
+    id: "comp.windows.x",
+    name: "X Window System",
+    badge: "Windowing Systems",
+    icon: "💻",
+    color: "cyan",
+    count: 976,
+    percentage: 1.0,
+    description: "X11 window system, Xlib, Motif widgets, window managers, and display clients.",
+    topKeywords: ["window", "server", "use", "xterm", "widget", "motif", "display", "client"]
+  },
+  {
+    id: "misc.forsale",
+    name: "For Sale",
+    badge: "Commerce",
+    icon: "🏷️",
+    color: "amber",
+    count: 955,
+    percentage: 1.0,
+    description: "Classified ads, consumer goods, price offers, electronics, and shipping.",
+    topKeywords: ["sale", "offer", "new", "price", "ask", "sell", "ship", "condit"]
+  },
+  {
+    id: "rec.autos",
+    name: "Automobiles",
+    badge: "Automotive",
+    icon: "🚗",
+    color: "red",
+    count: 928,
+    percentage: 0.9,
+    description: "Cars, engines, automotive engineering, transmissions, and dealership purchasing.",
+    topKeywords: ["car", "engin", "use", "one", "dealer", "drive", "price", "look"]
+  },
+  {
+    id: "rec.motorcycles",
+    name: "Motorcycles",
+    badge: "Motorcycles",
+    icon: "🏍️",
+    color: "orange",
+    count: 962,
+    percentage: 1.0,
+    description: "Motorcycles, riding technique, helmets, protective gear, and motorcycle maintenance.",
+    topKeywords: ["bike", "ride", "motorcycl", "rider", "use", "one", "get", "helmet"]
+  },
+  {
+    id: "rec.sport.baseball",
+    name: "Baseball",
+    badge: "Sports",
+    icon: "⚾",
+    color: "lime",
+    count: 944,
+    percentage: 0.9,
+    description: "Major League Baseball, pitching stats, home runs, strikeouts, and playoff pennants.",
+    topKeywords: ["game", "year", "team", "basebal", "run", "hit", "pitch", "player"]
+  },
+  {
+    id: "rec.sport.hockey",
+    name: "Hockey",
+    badge: "Sports",
+    icon: "🏒",
+    color: "sky",
+    count: 971,
+    percentage: 1.0,
+    description: "National Hockey League, Stanley Cup, goals, ice rinks, and power play rules.",
+    topKeywords: ["game", "team", "play", "player", "hockey", "nhl", "year", "season"]
+  },
+  {
+    id: "sci.crypt",
+    name: "Cryptography",
+    badge: "Security",
+    icon: "🔐",
+    color: "violet",
+    count: 962,
+    percentage: 1.0,
+    description: "Public-key cryptography, RSA, Clipper chip, PGP, encryption algorithms, and security.",
+    topKeywords: ["key", "encrypt", "use", "clipper", "chip", "secur", "system", "des"]
+  },
+  {
+    id: "sci.electronics",
+    name: "Electronics",
+    badge: "Engineering",
+    icon: "⚡",
+    color: "yellow",
+    count: 955,
+    percentage: 1.0,
+    description: "Circuit diagrams, semiconductors, microcontrollers, capacitors, and RF electronics.",
+    topKeywords: ["use", "circuit", "chip", "power", "voltag", "ground", "output", "electron"]
+  },
+  {
+    id: "sci.med",
+    name: "Medicine",
+    badge: "Healthcare",
+    icon: "🩺",
+    color: "teal",
+    count: 956,
+    percentage: 1.0,
+    description: "Clinical medicine, pharmacology, diseases, patient symptoms, and biomedical research.",
+    topKeywords: ["doctor", "medic", "treatment", "diseas", "patient", "use", "symptom", "effect"]
+  },
+  {
+    id: "sci.space",
+    name: "Space Science",
+    badge: "Aerospace",
+    icon: "🚀",
+    color: "fuchsia",
+    count: 953,
+    percentage: 1.0,
+    description: "Astronomy, NASA satellite missions, orbital dynamics, planets, and aerospace propulsion.",
+    topKeywords: ["space", "nasa", "orbit", "launch", "moon", "satellit", "shuttl", "year"]
+  },
+  {
+    id: "soc.religion.christian",
+    name: "Christianity",
+    badge: "Religion",
+    icon: "✝️",
+    color: "purple",
+    count: 973,
+    percentage: 1.0,
+    description: "Christian doctrine, biblical theology, church history, gospel scriptures, and faith.",
+    topKeywords: ["god", "christ", "jesu", "church", "christian", "bibl", "faith", "scriptur"]
+  },
+  {
+    id: "talk.politics.guns",
+    name: "Gun Politics",
+    badge: "Policy",
+    icon: "🎯",
+    color: "stone",
+    count: 884,
+    percentage: 0.9,
+    description: "Firearms policy, Second Amendment rights, legislation, and gun control.",
+    topKeywords: ["gun", "firearm", "weapon", "right", "state", "law", "control", "amend"]
+  },
+  {
+    id: "talk.politics.mideast",
+    name: "Middle East Politics",
+    badge: "Geopolitics",
+    icon: "🌍",
+    color: "emerald",
+    count: 914,
+    percentage: 0.9,
+    description: "Middle Eastern geopolitical conflicts, peace treaties, and foreign affairs.",
+    topKeywords: ["israel", "israeli", "arab", "peopl", "jew", "palestinian", "war", "state"]
+  },
+  {
+    id: "talk.politics.misc",
+    name: "Politics",
+    badge: "Governance",
+    icon: "🏛️",
+    color: "pink",
+    count: 754,
+    percentage: 0.8,
+    description: "Government policy, international trade, constitutional rights, and law.",
+    topKeywords: ["govern", "peopl", "state", "law", "right", "presid", "polit", "tax"]
+  },
+  {
+    id: "alt.atheism",
+    name: "Atheism",
+    badge: "Philosophy",
+    icon: "🕊️",
+    color: "rose",
+    count: 775,
+    percentage: 0.8,
+    description: "Atheism, religious criticism, secular philosophy, ethics, morality, and humanist reasoning.",
+    topKeywords: ["god", "atheist", "say", "religion", "one", "think", "moral", "peopl"]
+  },
+  {
+    id: "talk.religion.misc",
+    name: "Religion",
+    badge: "Philosophy",
+    icon: "🕊️",
+    color: "orange",
+    count: 603,
+    percentage: 0.6,
+    description: "Comparative religious discussions, spiritual philosophy, and ethics.",
+    topKeywords: ["god", "religi", "moral", "peopl", "say", "believ", "christian", "think"]
   }
 ];
 
@@ -364,40 +364,85 @@ export const MODEL_PERFORMANCE = [
 ];
 
 // 20x20 Confusion Matrix corresponding to the Multinomial Naive Bayes test split (N = 3653)
+
 export const CONFUSION_MATRIX = {
-  labels: [
-    "Atheism", "Graphics", "MS Win", "IBM PC", "Mac HW", "Win X", "Sale", "Autos",
-    "Mcycles", "Baseball", "Hockey", "Crypt", "Electronics", "Medicine", "Space",
-    "Christian", "Guns", "Mideast", "Politics", "Religion"
-  ],
+  labels: ["Atheism", "Graphics", "MS Win", "IBM PC", "Mac HW", "Win X", "For Sale", "Autos", "Mcycles", "Baseball", "Hockey", "Crypt", "Electronics", "Medicine", "Space", "Christian", "Guns", "Mideast", "Politics", "Religion", "Business", "World News", "Arts", "Wellness", "Academics", "Climate"],
   matrix: [
-    [92, 1, 1, 1, 0, 3, 2, 1, 3, 2, 3, 0, 1, 1, 1, 21, 8, 6, 4, 4],
-    [2, 134, 7, 5, 6, 17, 2, 1, 1, 1, 0, 6, 3, 0, 4, 1, 0, 0, 0, 0],
-    [1, 8, 126, 20, 4, 18, 1, 1, 0, 0, 0, 1, 3, 0, 2, 2, 1, 0, 1, 0],
-    [1, 5, 18, 129, 15, 5, 7, 1, 0, 0, 1, 1, 9, 1, 0, 0, 0, 0, 0, 0],
-    [1, 7, 9, 14, 130, 4, 5, 1, 1, 1, 0, 0, 8, 1, 2, 0, 1, 0, 0, 0],
-    [0, 27, 2, 5, 1, 152, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0],
-    [0, 2, 2, 12, 4, 0, 149, 3, 3, 3, 1, 3, 2, 1, 2, 1, 2, 1, 0, 0],
-    [1, 0, 0, 2, 5, 1, 3, 136, 16, 0, 2, 4, 3, 0, 3, 0, 6, 1, 1, 2],
-    [3, 0, 0, 1, 2, 1, 6, 15, 150, 4, 2, 1, 1, 1, 2, 0, 3, 0, 1, 0],
-    [1, 3, 1, 0, 0, 5, 2, 0, 5, 159, 6, 1, 2, 1, 1, 0, 0, 2, 0, 0],
-    [0, 1, 1, 0, 1, 3, 0, 1, 4, 4, 174, 0, 1, 0, 0, 2, 0, 1, 1, 0],
-    [2, 3, 2, 1, 0, 6, 0, 0, 3, 2, 0, 155, 2, 2, 3, 1, 3, 1, 5, 1],
-    [0, 10, 2, 16, 8, 5, 5, 7, 2, 1, 3, 4, 113, 6, 4, 1, 0, 2, 2, 0],
-    [6, 6, 0, 0, 3, 1, 0, 1, 4, 1, 0, 2, 1, 150, 5, 3, 3, 3, 2, 0],
-    [8, 5, 1, 0, 0, 2, 1, 2, 5, 0, 0, 3, 4, 4, 144, 6, 1, 0, 5, 0],
-    [13, 2, 2, 0, 0, 2, 0, 0, 1, 1, 0, 0, 0, 2, 0, 162, 3, 4, 2, 1],
-    [5, 2, 0, 0, 0, 0, 3, 1, 3, 2, 0, 5, 1, 1, 4, 1, 131, 5, 9, 4],
-    [7, 1, 0, 0, 0, 0, 0, 0, 1, 2, 0, 4, 0, 1, 1, 4, 1, 153, 7, 1],
-    [2, 1, 0, 1, 0, 0, 1, 3, 3, 1, 2, 2, 1, 2, 2, 7, 30, 7, 85, 1],
-    [24, 1, 0, 0, 0, 4, 0, 1, 1, 5, 1, 1, 0, 2, 4, 40, 8, 0, 3, 26]
+    [94, 2, 0, 0, 1, 0, 0, 4, 3, 0, 0, 0, 2, 3, 3, 8, 2, 5, 6, 7, 4, 2, 9, 0, 0, 0],
+    [1, 151, 6, 4, 3, 9, 1, 1, 1, 1, 1, 2, 2, 1, 0, 0, 1, 0, 0, 0, 1, 0, 4, 0, 0, 0],
+    [0, 14, 117, 10, 4, 13, 2, 3, 1, 1, 0, 2, 4, 0, 0, 0, 1, 1, 0, 0, 7, 1, 8, 0, 0, 0],
+    [0, 6, 15, 118, 16, 4, 5, 4, 1, 0, 0, 1, 15, 0, 1, 0, 0, 0, 0, 0, 4, 1, 1, 0, 0, 0],
+    [0, 4, 3, 14, 127, 0, 6, 5, 0, 1, 0, 4, 3, 5, 2, 0, 1, 0, 0, 0, 4, 2, 4, 0, 0, 0],
+    [0, 18, 5, 1, 1, 147, 3, 0, 1, 0, 1, 1, 2, 1, 2, 0, 2, 1, 1, 0, 1, 0, 7, 0, 0, 0],
+    [0, 0, 2, 3, 6, 0, 148, 2, 1, 0, 1, 0, 4, 0, 2, 0, 2, 0, 0, 0, 10, 3, 7, 0, 0, 0],
+    [1, 0, 1, 2, 0, 3, 7, 130, 10, 1, 1, 0, 3, 0, 2, 0, 0, 1, 0, 0, 11, 2, 11, 0, 0, 0],
+    [1, 0, 0, 3, 0, 0, 1, 10, 134, 2, 2, 0, 4, 1, 1, 0, 1, 1, 2, 0, 6, 3, 20, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 177, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 10, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 174, 1, 1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 10, 0, 0, 0],
+    [0, 2, 2, 0, 1, 0, 1, 2, 0, 0, 0, 175, 3, 0, 0, 0, 0, 0, 2, 0, 3, 1, 0, 0, 0, 0],
+    [0, 1, 5, 5, 9, 2, 4, 10, 3, 1, 0, 3, 119, 5, 2, 0, 1, 2, 2, 1, 10, 2, 4, 0, 0, 0],
+    [2, 0, 0, 0, 1, 0, 0, 1, 4, 0, 0, 1, 2, 157, 1, 1, 1, 3, 0, 1, 5, 3, 8, 0, 0, 0],
+    [1, 0, 1, 1, 0, 1, 1, 2, 2, 4, 0, 3, 1, 3, 134, 1, 0, 1, 5, 0, 11, 4, 15, 0, 0, 0],
+    [17, 3, 1, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 6, 2, 127, 1, 6, 4, 7, 0, 4, 14, 0, 0, 0],
+    [3, 0, 0, 0, 1, 0, 0, 1, 3, 4, 0, 9, 2, 2, 5, 1, 119, 2, 7, 1, 2, 11, 4, 0, 0, 0],
+    [6, 1, 0, 0, 0, 0, 0, 2, 1, 3, 1, 3, 0, 1, 0, 1, 1, 135, 5, 0, 1, 17, 5, 0, 0, 0],
+    [2, 1, 0, 1, 0, 0, 0, 0, 1, 2, 0, 2, 0, 3, 4, 1, 7, 3, 96, 2, 8, 9, 9, 0, 0, 0],
+    [13, 0, 1, 0, 0, 0, 1, 2, 2, 0, 0, 0, 0, 1, 2, 21, 10, 0, 4, 46, 1, 1, 16, 0, 0, 0],
+    [1, 1, 2, 1, 0, 0, 1, 3, 4, 2, 2, 2, 0, 1, 1, 1, 0, 0, 1, 0, 4780, 174, 23, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 1, 1, 4, 2, 0, 1, 5, 4, 1, 0, 1, 0, 0, 226, 4730, 24, 0, 0, 0],
+    [1, 0, 0, 0, 0, 0, 1, 1, 2, 2, 0, 0, 1, 1, 0, 1, 3, 0, 1, 0, 15, 27, 1544, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1583, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1583, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1584],
   ]
 };
 
 export const SAMPLE_DOCUMENTS = [
   {
+    title: "International Diplomatic Summit & Global Treaties",
+    category: "World News",
+    icon: "🌐",
+    preview: "United Nations delegates and international ambassadors concluded a multi-lateral diplomatic summit...",
+    fullText: "United Nations delegates and international ambassadors concluded a multi-lateral diplomatic summit today in Geneva. The treaty establishes maritime security zones, bilateral trade compliance monitoring, and foreign aid allocations across developing economies."
+  },
+  {
+    title: "Wall Street Quarterly Earnings & Market Surge",
+    category: "Business & Finance",
+    icon: "💼",
+    preview: "Wall Street equity indexes surged in midday trading following strong quarterly earnings reports...",
+    fullText: "Wall Street equity indexes surged in midday trading following strong quarterly earnings reports from leading tech conglomerates. Central bank governors signaled potential interest rate cuts as corporate revenue and consumer expenditure trends remained resilient."
+  },
+  {
+    title: "Film Festival Drama & Cinematic Storytelling",
+    category: "Entertainment & Arts",
+    icon: "🎬",
+    preview: "The new independent drama film captivates audiences with compelling cinematography and nuanced acting...",
+    fullText: "The new independent drama film captivates audiences with compelling cinematography, nuanced character arcs, and masterful direction. Critics at the international film festival praised the lead actor's poignant performance and the soundtrack's emotive orchestration."
+  },
+  {
+    title: "Atmospheric Climate Modeling & Solar Transition",
+    category: "Environment & Climate",
+    icon: "🌱",
+    preview: "Atmospheric climate scientists published updated climate modeling simulations indicating accelerated...",
+    fullText: "Atmospheric climate scientists published updated climate modeling simulations indicating accelerated polar glacier melt. Environmental conservation organizations advocate expanding solar and wind renewable energy infrastructure to achieve carbon neutrality."
+  },
+  {
+    title: "Cardiovascular Fitness & Preventive Nutrition",
+    category: "Health & Wellness",
+    icon: "🧘",
+    preview: "Clinical research confirms that regular aerobic exercise combined with balanced dietary nutrition...",
+    fullText: "Clinical research confirms that regular aerobic exercise combined with balanced dietary nutrition significantly reduces biomarkers of cardiovascular disease. Preventive wellness protocols emphasizing metabolic fitness and circadian sleep cycles improve long-term longevity."
+  },
+  {
+    title: "Higher Education Pedagogy & STEM Curriculum",
+    category: "Education & Academics",
+    icon: "🎓",
+    preview: "University faculties are redesigning undergraduate STEM curricula to integrate interactive pedagogy...",
+    fullText: "University faculties are redesigning undergraduate STEM curricula to integrate interactive pedagogy, empirical research seminars, and digital laboratory platforms. Scholarly dissertations highlight improved student learning retention and academic outcomes."
+  },
+  {
     title: "Real-time Raytracing & Shader Rendering",
-    category: "Technology",
+    category: "Computer Graphics",
     icon: "🎨",
     preview: "Modern 3D graphics hardware accelerates real-time raytracing shaders and polygon rasterization...",
     fullText: "Modern real-time ray tracing requires hardware-accelerated GPUs with dedicated shader cores. The 3D rendering pipeline transforms polygon meshes and texture maps using Vulkan and DirectX, computing vertex lighting, anti-aliasing, reflections, and shadow maps at high refresh rates."
@@ -424,25 +469,11 @@ export const SAMPLE_DOCUMENTS = [
     fullText: "The starting pitcher delivered a dominant performance with nine strikeouts over seven scoreless innings. In the bottom of the ninth, the clean-up hitter drove in two runs with a solid line drive over the outfield fence, securing the championship victory as the stadium erupted."
   },
   {
-    title: "Clinical Pharmacology & Diagnostic Medicine",
-    category: "Medicine",
-    icon: "🩺",
-    preview: "Patients presenting with acute cardiovascular symptoms received clinical assessment including biomarker enzyme assays...",
-    fullText: "Patients presenting with acute cardiovascular symptoms received clinical assessment including biomarker enzyme assays, electrocardiogram monitoring, and targeted antimicrobial therapies. Controlled clinical trials indicate significant efficacy in lowering blood serum cholesterol and mitigating chronic autoimmune inflammatory response."
-  },
-  {
     title: "Deep Space Planetary Missions & Astrophysics",
     category: "Space Science",
     icon: "🚀",
-    preview: "NASA deep space exploration probes utilize gravitational slingshots and ion thrusters to navigate interplanetary trajectories...",
+    preview: "NASA deep space exploration probes utilize gravitational slingshots and ion thrusters to navigate...",
     fullText: "NASA deep space exploration probes utilize gravitational slingshots and ion thrusters to navigate interplanetary trajectories. High-resolution spectroscopic imaging from orbital telescopes measures cosmic microwave radiation, solar flare flux, and planetary atmospheric composition."
-  },
-  {
-    title: "Congressional Legislative Debate & Reform",
-    category: "Politics",
-    icon: "🏛️",
-    preview: "Congress held an extensive legislative debate on national fiscal reform, international trade treaties...",
-    fullText: "Congress held an extensive legislative debate on national fiscal reform, international trade treaties, and civil rights. Leaders presented constitutional arguments regarding government budget allocation, judicial oversight, and executive appointments."
   },
   {
     title: "Biblical Exegesis & Theological Philosophy",
@@ -458,8 +489,8 @@ export const PIPELINE_STEPS = [
     number: "01",
     title: "Document Input",
     subtitle: "Raw Unstructured Text",
-    description: "Accepts raw text documents, articles, emails, or forum posts in any character encoding.",
-    details: "Supports variable-length text from brief abstracts to multi-page essays across all 20 benchmark domains."
+    description: "Accepts raw text documents, articles, emails, or news stories in any character encoding.",
+    details: "Supports variable-length text from brief abstracts to multi-page essays across all 26 benchmark domains."
   },
   {
     number: "02",
@@ -472,7 +503,7 @@ export const PIPELINE_STEPS = [
     number: "03",
     title: "TF-IDF Extraction",
     subtitle: "Numerical Feature Representation",
-    description: "Converts preprocessed tokens into a 5,000-dimensional TF-IDF vector capturing unigrams and bigrams.",
+    description: "Converts preprocessed tokens into an 8,000-dimensional TF-IDF vector capturing unigrams and bigrams.",
     details: "Applies sublinear scaling TF = 1 + log(tf) and L2 normalization without data leakage."
   },
   {
@@ -487,6 +518,6 @@ export const PIPELINE_STEPS = [
     title: "Predicted Category",
     subtitle: "Confidence & Explainability",
     description: "Outputs predicted category label, calibrated confidence score (%), and top influential TF-IDF key terms.",
-    details: "Provides instant probability distribution across all 20 predefined topic categories."
+    details: "Provides instant probability distribution across all 26 predefined topic categories."
   }
 ];

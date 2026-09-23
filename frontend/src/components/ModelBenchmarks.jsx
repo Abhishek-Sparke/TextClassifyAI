@@ -58,7 +58,7 @@ export default function ModelBenchmarks() {
             Classifier Performance Benchmarking
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-3xl">
-            Rigorous evaluation across 721 held-out test documents using Stratified 80/20 train-test splits and 5,000 sublinear TF-IDF features.
+            Rigorous evaluation across 19,998 held-out test documents using Stratified 80/20 train-test splits and 8,000 sublinear TF-IDF features.
           </p>
         </div>
 
@@ -72,7 +72,7 @@ export default function ModelBenchmarks() {
               Benchmark Champion
             </div>
             <div className="text-sm font-bold text-slate-900 dark:text-white">
-              Linear SVM (89.74% Acc)
+              Linear SVM (91.32% Acc)
             </div>
           </div>
         </div>
@@ -249,7 +249,7 @@ export default function ModelBenchmarks() {
                           : 'bg-slate-400 dark:bg-slate-600'
                       }`}
                       style={{ 
-                        width: `${Math.max((parseFloat(model.trainingTime) / 0.38) * 100, 3)}%` 
+                        width: `${Math.max((parseFloat(model.trainingTime) / 20.0) * 100, 3)}%` 
                       }}
                     />
                   </div>
