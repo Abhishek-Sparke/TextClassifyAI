@@ -61,9 +61,11 @@ def test_model_inference_pipeline():
     prediction_idx = model.predict(vec)[0]
     probabilities = get_prediction_probabilities(model, vec)[0]
 
-    assert len(categories) == 6, f"Expected 6 categories, got {len(categories)}"
-    assert "sci.med" in categories
-    assert "rec.autos" in categories
+    assert len(categories) == 20, f"Expected 20 categories, got {len(categories)}"
+    assert "sci.crypt" in categories
+    assert "soc.religion.christian" in categories
+    assert "rec.motorcycles" in categories
+    assert "comp.windows.x" in categories
 
     assert 0 <= prediction_idx < len(categories)
     predicted_category = categories[prediction_idx]
@@ -90,17 +92,33 @@ def test_new_categories_inference():
         meta = json.load(f)
     categories = meta["categories"]
 
-    # Test Medicine classification
-    med_text = "Patients in the clinical trial received treatment with pharmaceutical antibiotic drugs for bacterial infection."
-    clean_med = preprocess_document(med_text, apply_lemmatization=True)
-    vec_med = vectorizer.transform([clean_med])
-    pred_med = categories[model.predict(vec_med)[0]]
-    assert pred_med == "sci.med"
+    assert len(categories) == 20
 
-    # Test Automobile classification
-    auto_text = "The new sports car features a turbocharged engine, rear-wheel drive transmission, and high-speed tires."
-    clean_auto = preprocess_document(auto_text, apply_lemmatization=True)
-    vec_auto = vectorizer.transform([clean_auto])
-    pred_auto = categories[model.predict(vec_auto)[0]]
-    assert pred_auto == "rec.autos"
+    # Test Cryptography classification
+    crypt_text = "Public key cryptography and RSA encryption algorithms secure private data against cryptanalysis."
+    clean_crypt = preprocess_document(crypt_text, apply_lemmatization=True)
+    vec_crypt = vectorizer.transform([clean_crypt])
+    pred_crypt = categories[model.predict(vec_crypt)[0]]
+    assert pred_crypt == "sci.crypt"
+
+    # Test Motorcycles classification
+    moto_text = "The motorcycle rider replaced the helmet and rode the Harley bike down the highway."
+    clean_moto = preprocess_document(moto_text, apply_lemmatization=True)
+    vec_moto = vectorizer.transform([clean_moto])
+    pred_moto = categories[model.predict(vec_moto)[0]]
+    assert pred_moto == "rec.motorcycles"
+
+    # Test Christianity classification
+    relig_text = "The Christian church sermon addressed biblical scripture and gospel faith in Jesus Christ."
+    clean_relig = preprocess_document(relig_text, apply_lemmatization=True)
+    vec_relig = vectorizer.transform([clean_relig])
+    pred_relig = categories[model.predict(vec_relig)[0]]
+    assert pred_relig == "soc.religion.christian"
+
+    # Test X Window System classification
+    x_text = "The X11 server connects to client display windows and runs the xterm window manager terminal."
+    clean_x = preprocess_document(x_text, apply_lemmatization=True)
+    vec_x = vectorizer.transform([clean_x])
+    pred_x = categories[model.predict(vec_x)[0]]
+    assert pred_x == "comp.windows.x"
 

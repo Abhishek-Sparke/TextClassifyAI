@@ -19,51 +19,147 @@ export const API_BASE_URL =
   (typeof window !== 'undefined' && window.__API_BASE_URL__) || 
   (typeof window !== 'undefined' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:8000' : '');
 
-// Vocabulary weights extracted from the trained TF-IDF model
+// Vocabulary weights for all 20 categories extracted from the trained TF-IDF model
 const DOMAIN_VOCABULARIES = {
+  "alt.atheism": {
+    name: "Atheism",
+    badge: "Philosophy",
+    icon: "🕊️",
+    keywords: ["atheism", "atheist", "god", "religion", "morality", "belief", "argument", "secular", "bible", "moral"],
+    baseWeight: 1.15
+  },
   "comp.graphics": {
     name: "Computer Graphics",
     badge: "Technology",
-    icon: "💻",
-    keywords: [
-      "graphics", "image", "3d", "render", "rendering", "polygon", "mesh", "shader",
-      "texture", "opengl", "vulkan", "gpu", "format", "color", "animation", "pixel",
-      "raytracing", "raster", "file", "gif", "jpeg", "viewer", "screen", "mode"
-    ],
+    icon: "🎨",
+    keywords: ["graphics", "image", "3d", "render", "rendering", "polygon", "mesh", "shader", "texture", "opengl", "raytracing", "format"],
     baseWeight: 1.15
   },
-  "rec.sport.baseball": {
-    name: "Sports",
-    badge: "Sports",
-    icon: "⚽",
-    keywords: [
-      "baseball", "pitcher", "pitching", "inning", "hitter", "strikeout", "run",
-      "homerun", "game", "team", "player", "base", "ball", "league", "bat", "batter",
-      "walk", "rbi", "era", "score", "stadium", "sox", "yankees", "cubs"
-    ],
+  "comp.os.ms-windows.misc": {
+    name: "MS Windows",
+    badge: "Operating Systems",
+    icon: "🪟",
+    keywords: ["windows", "driver", "dos", "win", "dll", "ms", "microsoft", "utilities", "font", "mouse", "desktop"],
+    baseWeight: 1.15
+  },
+  "comp.sys.ibm.pc.hardware": {
+    name: "IBM PC Hardware",
+    badge: "Hardware",
+    icon: "🖥️",
+    keywords: ["pc", "ide", "scsi", "bus", "motherboard", "bios", "isa", "controller", "hard drive", "card", "board", "disk"],
+    baseWeight: 1.15
+  },
+  "comp.sys.mac.hardware": {
+    name: "Mac Hardware",
+    badge: "Apple Hardware",
+    icon: "🍏",
+    keywords: ["mac", "apple", "powerbook", "quadra", "macintosh", "nubus", "duo", "monitor", "centris", "simm"],
+    baseWeight: 1.18
+  },
+  "comp.windows.x": {
+    name: "X Window System",
+    badge: "Windowing Systems",
+    icon: "💻",
+    keywords: ["window", "x11", "xlib", "server", "client", "widget", "motif", "xterm", "display", "colormap"],
+    baseWeight: 1.15
+  },
+  "misc.forsale": {
+    name: "For Sale",
+    badge: "Commerce",
+    icon: "🏷️",
+    keywords: ["sale", "offer", "shipping", "condition", "price", "sell", "asking", "obo", "brand new", "manual", "buyer"],
     baseWeight: 1.2
+  },
+  "rec.autos": {
+    name: "Automobiles",
+    badge: "Automotive",
+    icon: "🚗",
+    keywords: ["car", "cars", "engine", "dealer", "clutch", "transmission", "speed", "brake", "drive", "oil", "torque", "vehicle"],
+    baseWeight: 1.15
+  },
+  "rec.motorcycles": {
+    name: "Motorcycles",
+    badge: "Motorcycling",
+    icon: "🏍️",
+    keywords: ["bike", "bikes", "motorcycle", "rider", "helmet", "harley", "ride", "gear", "honda", "yamaha", "exhaust"],
+    baseWeight: 1.18
+  },
+  "rec.sport.baseball": {
+    name: "Baseball",
+    badge: "Baseball",
+    icon: "⚾",
+    keywords: ["baseball", "pitcher", "pitching", "inning", "hitter", "strikeout", "run", "homerun", "game", "team", "league", "bat", "sox", "yankees"],
+    baseWeight: 1.2
+  },
+  "rec.sport.hockey": {
+    name: "Hockey",
+    badge: "Hockey",
+    icon: "🏒",
+    keywords: ["hockey", "nhl", "team", "game", "goal", "playoff", "puck", "player", "ice", "season", "period", "stanley", "rangers"],
+    baseWeight: 1.2
+  },
+  "sci.crypt": {
+    name: "Cryptography",
+    badge: "Cryptography",
+    icon: "🔐",
+    keywords: ["crypt", "cryptography", "key", "keys", "encryption", "clipper", "chip", "des", "rsa", "security", "privacy", "algorithm"],
+    baseWeight: 1.22
+  },
+  "sci.electronics": {
+    name: "Electronics",
+    badge: "Electronics",
+    icon: "⚡",
+    keywords: ["electronics", "circuit", "voltage", "chip", "signal", "amp", "resistor", "diode", "power", "schematic", "transistor", "wire"],
+    baseWeight: 1.15
+  },
+  "sci.med": {
+    name: "Medicine",
+    badge: "Medicine",
+    icon: "🩺",
+    keywords: ["medicine", "medical", "patient", "patients", "doctor", "disease", "symptom", "treatment", "clinical", "drug", "infection", "syndrome"],
+    baseWeight: 1.18
   },
   "sci.space": {
     name: "Space Science",
-    badge: "Science",
+    badge: "Space Science",
     icon: "🚀",
-    keywords: [
-      "space", "nasa", "orbit", "orbital", "satellite", "launch", "rocket", "shuttle",
-      "planetary", "planet", "astronomy", "telescope", "moon", "lunar", "mars", "station",
-      "mission", "solar", "probe", "atmosphere", "deep", "spacecraft", "gravity"
-    ],
-    baseWeight: 1.18
+    keywords: ["space", "nasa", "orbit", "orbital", "satellite", "launch", "rocket", "shuttle", "planetary", "planet", "astronomy", "telescope", "moon", "mars"],
+    baseWeight: 1.2
+  },
+  "soc.religion.christian": {
+    name: "Christianity",
+    badge: "Religion",
+    icon: "✝️",
+    keywords: ["christian", "christ", "jesus", "god", "church", "bible", "scripture", "faith", "sin", "resurrection", "lord", "prayer"],
+    baseWeight: 1.2
+  },
+  "talk.politics.guns": {
+    name: "Gun Politics",
+    badge: "Politics",
+    icon: "🎯",
+    keywords: ["gun", "guns", "firearm", "firearms", "handgun", "weapon", "weapons", "nra", "second amendment", "defense", "rifle", "carry"],
+    baseWeight: 1.2
+  },
+  "talk.politics.mideast": {
+    name: "Middle East Politics",
+    badge: "Geopolitics",
+    icon: "🌍",
+    keywords: ["israel", "israeli", "arab", "arabs", "jewish", "palestine", "palestinian", "middle east", "peace", "territory", "jerusalem"],
+    baseWeight: 1.22
   },
   "talk.politics.misc": {
     name: "Politics",
     badge: "Governance",
     icon: "🏛️",
-    keywords: [
-      "government", "policy", "congress", "law", "president", "state", "rights", "political",
-      "federal", "bill", "senate", "court", "constitution", "liberty", "tax", "nation",
-      "treaty", "bipartisan", "democracy", "public", "official", "justice", "vote"
-    ],
-    baseWeight: 1.1
+    keywords: ["government", "policy", "congress", "law", "president", "state", "rights", "political", "federal", "bill", "senate", "tax", "liberty"],
+    baseWeight: 1.12
+  },
+  "talk.religion.misc": {
+    name: "Religion",
+    badge: "Philosophy",
+    icon: "🕊️",
+    keywords: ["religion", "religious", "god", "moral", "morality", "belief", "faith", "philosophy", "theology", "doctrine", "spiritual"],
+    baseWeight: 1.12
   }
 };
 

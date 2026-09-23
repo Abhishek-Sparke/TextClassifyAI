@@ -1,131 +1,285 @@
 /**
  * Empirical Benchmark and Dataset Metadata
- * Grounded directly in the trained 20 Newsgroups 6-class pipeline results.
+ * Grounded directly in the trained 20 Newsgroups 20-class pipeline results.
  */
 
 export const DATASET_STATS = {
-  totalDocuments: 5489,
-  categoriesCount: 6,
-  trainingSamples: 4391,
-  testingSamples: 1098,
+  totalDocuments: 18278,
+  categoriesCount: 20,
+  trainingSamples: 14608,
+  testingSamples: 3653,
   tfidfFeatures: 5000,
-  averageWordCount: 187.7,
-  medianWordCount: 83,
-  bestModelName: "Support Vector Machine (Linear SVM)",
-  bestAccuracy: "87.07%"
+  averageWordCount: 187.3,
+  medianWordCount: 86,
+  bestModelName: "Multinomial Naive Bayes",
+  bestAccuracy: "72.54%"
 };
 
 export const CATEGORIES = [
   {
+    id: "alt.atheism",
+    name: "Atheism",
+    badge: "Philosophy",
+    icon: "🕊️",
+    color: "rose",
+    count: 776,
+    percentage: 4.2,
+    description: "Atheism, religious criticism, secular philosophy, ethics, morality, and humanist reasoning.",
+    topKeywords: ["god", "atheist", "say", "religion", "one", "think", "moral", "peopl"]
+  },
+  {
     id: "comp.graphics",
     name: "Computer Graphics",
     badge: "Technology",
-    icon: "💻",
+    icon: "🎨",
     color: "indigo",
     count: 953,
-    percentage: 17.4,
-    description: "3D rendering, GPU shaders, polygon meshes, OpenGL/Vulkan, anti-aliasing, and computer animation.",
-    topKeywords: ["graphics", "image", "3d", "render", "polygon", "format", "color", "animation"]
+    percentage: 5.2,
+    description: "3D rendering, GPU shaders, polygon meshes, raytracing, and image formats.",
+    topKeywords: ["graphic", "file", "imag", "program", "use", "format", "color", "anim"]
+  },
+  {
+    id: "comp.os.ms-windows.misc",
+    name: "MS Windows",
+    badge: "Operating Systems",
+    icon: "🪟",
+    color: "blue",
+    count: 946,
+    percentage: 5.2,
+    description: "Microsoft Windows drivers, system utilities, DLLs, and OS configuration.",
+    topKeywords: ["window", "file", "use", "driver", "program", "problem", "run", "applic"]
+  },
+  {
+    id: "comp.sys.ibm.pc.hardware",
+    name: "IBM PC Hardware",
+    badge: "Hardware",
+    icon: "🖥️",
+    color: "slate",
+    count: 962,
+    percentage: 5.3,
+    description: "IBM PC architecture, motherboards, IDE/SCSI controllers, BIOS, and bus cards.",
+    topKeywords: ["drive", "card", "scsi", "ide", "pc", "use", "system", "bus"]
+  },
+  {
+    id: "comp.sys.mac.hardware",
+    name: "Mac Hardware",
+    badge: "Apple Hardware",
+    icon: "🍏",
+    color: "emerald",
+    count: 925,
+    percentage: 5.1,
+    description: "Apple Macintosh hardware, PowerBook, Quadra, monitors, and SCSI devices.",
+    topKeywords: ["mac", "appl", "drive", "powerbook", "scsi", "quadra", "monitor", "problem"]
+  },
+  {
+    id: "comp.windows.x",
+    name: "X Window System",
+    badge: "Windowing Systems",
+    icon: "💻",
+    color: "cyan",
+    count: 978,
+    percentage: 5.4,
+    description: "X11 window system, Xlib, Motif widgets, window managers, and display clients.",
+    topKeywords: ["window", "server", "use", "xterm", "widget", "motif", "display", "client"]
+  },
+  {
+    id: "misc.forsale",
+    name: "For Sale",
+    badge: "Commerce",
+    icon: "🏷️",
+    color: "amber",
+    count: 957,
+    percentage: 5.2,
+    description: "Classified ads, consumer goods, price offers, electronics, and shipping.",
+    topKeywords: ["sale", "offer", "new", "price", "ask", "sell", "ship", "condit"]
   },
   {
     id: "rec.autos",
     name: "Automobiles",
-    badge: "Transport",
+    badge: "Automotive",
     icon: "🚗",
-    color: "cyan",
+    color: "teal",
     count: 930,
-    percentage: 16.9,
-    description: "Automotive engineering, powertrains, vehicle mechanics, transmissions, engines, and road handling.",
-    topKeywords: ["car", "cars", "engine", "dealer", "speed", "miles", "drive", "oil"]
+    percentage: 5.1,
+    description: "Automotive mechanics, engine performance, transmissions, and road handling.",
+    topKeywords: ["car", "engin", "dealer", "drive", "price", "oil", "speed", "vehicl"]
+  },
+  {
+    id: "rec.motorcycles",
+    name: "Motorcycles",
+    badge: "Motorcycling",
+    icon: "🏍️",
+    color: "orange",
+    count: 964,
+    percentage: 5.3,
+    description: "Motorcycle engineering, riding gear, road maintenance, and motorcycle clubs.",
+    topKeywords: ["bike", "ride", "motorcycl", "rider", "helmet", "harley", "road", "gear"]
   },
   {
     id: "rec.sport.baseball",
-    name: "Sports",
-    badge: "Sports",
-    icon: "⚽",
-    color: "amber",
+    name: "Baseball",
+    badge: "Baseball",
+    icon: "⚾",
+    color: "yellow",
     count: 951,
-    percentage: 17.3,
-    description: "Major league baseball, pitching statistics, home runs, innings, playoffs, and roster strategies.",
-    topKeywords: ["baseball", "pitcher", "inning", "hitter", "strikeout", "run", "game", "team"]
+    percentage: 5.2,
+    description: "Major League Baseball statistics, pitching rotations, home runs, and players.",
+    topKeywords: ["game", "team", "year", "player", "hit", "run", "basebal", "season"]
+  },
+  {
+    id: "rec.sport.hockey",
+    name: "Hockey",
+    badge: "Hockey",
+    icon: "🏒",
+    color: "sky",
+    count: 972,
+    percentage: 5.3,
+    description: "NHL ice hockey games, playoff tournaments, team rosters, and penalty points.",
+    topKeywords: ["game", "team", "play", "hockey", "season", "nhl", "player", "period"]
+  },
+  {
+    id: "sci.crypt",
+    name: "Cryptography",
+    badge: "Cryptography",
+    icon: "🔐",
+    color: "violet",
+    count: 962,
+    percentage: 5.3,
+    description: "Public-key cryptography, encryption algorithms, DES, RSA, and data security.",
+    topKeywords: ["key", "encrypt", "clipper", "chip", "secur", "govern", "privaci", "des"]
+  },
+  {
+    id: "sci.electronics",
+    name: "Electronics",
+    badge: "Electronics",
+    icon: "⚡",
+    color: "amber",
+    count: 956,
+    percentage: 5.2,
+    description: "Circuits, schematics, microcontrollers, radio frequency, and semiconductors.",
+    topKeywords: ["use", "circuit", "power", "voltag", "amp", "wire", "radio", "ground"]
   },
   {
     id: "sci.med",
     name: "Medicine",
-    badge: "Healthcare",
+    badge: "Medicine",
     icon: "🩺",
-    color: "rose",
+    color: "red",
     count: 957,
-    percentage: 17.4,
-    description: "Clinical diagnosis, biomedical research, pharmacology, pathology, treatments, and medical science.",
-    topKeywords: ["doctor", "disease", "treatment", "pain", "medical", "patients", "clinical", "syndrome"]
+    percentage: 5.2,
+    description: "Biomedical science, clinical diagnostics, therapeutics, pathology, and doctors.",
+    topKeywords: ["doctor", "diseas", "treatment", "pain", "medic", "patient", "clinic", "syndrom"]
   },
   {
     id: "sci.space",
     name: "Space Science",
-    badge: "Science",
+    badge: "Space Science",
     icon: "🚀",
-    color: "sky",
+    color: "fuchsia",
     count: 953,
-    percentage: 17.4,
-    description: "Planetary exploration, NASA missions, satellite orbital mechanics, space telescopes, and astrophysics.",
-    topKeywords: ["space", "nasa", "orbit", "satellite", "launch", "rocket", "shuttle", "planetary"]
+    percentage: 5.2,
+    description: "Orbital mechanics, NASA missions, satellites, rockets, and astrophysics.",
+    topKeywords: ["space", "nasa", "orbit", "launch", "satellit", "moon", "shuttl", "mission"]
+  },
+  {
+    id: "soc.religion.christian",
+    name: "Christianity",
+    badge: "Religion",
+    icon: "✝️",
+    color: "purple",
+    count: 974,
+    percentage: 5.3,
+    description: "Christian theology, scripture analysis, biblical scholarship, and faith.",
+    topKeywords: ["god", "christian", "jesu", "church", "bibl", "christ", "faith", "sin"]
+  },
+  {
+    id: "talk.politics.guns",
+    name: "Gun Politics",
+    badge: "Politics",
+    icon: "🎯",
+    color: "stone",
+    count: 885,
+    percentage: 4.8,
+    description: "Firearms policy, Second Amendment rights, legislation, and gun control.",
+    topKeywords: ["gun", "firearm", "weapon", "right", "state", "law", "control", "amend"]
+  },
+  {
+    id: "talk.politics.mideast",
+    name: "Middle East Politics",
+    badge: "Geopolitics",
+    icon: "🌍",
+    color: "emerald",
+    count: 917,
+    percentage: 5.0,
+    description: "Middle Eastern geopolitical conflicts, peace treaties, and foreign affairs.",
+    topKeywords: ["israel", "israeli", "arab", "peopl", "jew", "palestinian", "war", "state"]
   },
   {
     id: "talk.politics.misc",
     name: "Politics",
     badge: "Governance",
     icon: "🏛️",
-    color: "emerald",
+    color: "pink",
     count: 756,
-    percentage: 13.8,
-    description: "Congressional legislation, foreign policy treaties, civil rights, constitutional law, and governance.",
-    topKeywords: ["government", "policy", "congress", "law", "president", "state", "rights", "political"]
+    percentage: 4.1,
+    description: "Government policy, international trade, constitutional rights, and law.",
+    topKeywords: ["govern", "peopl", "state", "law", "right", "presid", "polit", "tax"]
+  },
+  {
+    id: "talk.religion.misc",
+    name: "Religion",
+    badge: "Philosophy",
+    icon: "🕊️",
+    color: "orange",
+    count: 604,
+    percentage: 3.3,
+    description: "Comparative religious discussions, spiritual philosophy, and ethics.",
+    topKeywords: ["god", "religi", "moral", "peopl", "say", "believ", "christian", "think"]
   }
 ];
 
 export const MODEL_PERFORMANCE = [
   {
+    id: "naive_bayes",
+    name: "Multinomial Naive Bayes",
+    shortName: "Naive Bayes",
+    isBest: true,
+    badge: "Best Overall & Fastest",
+    accuracy: 72.54,
+    precision: 72.83,
+    recall: 72.54,
+    f1Score: 72.12,
+    trainingTime: "0.062 s",
+    type: "Generative Probabilistic Classifier",
+    description: "Top performer across all 20 classes. Ultra-fast inference with optimal Laplace smoothing on high-dimensional sparse TF-IDF spaces."
+  },
+  {
     id: "svm",
     name: "Support Vector Machine",
     shortName: "Linear SVM",
-    isBest: true,
-    badge: "Best Overall",
-    accuracy: 87.07,
-    precision: 87.07,
-    recall: 87.07,
-    f1Score: 87.06,
-    trainingTime: "0.208 s",
+    isBest: false,
+    badge: "Runner Up",
+    accuracy: 72.24,
+    precision: 71.95,
+    recall: 72.24,
+    f1Score: 71.92,
+    trainingTime: "12.760 s",
     type: "Maximum Margin Linear Hyperplane",
-    description: "Excels in high-dimensional sparse TF-IDF spaces by maximizing the geometric margin between decision boundaries."
+    description: "Wrapped with 3-fold CalibratedClassifierCV Platt scaling. Excels at separating high-dimensional multi-class text representations."
   },
   {
     id: "logistic_regression",
     name: "Logistic Regression",
     shortName: "Logistic Reg",
     isBest: false,
-    badge: "Runner Up",
-    accuracy: 86.34,
-    precision: 86.39,
-    recall: 86.34,
-    f1Score: 86.33,
-    trainingTime: "0.239 s",
+    badge: "High Precision",
+    accuracy: 72.13,
+    precision: 71.99,
+    recall: 72.13,
+    f1Score: 71.74,
+    trainingTime: "9.871 s",
     type: "Multinomial Softmax Classifier",
-    description: "Generates calibrated probabilistic predictions using multinomial cross-entropy with L2 regularization."
-  },
-  {
-    id: "naive_bayes",
-    name: "Multinomial Naive Bayes",
-    shortName: "Naive Bayes",
-    isBest: false,
-    badge: "Fastest Inference",
-    accuracy: 85.70,
-    precision: 85.87,
-    recall: 85.70,
-    f1Score: 85.73,
-    trainingTime: "0.006 s",
-    type: "Generative Probabilistic Model",
-    description: "Ultra-fast probabilistic classifier leveraging conditional word independence and Laplace smoothing."
+    description: "Multinomial cross-entropy with L2 regularization using L-BFGS solver. Yields smooth, calibrated probability distributions."
   },
   {
     id: "random_forest",
@@ -133,27 +287,44 @@ export const MODEL_PERFORMANCE = [
     shortName: "Random Forest",
     isBest: false,
     badge: "Ensemble",
-    accuracy: 78.42,
-    precision: 79.66,
-    recall: 78.42,
-    f1Score: 78.39,
-    trainingTime: "0.462 s",
+    accuracy: 61.05,
+    precision: 68.60,
+    recall: 61.05,
+    f1Score: 62.22,
+    trainingTime: "10.880 s",
     type: "Ensemble of 150 Decision Trees",
-    description: "Bagging ensemble of randomized decision trees. Robust against non-linear patterns."
+    description: "Bagging ensemble of randomized decision trees. Captures non-linear feature interactions across 20 classes."
   }
 ];
 
-// 6x6 Confusion Matrix corresponding to the Linear SVM test split (N = 1098)
-// Order: [Graphics, Autos, Sports, Medicine, Space, Politics]
+// 20x20 Confusion Matrix corresponding to the Multinomial Naive Bayes test split (N = 3653)
 export const CONFUSION_MATRIX = {
-  labels: ["Graphics", "Autos", "Sports", "Medicine", "Space", "Politics"],
+  labels: [
+    "Atheism", "Graphics", "MS Win", "IBM PC", "Mac HW", "Win X", "Sale", "Autos",
+    "Mcycles", "Baseball", "Hockey", "Crypt", "Electronics", "Medicine", "Space",
+    "Christian", "Guns", "Mideast", "Politics", "Religion"
+  ],
   matrix: [
-    [167, 5, 4, 5, 6, 3],
-    [5, 166, 3, 5, 2, 5],
-    [3, 4, 171, 2, 4, 5],
-    [6, 1, 5, 164, 10, 5],
-    [7, 6, 4, 6, 162, 6],
-    [0, 6, 9, 3, 7, 126]
+    [92, 1, 1, 1, 0, 3, 2, 1, 3, 2, 3, 0, 1, 1, 1, 21, 8, 6, 4, 4],
+    [2, 134, 7, 5, 6, 17, 2, 1, 1, 1, 0, 6, 3, 0, 4, 1, 0, 0, 0, 0],
+    [1, 8, 126, 20, 4, 18, 1, 1, 0, 0, 0, 1, 3, 0, 2, 2, 1, 0, 1, 0],
+    [1, 5, 18, 129, 15, 5, 7, 1, 0, 0, 1, 1, 9, 1, 0, 0, 0, 0, 0, 0],
+    [1, 7, 9, 14, 130, 4, 5, 1, 1, 1, 0, 0, 8, 1, 2, 0, 1, 0, 0, 0],
+    [0, 27, 2, 5, 1, 152, 1, 0, 1, 1, 1, 1, 1, 0, 1, 0, 1, 1, 0, 0],
+    [0, 2, 2, 12, 4, 0, 149, 3, 3, 3, 1, 3, 2, 1, 2, 1, 2, 1, 0, 0],
+    [1, 0, 0, 2, 5, 1, 3, 136, 16, 0, 2, 4, 3, 0, 3, 0, 6, 1, 1, 2],
+    [3, 0, 0, 1, 2, 1, 6, 15, 150, 4, 2, 1, 1, 1, 2, 0, 3, 0, 1, 0],
+    [1, 3, 1, 0, 0, 5, 2, 0, 5, 159, 6, 1, 2, 1, 1, 0, 0, 2, 0, 0],
+    [0, 1, 1, 0, 1, 3, 0, 1, 4, 4, 174, 0, 1, 0, 0, 2, 0, 1, 1, 0],
+    [2, 3, 2, 1, 0, 6, 0, 0, 3, 2, 0, 155, 2, 2, 3, 1, 3, 1, 5, 1],
+    [0, 10, 2, 16, 8, 5, 5, 7, 2, 1, 3, 4, 113, 6, 4, 1, 0, 2, 2, 0],
+    [6, 6, 0, 0, 3, 1, 0, 1, 4, 1, 0, 2, 1, 150, 5, 3, 3, 3, 2, 0],
+    [8, 5, 1, 0, 0, 2, 1, 2, 5, 0, 0, 3, 4, 4, 144, 6, 1, 0, 5, 0],
+    [13, 2, 2, 0, 0, 2, 0, 0, 1, 1, 0, 0, 0, 2, 0, 162, 3, 4, 2, 1],
+    [5, 2, 0, 0, 0, 0, 3, 1, 3, 2, 0, 5, 1, 1, 4, 1, 131, 5, 9, 4],
+    [7, 1, 0, 0, 0, 0, 0, 0, 1, 2, 0, 4, 0, 1, 1, 4, 1, 153, 7, 1],
+    [2, 1, 0, 1, 0, 0, 1, 3, 3, 1, 2, 2, 1, 2, 2, 7, 30, 7, 85, 1],
+    [24, 1, 0, 0, 0, 4, 0, 1, 1, 5, 1, 1, 0, 2, 4, 40, 8, 0, 3, 26]
   ]
 };
 
@@ -161,9 +332,16 @@ export const SAMPLE_DOCUMENTS = [
   {
     title: "Real-time Raytracing & Shader Rendering",
     category: "Technology",
-    icon: "💻",
+    icon: "🎨",
     preview: "Modern 3D graphics hardware accelerates real-time raytracing shaders and polygon rasterization...",
     fullText: "Modern real-time ray tracing requires hardware-accelerated GPUs with dedicated shader cores. The 3D rendering pipeline transforms polygon meshes and texture maps using Vulkan and DirectX, computing vertex lighting, anti-aliasing, reflections, and shadow maps at high refresh rates."
+  },
+  {
+    title: "Public-Key Cryptography & Encryption Standards",
+    category: "Cryptography",
+    icon: "🔐",
+    preview: "Modern asymmetric encryption relies on RSA modulus factoring and elliptic curve discrete logarithms...",
+    fullText: "Public-key cryptography relies on computationally hard number theoretic problems such as prime factorization for RSA and discrete logarithms for elliptic curve encryption. Symmetric block ciphers like AES and DES protect sensitive plaintext from cryptanalysis using cryptographic session keys."
   },
   {
     title: "High-Performance Automotive Engineering",
@@ -174,8 +352,8 @@ export const SAMPLE_DOCUMENTS = [
   },
   {
     title: "Major League Baseball Championship Game",
-    category: "Sports",
-    icon: "⚽",
+    category: "Baseball",
+    icon: "⚾",
     preview: "The starting pitcher delivered a dominant performance with nine strikeouts over seven scoreless innings...",
     fullText: "The starting pitcher delivered a dominant performance with nine strikeouts over seven scoreless innings. In the bottom of the ninth, the clean-up hitter drove in two runs with a solid line drive over the outfield fence, securing the championship victory as the stadium erupted."
   },
@@ -188,7 +366,7 @@ export const SAMPLE_DOCUMENTS = [
   },
   {
     title: "Deep Space Planetary Missions & Astrophysics",
-    category: "Science",
+    category: "Space Science",
     icon: "🚀",
     preview: "NASA deep space exploration probes utilize gravitational slingshots and ion thrusters to navigate interplanetary trajectories...",
     fullText: "NASA deep space exploration probes utilize gravitational slingshots and ion thrusters to navigate interplanetary trajectories. High-resolution spectroscopic imaging from orbital telescopes measures cosmic microwave radiation, solar flare flux, and planetary atmospheric composition."
@@ -199,6 +377,13 @@ export const SAMPLE_DOCUMENTS = [
     icon: "🏛️",
     preview: "Congress held an extensive legislative debate on national fiscal reform, international trade treaties...",
     fullText: "Congress held an extensive legislative debate on national fiscal reform, international trade treaties, and civil rights. Leaders presented constitutional arguments regarding government budget allocation, judicial oversight, and executive appointments."
+  },
+  {
+    title: "Biblical Exegesis & Theological Philosophy",
+    category: "Christianity",
+    icon: "✝️",
+    preview: "Scriptural analysis examines historical testament manuscripts, apostolic doctrine, and theological ethics...",
+    fullText: "Biblical scholarship and Christian theology explore the historical context of scripture, gospel teachings, and theological ethics. Early church councils debated foundational doctrines concerning the resurrection, redemption, divine grace, and moral responsibility."
   }
 ];
 
@@ -208,7 +393,7 @@ export const PIPELINE_STEPS = [
     title: "Document Input",
     subtitle: "Raw Unstructured Text",
     description: "Accepts raw text documents, articles, emails, or forum posts in any character encoding.",
-    details: "Supports variable-length text from brief abstracts to multi-page essays across 6 distinct domains."
+    details: "Supports variable-length text from brief abstracts to multi-page essays across all 20 benchmark domains."
   },
   {
     number: "02",
@@ -228,7 +413,7 @@ export const PIPELINE_STEPS = [
     number: "04",
     title: "Machine Learning Model",
     subtitle: "Multi-Class Pattern Classification",
-    description: "Passes high-dimensional vectors to trained algorithms (Linear SVM, Logistic Regression, Naive Bayes, or Random Forest).",
+    description: "Passes high-dimensional vectors to trained algorithms (Naive Bayes, Linear SVM, Logistic Regression, or Random Forest).",
     details: "Employs probability calibration to generate confidence estimates and multi-class margins."
   },
   {
@@ -236,6 +421,6 @@ export const PIPELINE_STEPS = [
     title: "Predicted Category",
     subtitle: "Confidence & Explainability",
     description: "Outputs predicted category label, calibrated confidence score (%), and top influential TF-IDF key terms.",
-    details: "Provides instant probability distribution across all 6 predefined topic categories."
+    details: "Provides instant probability distribution across all 20 predefined topic categories."
   }
 ];

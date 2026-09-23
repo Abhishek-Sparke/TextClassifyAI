@@ -112,15 +112,14 @@ This project delivers a complete, modular Machine Learning solution that automat
 
 ## Dataset Description
 
-The project uses the standard benchmark **20 Newsgroups Dataset** (available via `sklearn.datasets.fetch_20newsgroups`), comprising approximately 20,000 newsgroup postings partitioned across diverse subject areas.
+The project uses the standard benchmark **20 Newsgroups Dataset** (available via `sklearn.datasets.fetch_20newsgroups`), comprising 18,278 clean documents partitioned across all 20 distinct subject areas:
 
-For clear interpretability, swift convergence, and distinct thematic separation, the default configuration focuses on 4 representative semantic domains:
-- **`comp.graphics`**: Computer Graphics, 3D Rendering, Algorithms, GPUs
-- **`rec.sport.baseball`**: Baseball, Games, Teams, Scores, Pitchers
-- **`sci.space`**: Astronomy, NASA, Spacecraft, Orbit, Planetary Missions
-- **`talk.politics.misc`**: Governance, Policy, International Relations, Law
-
-*(The pipeline can be extended to all 20 categories by adjusting the configuration in `src/dataset.py`).*
+* **Computers & Tech:** `comp.graphics`, `comp.os.ms-windows.misc`, `comp.sys.ibm.pc.hardware`, `comp.sys.mac.hardware`, `comp.windows.x`
+* **Recreation & Sports:** `rec.autos`, `rec.motorcycles`, `rec.sport.baseball`, `rec.sport.hockey`
+* **Science & Medicine:** `sci.crypt`, `sci.electronics`, `sci.med`, `sci.space`
+* **Politics & Society:** `talk.politics.guns`, `talk.politics.mideast`, `talk.politics.misc`
+* **Religion & Philosophy:** `alt.atheism`, `soc.religion.christian`, `talk.religion.misc`
+* **Commerce:** `misc.forsale`
 
 ---
 
@@ -204,20 +203,20 @@ All models were evaluated on the held-out stratified test set (20% of data) usin
 - **Confusion Matrix**: Error distribution across actual vs. predicted categories.
 
 ### Performance Summary Table
-
+ 
 | Machine Learning Model | Accuracy | Precision (Weighted) | Recall (Weighted) | F1-Score (Weighted) | F1-Score (Macro) | Training Time (s) |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Support Vector Machine (Linear SVM)** | **87.07%** | **0.8707** | **0.8707** | **0.8706** | **0.8696** | 0.208s |
-| **Logistic Regression** | **86.34%** | **0.8639** | **0.8634** | **0.8633** | **0.8625** | 0.239s |
-| **Multinomial Naive Bayes** | **85.70%** | **0.8587** | **0.8570** | **0.8573** | **0.8564** | **0.006s** |
-| **Random Forest** | **78.42%** | **0.7966** | **0.7842** | **0.7839** | **0.7812** | 0.462s |
+| **Multinomial Naive Bayes** 🏆 | **72.54%** | **0.7283** | **0.7254** | **0.7212** | **0.7113** | **0.062s** |
+| **Support Vector Machine (Linear SVM)** | **72.24%** | **0.7195** | **0.7224** | **0.7192** | **0.7091** | 12.760s |
+| **Logistic Regression** | **72.13%** | **0.7199** | **0.7213** | **0.7174** | **0.7065** | 9.871s |
+| **Random Forest** | **61.05%** | **0.6860** | **0.6105** | **0.6222** | **0.6075** | 10.880s |
 
 *(Exact values are generated dynamically when running `train.py`).*
 
 ### Key Analytical Takeaways
-1. **SVM & Logistic Regression dominate text classification**: Linear boundaries perform exceptionally well in high-dimensional sparse TF-IDF spaces across 6 diverse classes.
-2. **Naive Bayes provides the highest speed-to-performance ratio**: With an inference time under 1 millisecond, it is ideal for latency-sensitive deployments.
-3. **Random Forest suffers slightly on sparse text**: High-dimensional sparse feature spaces are challenging for axis-aligned decision trees compared to margin-based linear hyperplanes.
+1. **Naive Bayes delivers peak accuracy & instant convergence across 20 classes**: With Laplace smoothing and 5,000 TF-IDF features, Multinomial Naive Bayes tops the benchmark at 72.54% accuracy with sub-0.1s training.
+2. **Linear SVM and Logistic Regression closely follow**: Margin maximization (SVM) and multinomial softmax (Logistic Regression) perform reliably well across 20 classes with ~72.2% accuracy.
+3. **Random Forest struggles on high-dimensional multi-class sparsity**: Decision trees perform orthogonal axis-aligned splits on single features, making it harder to distinguish 20 sparse classes (61.05%).
 
 ---
 
@@ -227,9 +226,9 @@ All models were evaluated on the held-out stratified test set (20% of data) usin
 
 The interactive web application (`app.py`) provides:
 - **🔮 Live Document Classifier**:
-  - Paste any text document or select one of 6 curated presets across Computer Graphics, Automobiles, Sports, Medicine, Space Science, and Politics.
+  - Paste any text document or select one of curated presets across the 20 benchmark domains.
   - Predict the document class instantly.
-  - View confidence percentage and a probability breakdown bar chart across all 6 categories.
+  - View confidence percentage and probability breakdown across all 20 categories.
   - Inspect top TF-IDF keywords contributing to the decision.
 - **📊 Model Comparison Tab**:
   - Side-by-side metric table with best scores highlighted.

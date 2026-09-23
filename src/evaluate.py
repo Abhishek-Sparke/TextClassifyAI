@@ -174,20 +174,40 @@ def plot_confusion_matrices(
 ):
     """
     Plots a 2x2 grid of confusion matrices for the 4 classifiers.
+    Adapts dynamic cell formatting and label resolution for up to 20 classes.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     model_names = list(evaluation_results.keys())
+    num_classes = len(target_names)
 
-    fig, axes = plt.subplots(2, 2, figsize=(13, 11), dpi=300)
+    fig_size = (18, 16) if num_classes > 10 else (13, 11)
+    annot_size = 5.5 if num_classes > 10 else 11
+    tick_size = 7 if num_classes > 10 else 9
+
+    fig, axes = plt.subplots(2, 2, figsize=fig_size, dpi=300)
     axes = axes.flatten()
 
     display_map = {
+        'alt.atheism': 'Atheism',
         'comp.graphics': 'Graphics',
-        'rec.sport.baseball': 'Sports',
-        'sci.space': 'Space',
-        'talk.politics.misc': 'Politics',
+        'comp.os.ms-windows.misc': 'MS Win',
+        'comp.sys.ibm.pc.hardware': 'IBM PC',
+        'comp.sys.mac.hardware': 'Mac HW',
+        'comp.windows.x': 'Win X',
+        'misc.forsale': 'Sale',
+        'rec.autos': 'Autos',
+        'rec.motorcycles': 'Mcycles',
+        'rec.sport.baseball': 'Baseball',
+        'rec.sport.hockey': 'Hockey',
+        'sci.crypt': 'Crypt',
+        'sci.electronics': 'Electronics',
         'sci.med': 'Medicine',
-        'rec.autos': 'Autos'
+        'sci.space': 'Space',
+        'soc.religion.christian': 'Christian',
+        'talk.politics.guns': 'Guns',
+        'talk.politics.mideast': 'Mideast',
+        'talk.politics.misc': 'Politics',
+        'talk.religion.misc': 'Religion'
     }
     short_labels = [display_map.get(name, name.split('.')[-1].capitalize()) for name in target_names]
 
@@ -204,13 +224,13 @@ def plot_confusion_matrices(
             xticklabels=short_labels,
             yticklabels=short_labels,
             ax=axes[idx],
-            annot_kws={"size": 11, "weight": "bold"}
+            annot_kws={"size": annot_size, "weight": "bold"}
         )
         axes[idx].set_title(f"{name}\n(Accuracy: {acc*100:.1f}%)", fontsize=12, fontweight='bold', pad=10)
         axes[idx].set_xlabel('Predicted Label', fontsize=10, fontweight='semibold')
         axes[idx].set_ylabel('True Label', fontsize=10, fontweight='semibold')
-        axes[idx].tick_params(axis='x', rotation=25)
-        axes[idx].tick_params(axis='y', rotation=0)
+        axes[idx].tick_params(axis='x', rotation=45 if num_classes > 10 else 25, labelsize=tick_size)
+        axes[idx].tick_params(axis='y', rotation=0, labelsize=tick_size)
 
     plt.suptitle('Confusion Matrix Heatmaps for All Classification Models', fontsize=15, fontweight='bold', y=0.99)
     plt.tight_layout()
@@ -223,15 +243,17 @@ def plot_class_distribution(df: pd.DataFrame, target_names: List[str], output_pa
     Plots distribution of documents across classes.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    num_classes = len(target_names)
 
     counts = df['category_name'].value_counts()
-    plt.figure(figsize=(9, 4.5), dpi=300)
+    fig_width = max(10, num_classes * 0.65)
+    plt.figure(figsize=(fig_width, 5.0), dpi=300)
     ax = sns.barplot(x=counts.index, y=counts.values, hue=counts.index, palette='crest', legend=False)
 
     plt.title('Dataset Class Distribution (Number of Documents per Category)', fontsize=13, fontweight='bold', pad=15)
     plt.xlabel('Document Category', fontsize=11, fontweight='semibold')
     plt.ylabel('Document Count', fontsize=11, fontweight='semibold')
-    plt.xticks(rotation=20, ha='right')
+    plt.xticks(rotation=40 if num_classes > 8 else 20, ha='right', fontsize=8.5 if num_classes > 10 else 9.5)
 
     for p in ax.patches:
         height = p.get_height()
@@ -239,7 +261,7 @@ def plot_class_distribution(df: pd.DataFrame, target_names: List[str], output_pa
             f"{int(height)}",
             (p.get_x() + p.get_width() / 2., height),
             ha='center', va='bottom',
-            fontsize=9, xytext=(0, 3),
+            fontsize=7.5 if num_classes > 10 else 9, xytext=(0, 3),
             textcoords='offset points'
         )
 
@@ -254,10 +276,10 @@ def plot_top_keywords(top_features_dict: Dict[str, List[Tuple[str, float]]], out
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     num_classes = len(top_features_dict)
-    cols = 2
-    rows = (num_classes + 1) // 2
+    cols = 4 if num_classes >= 12 else 2
+    rows = (num_classes + cols - 1) // cols
 
-    fig, axes = plt.subplots(rows, cols, figsize=(12, 4 * rows), dpi=300)
+    fig, axes = plt.subplots(rows, cols, figsize=(16 if cols == 4 else 12, 3.2 * rows), dpi=300)
     axes = np.array(axes).flatten()
 
     for idx, (class_name, words) in enumerate(top_features_dict.items()):
@@ -269,8 +291,9 @@ def plot_top_keywords(top_features_dict: Dict[str, List[Tuple[str, float]]], out
         scores = [w[1] for w in words][::-1]
 
         axes[idx].barh(terms, scores, color='#3b82f6', edgecolor='none')
-        axes[idx].set_title(f"Class: {class_name}", fontsize=11, fontweight='bold')
-        axes[idx].set_xlabel('Mean TF-IDF Score', fontsize=9)
+        axes[idx].set_title(f"{class_name}", fontsize=9.5, fontweight='bold')
+        axes[idx].set_xlabel('Mean TF-IDF Score', fontsize=8)
+        axes[idx].tick_params(labelsize=8)
 
     # Hide unused subplots if any
     for j in range(idx + 1, len(axes)):

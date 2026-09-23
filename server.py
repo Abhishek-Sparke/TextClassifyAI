@@ -27,41 +27,89 @@ from src.models import get_prediction_probabilities
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
 
 CATEGORY_ICONS = {
+    "alt.atheism": "🕊️",
     "comp.graphics": "🎨",
-    "rec.sport.baseball": "⚾",
-    "sci.space": "🚀",
-    "talk.politics.misc": "🏛️",
+    "comp.os.ms-windows.misc": "🪟",
+    "comp.sys.ibm.pc.hardware": "🖥️",
+    "comp.sys.mac.hardware": "🍏",
+    "comp.windows.x": "💻",
+    "misc.forsale": "🏷️",
     "rec.autos": "🚗",
-    "sci.med": "🩺"
+    "rec.motorcycles": "🏍️",
+    "rec.sport.baseball": "⚾",
+    "rec.sport.hockey": "🏒",
+    "sci.crypt": "🔐",
+    "sci.electronics": "⚡",
+    "sci.med": "🩺",
+    "sci.space": "🚀",
+    "soc.religion.christian": "✝️",
+    "talk.politics.guns": "🎯",
+    "talk.politics.mideast": "🌍",
+    "talk.politics.misc": "🏛️",
+    "talk.religion.misc": "🕊️"
 }
 
 def get_category_icon(category_name: str, raw_class: str = "") -> str:
+    if raw_class in CATEGORY_ICONS:
+        return CATEGORY_ICONS[raw_class]
     combined = f"{category_name} {raw_class}".lower()
-    if any(k in combined for k in ["business", "trade", "revenue", "profit", "finance", "investor", "market"]):
+    if any(k in combined for k in ["atheism", "christian", "religion", "faith"]):
+        return "🕊️"
+    elif any(k in combined for k in ["crypt", "security", "cipher", "encryption"]):
+        return "🔐"
+    elif any(k in combined for k in ["gun", "weapon", "firearm", "defense"]):
+        return "🎯"
+    elif any(k in combined for k in ["hockey"]):
+        return "🏒"
+    elif any(k in combined for k in ["motorcycle", "bike"]):
+        return "🏍️"
+    elif any(k in combined for k in ["mac", "apple"]):
+        return "🍏"
+    elif any(k in combined for k in ["windows", "ms-win"]):
+        return "🪟"
+    elif any(k in combined for k in ["electronics", "circuit"]):
+        return "⚡"
+    elif any(k in combined for k in ["sale", "forsale", "price", "offer"]):
+        return "🏷️"
+    elif any(k in combined for k in ["business", "trade", "revenue", "profit", "finance"]):
         return "💼"
-    elif any(k in combined for k in ["tech", "computer", "hardware", "software", "sys", "gpu", "compiler"]):
-        return "💻"
-    elif any(k in combined for k in ["graphic", "rendering", "3d", "art", "design", "comp.graphics"]):
+    elif any(k in combined for k in ["tech", "computer", "hardware", "software", "sys", "pc"]):
+        return "🖥️"
+    elif any(k in combined for k in ["graphic", "rendering", "3d", "art", "design"]):
         return "🎨"
-    elif any(k in combined for k in ["sport", "baseball", "soccer", "game", "hockey"]):
-        return "⚽"
-    elif any(k in combined for k in ["politic", "congress", "law", "government"]):
+    elif any(k in combined for k in ["sport", "baseball", "game"]):
+        return "⚾"
+    elif any(k in combined for k in ["politic", "congress", "law", "government", "mideast"]):
         return "🏛️"
-    elif any(k in combined for k in ["entertain", "movie", "film", "cinema", "music"]):
-        return "🎬"
-    elif any(k in combined for k in ["space", "nasa", "astronomy", "telescope", "orbit", "sci.space"]):
+    elif any(k in combined for k in ["space", "nasa", "astronomy", "telescope", "orbit"]):
         return "🚀"
-    elif any(k in combined for k in ["auto", "car", "engine", "vehicle", "rec.autos"]):
+    elif any(k in combined for k in ["auto", "car", "engine", "vehicle"]):
         return "🚗"
-    return CATEGORY_ICONS.get(raw_class, "📄")
+    elif any(k in combined for k in ["med", "health", "doctor", "clinical", "disease"]):
+        return "🩺"
+    return "📄"
 
 CATEGORY_NAMES = {
+    "alt.atheism": "Atheism",
     "comp.graphics": "Computer Graphics",
-    "rec.sport.baseball": "Sports",
-    "sci.space": "Space Science",
-    "talk.politics.misc": "Politics",
+    "comp.os.ms-windows.misc": "MS Windows",
+    "comp.sys.ibm.pc.hardware": "IBM PC Hardware",
+    "comp.sys.mac.hardware": "Mac Hardware",
+    "comp.windows.x": "X Window System",
+    "misc.forsale": "For Sale",
+    "rec.autos": "Automobiles",
+    "rec.motorcycles": "Motorcycles",
+    "rec.sport.baseball": "Baseball",
+    "rec.sport.hockey": "Hockey",
+    "sci.crypt": "Cryptography",
+    "sci.electronics": "Electronics",
     "sci.med": "Medicine",
-    "rec.autos": "Automobiles"
+    "sci.space": "Space Science",
+    "soc.religion.christian": "Christianity",
+    "talk.politics.guns": "Gun Politics",
+    "talk.politics.mideast": "Middle East Politics",
+    "talk.politics.misc": "Politics",
+    "talk.religion.misc": "Religion"
 }
 
 vectorizer = None
@@ -89,11 +137,11 @@ def load_artifacts():
     if os.path.exists(meta_path):
         with open(meta_path, "r", encoding="utf-8") as f:
             meta = json.load(f)
-            categories = meta.get("categories", [
-                "comp.graphics", "rec.sport.baseball", "sci.space", "talk.politics.misc"
-            ])
+            categories = meta.get("categories", [])
+            if "category_display_names" in meta:
+                CATEGORY_NAMES.update(meta["category_display_names"])
     else:
-        categories = ["comp.graphics", "rec.sport.baseball", "sci.space", "talk.politics.misc"]
+        categories = list(CATEGORY_NAMES.keys())
 
 
 load_artifacts()

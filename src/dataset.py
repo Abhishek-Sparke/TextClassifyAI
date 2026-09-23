@@ -17,26 +17,51 @@ from sklearn.datasets._twenty_newsgroups import (
 )
 from sklearn.model_selection import train_test_split
 
-# Curated diverse categories representing distinct semantic domains:
-# Computers, Sports, Space Science, Politics, Medicine, and Automobiles
+# Complete 20 categories from the 20 Newsgroups benchmark dataset:
 DEFAULT_CATEGORIES = [
+    'alt.atheism',
     'comp.graphics',
+    'comp.os.ms-windows.misc',
+    'comp.sys.ibm.pc.hardware',
+    'comp.sys.mac.hardware',
+    'comp.windows.x',
+    'misc.forsale',
+    'rec.autos',
+    'rec.motorcycles',
     'rec.sport.baseball',
-    'sci.space',
-    'talk.politics.misc',
+    'rec.sport.hockey',
+    'sci.crypt',
+    'sci.electronics',
     'sci.med',
-    'rec.autos'
+    'sci.space',
+    'soc.religion.christian',
+    'talk.politics.guns',
+    'talk.politics.mideast',
+    'talk.politics.misc',
+    'talk.religion.misc'
 ]
 
 # Friendly human-readable category display names
 CATEGORY_DISPLAY_NAMES = {
+    'alt.atheism': 'Atheism',
     'comp.graphics': 'Computer Graphics',
-    'rec.sport.baseball': 'Sports',
-    'sci.space': 'Space Science',
-    'talk.politics.misc': 'Politics',
-    'rec.autos': 'Automobiles',
-    'sci.med': 'Medicine',
+    'comp.os.ms-windows.misc': 'MS Windows',
+    'comp.sys.ibm.pc.hardware': 'IBM PC Hardware',
+    'comp.sys.mac.hardware': 'Mac Hardware',
+    'comp.windows.x': 'X Window System',
     'misc.forsale': 'For Sale',
+    'rec.autos': 'Automobiles',
+    'rec.motorcycles': 'Motorcycles',
+    'rec.sport.baseball': 'Baseball',
+    'rec.sport.hockey': 'Hockey',
+    'sci.crypt': 'Cryptography',
+    'sci.electronics': 'Electronics',
+    'sci.med': 'Medicine',
+    'sci.space': 'Space Science',
+    'soc.religion.christian': 'Christianity',
+    'talk.politics.guns': 'Gun Politics',
+    'talk.politics.mideast': 'Middle East Politics',
+    'talk.politics.misc': 'Politics',
     'talk.religion.misc': 'Religion'
 }
 
@@ -167,7 +192,8 @@ def split_data(
     """
     Splits documents and targets into stratified train and test sets.
     """
-    X = df['text']
+    # Use preprocessed text if available to ensure vocabulary contains meaningful terms
+    X = df['clean_text'] if 'clean_text' in df.columns else df['text']
     y = df['target']
 
     X_train, X_test, y_train, y_test = train_test_split(

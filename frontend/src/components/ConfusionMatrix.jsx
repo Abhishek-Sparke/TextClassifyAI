@@ -49,15 +49,17 @@ export default function ConfusionMatrix() {
   // Helper function to get background shading
   const getCellBg = (val, isDiagonal) => {
     if (isDiagonal) {
-      if (val > 170) return 'bg-indigo-600 text-white font-bold';
-      if (val > 150) return 'bg-indigo-500 text-white font-bold';
+      if (val > 120) return 'bg-indigo-600 text-white font-bold';
+      if (val > 80) return 'bg-indigo-500 text-white font-bold';
       return 'bg-indigo-400 text-white font-bold';
     }
     if (val === 0) return 'bg-slate-50 dark:bg-slate-800/40 text-slate-300 dark:text-slate-600';
     if (val <= 4) return 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-medium';
-    if (val <= 8) return 'bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-semibold';
+    if (val <= 10) return 'bg-amber-200 dark:bg-amber-900/60 text-amber-900 dark:text-amber-200 font-semibold';
     return 'bg-rose-200 dark:bg-rose-950/70 text-rose-900 dark:text-rose-200 font-bold';
   };
+
+  const isLargeMatrix = labels.length > 8;
 
   return (
     <div className="space-y-8 animate-fade-in">
@@ -70,7 +72,7 @@ export default function ConfusionMatrix() {
             Error & Misclassification Analysis
           </div>
           <h2 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 dark:text-white">
-            Linear SVM Confusion Matrix
+            {labels.length}x{labels.length} Confusion Matrix
           </h2>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1 max-w-3xl">
             Detailed {labels.length}x{labels.length} matrix representation showing true ground truth labels vs. model predictions across all {totalTestDocs} evaluated test documents.
@@ -104,7 +106,7 @@ export default function ConfusionMatrix() {
           </div>
 
           <div className="overflow-x-auto py-2">
-            <div className="min-w-[420px]">
+            <div className={isLargeMatrix ? "min-w-[820px]" : "min-w-[420px]"}>
               
               {/* Predicted Label Header */}
               <div className="text-center text-xs font-bold text-indigo-600 dark:text-indigo-400 uppercase tracking-wider mb-2">
@@ -112,15 +114,15 @@ export default function ConfusionMatrix() {
               </div>
 
               <div 
-                className="gap-2 text-center text-xs items-center"
+                className={`text-center items-center ${isLargeMatrix ? 'gap-1 text-[11px]' : 'gap-2 text-xs'}`}
                 style={{ display: 'grid', gridTemplateColumns: `repeat(${labels.length + 1}, minmax(0, 1fr))` }}
               >
                 {/* Top left corner empty */}
-                <div className="p-2 text-[10px] font-bold text-slate-400 uppercase">
-                  Actual Class ↓
+                <div className="p-1 text-[10px] font-bold text-slate-400 uppercase">
+                  Actual ↓
                 </div>
                 {labels.map((lbl, idx) => (
-                  <div key={idx} className="p-2 font-bold text-slate-700 dark:text-slate-300">
+                  <div key={idx} className="p-1 font-bold text-slate-700 dark:text-slate-300 truncate" title={lbl}>
                     {lbl}
                   </div>
                 ))}
@@ -128,7 +130,7 @@ export default function ConfusionMatrix() {
                 {/* Matrix Rows */}
                 {matrix.map((row, rowIdx) => (
                   <React.Fragment key={rowIdx}>
-                    <div className="p-2 text-right font-bold text-slate-700 dark:text-slate-300 truncate">
+                    <div className="p-1 text-right font-bold text-slate-700 dark:text-slate-300 truncate" title={labels[rowIdx]}>
                       {labels[rowIdx]}
                     </div>
                     {row.map((val, colIdx) => {
@@ -143,7 +145,7 @@ export default function ConfusionMatrix() {
                             isCorrect: isDiagonal
                           })}
                           onMouseLeave={() => setHoveredCell(null)}
-                          className={`p-3.5 rounded-xl text-center text-sm transition-all duration-150 cursor-pointer shadow-xs ${getCellBg(val, isDiagonal)} hover:scale-105 hover:ring-2 hover:ring-indigo-400`}
+                          className={`${isLargeMatrix ? 'p-1.5 text-xs' : 'p-3.5 text-sm'} rounded-lg text-center transition-all duration-150 cursor-pointer shadow-xs ${getCellBg(val, isDiagonal)} hover:scale-110 hover:ring-2 hover:ring-indigo-400`}
                         >
                           {val}
                         </div>
@@ -180,15 +182,15 @@ export default function ConfusionMatrix() {
           <div className="flex flex-wrap items-center gap-4 text-xs text-slate-500 dark:text-slate-400 pt-2 border-t border-slate-100 dark:border-slate-800">
             <div className="flex items-center gap-1.5">
               <span className="w-3.5 h-3.5 rounded-xs bg-indigo-600 inline-block" />
-              <span>True Positive (&gt;150)</span>
+              <span>True Positive (&gt;100)</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-3.5 h-3.5 rounded-xs bg-amber-200 dark:bg-amber-900 inline-block" />
-              <span>Minor Error (1–8)</span>
+              <span>Minor Error (1–10)</span>
             </div>
             <div className="flex items-center gap-1.5">
               <span className="w-3.5 h-3.5 rounded-xs bg-rose-200 dark:bg-rose-950 inline-block" />
-              <span>Higher Error (&gt;8)</span>
+              <span>Higher Error (&gt;10)</span>
             </div>
           </div>
         </div>
@@ -199,10 +201,10 @@ export default function ConfusionMatrix() {
           <div className="bg-white dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-800 p-5 shadow-sm space-y-4">
             <h3 className="text-sm font-bold text-slate-900 dark:text-white uppercase tracking-wider flex items-center gap-2">
               <Target className="w-4 h-4 text-indigo-500" />
-              Per-Class Metrics Breakdown
+              Per-Class Metrics Breakdown ({classStats.length} Classes)
             </h3>
 
-            <div className="space-y-3">
+            <div className="space-y-3 max-h-[580px] overflow-y-auto pr-1">
               {classStats.map((stat, idx) => (
                 <div 
                   key={idx}

@@ -1,338 +1,980 @@
 {
-  "best_model_name": "Support Vector Machine",
+  "best_model_name": "Multinomial Naive Bayes",
   "categories": [
+    "alt.atheism",
     "comp.graphics",
+    "comp.os.ms-windows.misc",
+    "comp.sys.ibm.pc.hardware",
+    "comp.sys.mac.hardware",
+    "comp.windows.x",
+    "misc.forsale",
     "rec.autos",
+    "rec.motorcycles",
     "rec.sport.baseball",
+    "rec.sport.hockey",
+    "sci.crypt",
+    "sci.electronics",
     "sci.med",
     "sci.space",
-    "talk.politics.misc"
+    "soc.religion.christian",
+    "talk.politics.guns",
+    "talk.politics.mideast",
+    "talk.politics.misc",
+    "talk.religion.misc"
   ],
   "category_display_names": {
+    "alt.atheism": "Atheism",
     "comp.graphics": "Computer Graphics",
-    "rec.sport.baseball": "Sports",
-    "sci.space": "Space Science",
-    "talk.politics.misc": "Politics",
-    "rec.autos": "Automobiles",
-    "sci.med": "Medicine",
+    "comp.os.ms-windows.misc": "MS Windows",
+    "comp.sys.ibm.pc.hardware": "IBM PC Hardware",
+    "comp.sys.mac.hardware": "Mac Hardware",
+    "comp.windows.x": "X Window System",
     "misc.forsale": "For Sale",
+    "rec.autos": "Automobiles",
+    "rec.motorcycles": "Motorcycles",
+    "rec.sport.baseball": "Baseball",
+    "rec.sport.hockey": "Hockey",
+    "sci.crypt": "Cryptography",
+    "sci.electronics": "Electronics",
+    "sci.med": "Medicine",
+    "sci.space": "Space Science",
+    "soc.religion.christian": "Christianity",
+    "talk.politics.guns": "Gun Politics",
+    "talk.politics.mideast": "Middle East Politics",
+    "talk.politics.misc": "Politics",
     "talk.religion.misc": "Religion"
   },
   "dataset_statistics": {
-    "total_documents": 5500,
-    "num_classes": 6,
+    "total_documents": 18278,
+    "num_classes": 20,
     "classes": [
+      "alt.atheism",
       "comp.graphics",
+      "comp.os.ms-windows.misc",
+      "comp.sys.ibm.pc.hardware",
+      "comp.sys.mac.hardware",
+      "comp.windows.x",
+      "misc.forsale",
       "rec.autos",
+      "rec.motorcycles",
       "rec.sport.baseball",
+      "rec.sport.hockey",
+      "sci.crypt",
+      "sci.electronics",
       "sci.med",
       "sci.space",
-      "talk.politics.misc"
+      "soc.religion.christian",
+      "talk.politics.guns",
+      "talk.politics.mideast",
+      "talk.politics.misc",
+      "talk.religion.misc"
     ],
     "class_distribution": {
+      "comp.windows.x": 978,
+      "soc.religion.christian": 974,
+      "rec.sport.hockey": 972,
+      "rec.motorcycles": 964,
+      "sci.crypt": 962,
+      "comp.sys.ibm.pc.hardware": 962,
       "sci.med": 957,
-      "comp.graphics": 953,
+      "misc.forsale": 957,
+      "sci.electronics": 956,
       "sci.space": 953,
+      "comp.graphics": 953,
       "rec.sport.baseball": 951,
+      "comp.os.ms-windows.misc": 946,
       "rec.autos": 930,
-      "talk.politics.misc": 756
+      "comp.sys.mac.hardware": 925,
+      "talk.politics.mideast": 917,
+      "talk.politics.guns": 885,
+      "alt.atheism": 776,
+      "talk.politics.misc": 756,
+      "talk.religion.misc": 604
     },
     "word_count_min": 1,
-    "word_count_max": 9196,
-    "word_count_mean": 187.7101818181818,
-    "word_count_median": 83.0
+    "word_count_max": 11765,
+    "word_count_mean": 187.2785862785863,
+    "word_count_median": 86.0
   },
   "metrics_table": [
     {
+      "Model": "Multinomial Naive Bayes",
+      "Accuracy": 0.7254,
+      "Precision (Weighted)": 0.7283,
+      "Recall (Weighted)": 0.7254,
+      "F1-Score (Weighted)": 0.7212,
+      "F1-Score (Macro)": 0.7113,
+      "Training Time (s)": 0.062
+    },
+    {
       "Model": "Support Vector Machine",
-      "Accuracy": 0.8707,
-      "Precision (Weighted)": 0.8707,
-      "Recall (Weighted)": 0.8707,
-      "F1-Score (Weighted)": 0.8706,
-      "F1-Score (Macro)": 0.8696,
-      "Training Time (s)": 0.208
+      "Accuracy": 0.7224,
+      "Precision (Weighted)": 0.7195,
+      "Recall (Weighted)": 0.7224,
+      "F1-Score (Weighted)": 0.7192,
+      "F1-Score (Macro)": 0.7091,
+      "Training Time (s)": 12.76
     },
     {
       "Model": "Logistic Regression",
-      "Accuracy": 0.8634,
-      "Precision (Weighted)": 0.8639,
-      "Recall (Weighted)": 0.8634,
-      "F1-Score (Weighted)": 0.8633,
-      "F1-Score (Macro)": 0.8625,
-      "Training Time (s)": 0.239
-    },
-    {
-      "Model": "Multinomial Naive Bayes",
-      "Accuracy": 0.857,
-      "Precision (Weighted)": 0.8587,
-      "Recall (Weighted)": 0.857,
-      "F1-Score (Weighted)": 0.8573,
-      "F1-Score (Macro)": 0.8564,
-      "Training Time (s)": 0.006
+      "Accuracy": 0.7213,
+      "Precision (Weighted)": 0.7199,
+      "Recall (Weighted)": 0.7213,
+      "F1-Score (Weighted)": 0.7174,
+      "F1-Score (Macro)": 0.7065,
+      "Training Time (s)": 9.871
     },
     {
       "Model": "Random Forest",
-      "Accuracy": 0.7842,
-      "Precision (Weighted)": 0.7966,
-      "Recall (Weighted)": 0.7842,
-      "F1-Score (Weighted)": 0.7839,
-      "F1-Score (Macro)": 0.7812,
-      "Training Time (s)": 0.462
+      "Accuracy": 0.6105,
+      "Precision (Weighted)": 0.686,
+      "Recall (Weighted)": 0.6105,
+      "F1-Score (Weighted)": 0.6222,
+      "F1-Score (Macro)": 0.6075,
+      "Training Time (s)": 10.88
     }
   ],
   "top_features_per_class": {
+    "alt.atheism": [
+      [
+        "god",
+        0.0354
+      ],
+      [
+        "atheist",
+        0.0309
+      ],
+      [
+        "say",
+        0.0272
+      ],
+      [
+        "religion",
+        0.0265
+      ],
+      [
+        "one",
+        0.0264
+      ],
+      [
+        "think",
+        0.0252
+      ],
+      [
+        "dont",
+        0.0247
+      ],
+      [
+        "moral",
+        0.0241
+      ],
+      [
+        "peopl",
+        0.024
+      ],
+      [
+        "would",
+        0.0222
+      ]
+    ],
     "comp.graphics": [
       [
-        "the",
-        0.052
+        "graphic",
+        0.039
       ],
       [
-        "to",
-        0.0447
+        "file",
+        0.0386
       ],
       [
-        "of",
-        0.0395
+        "imag",
+        0.034
       ],
       [
-        "and",
-        0.0381
+        "thank",
+        0.0325
       ],
       [
-        "for",
-        0.0378
+        "program",
+        0.0294
       ],
       [
-        "is",
-        0.0348
+        "use",
+        0.0285
       ],
       [
-        "it",
-        0.0337
+        "format",
+        0.0267
       ],
       [
-        "graphics",
-        0.0322
+        "know",
+        0.0244
       ],
       [
-        "in",
-        0.0322
+        "look",
+        0.0239
       ],
       [
-        "on",
-        0.0269
+        "anyon",
+        0.0239
+      ]
+    ],
+    "comp.os.ms-windows.misc": [
+      [
+        "window",
+        0.0891
+      ],
+      [
+        "file",
+        0.0485
+      ],
+      [
+        "use",
+        0.0386
+      ],
+      [
+        "driver",
+        0.0334
+      ],
+      [
+        "do",
+        0.0329
+      ],
+      [
+        "program",
+        0.0266
+      ],
+      [
+        "problem",
+        0.0256
+      ],
+      [
+        "thank",
+        0.0252
+      ],
+      [
+        "run",
+        0.0248
+      ],
+      [
+        "get",
+        0.0222
+      ]
+    ],
+    "comp.sys.ibm.pc.hardware": [
+      [
+        "card",
+        0.0445
+      ],
+      [
+        "drive",
+        0.0411
+      ],
+      [
+        "use",
+        0.0347
+      ],
+      [
+        "thank",
+        0.0305
+      ],
+      [
+        "problem",
+        0.0277
+      ],
+      [
+        "ide",
+        0.0266
+      ],
+      [
+        "system",
+        0.025
+      ],
+      [
+        "scsi",
+        0.0247
+      ],
+      [
+        "control",
+        0.0242
+      ],
+      [
+        "anyon",
+        0.0236
+      ]
+    ],
+    "comp.sys.mac.hardware": [
+      [
+        "mac",
+        0.0506
+      ],
+      [
+        "appl",
+        0.042
+      ],
+      [
+        "drive",
+        0.031
+      ],
+      [
+        "use",
+        0.0289
+      ],
+      [
+        "monitor",
+        0.028
+      ],
+      [
+        "problem",
+        0.0255
+      ],
+      [
+        "thank",
+        0.024
+      ],
+      [
+        "get",
+        0.0236
+      ],
+      [
+        "work",
+        0.0227
+      ],
+      [
+        "anyon",
+        0.0224
+      ]
+    ],
+    "comp.windows.x": [
+      [
+        "window",
+        0.0463
+      ],
+      [
+        "use",
+        0.0428
+      ],
+      [
+        "server",
+        0.0335
+      ],
+      [
+        "run",
+        0.0293
+      ],
+      [
+        "motif",
+        0.029
+      ],
+      [
+        "thank",
+        0.0278
+      ],
+      [
+        "program",
+        0.0272
+      ],
+      [
+        "widget",
+        0.027
+      ],
+      [
+        "applic",
+        0.0265
+      ],
+      [
+        "file",
+        0.0259
+      ]
+    ],
+    "misc.forsale": [
+      [
+        "sale",
+        0.0581
+      ],
+      [
+        "offer",
+        0.0458
+      ],
+      [
+        "ship",
+        0.0382
+      ],
+      [
+        "email",
+        0.0343
+      ],
+      [
+        "sell",
+        0.0338
+      ],
+      [
+        "condit",
+        0.0316
+      ],
+      [
+        "pleas",
+        0.0298
+      ],
+      [
+        "new",
+        0.0296
+      ],
+      [
+        "includ",
+        0.0285
+      ],
+      [
+        "price",
+        0.0267
       ]
     ],
     "rec.autos": [
       [
-        "the",
-        0.0665
-      ],
-      [
         "car",
-        0.0461
+        0.0879
       ],
       [
-        "to",
-        0.0424
+        "engin",
+        0.0293
       ],
       [
-        "and",
-        0.0407
+        "like",
+        0.0225
       ],
       [
-        "it",
-        0.0382
+        "get",
+        0.0209
       ],
       [
-        "of",
-        0.0373
+        "one",
+        0.0205
       ],
       [
-        "in",
-        0.0372
+        "would",
+        0.0202
       ],
       [
-        "you",
-        0.0363
+        "ford",
+        0.0195
       ],
       [
-        "is",
-        0.0351
+        "new",
+        0.0192
       ],
       [
-        "that",
-        0.0345
+        "know",
+        0.0191
+      ],
+      [
+        "use",
+        0.0187
+      ]
+    ],
+    "rec.motorcycles": [
+      [
+        "bike",
+        0.0705
+      ],
+      [
+        "ride",
+        0.0414
+      ],
+      [
+        "dod",
+        0.0296
+      ],
+      [
+        "motorcycl",
+        0.0268
+      ],
+      [
+        "get",
+        0.0223
+      ],
+      [
+        "like",
+        0.0222
+      ],
+      [
+        "one",
+        0.0201
+      ],
+      [
+        "go",
+        0.0185
+      ],
+      [
+        "dont",
+        0.0179
+      ],
+      [
+        "rider",
+        0.0176
       ]
     ],
     "rec.sport.baseball": [
       [
-        "the",
-        0.0623
+        "game",
+        0.05
       ],
       [
-        "he",
-        0.0465
+        "team",
+        0.0346
       ],
       [
-        "to",
-        0.0416
+        "year",
+        0.0333
       ],
       [
-        "and",
-        0.0396
+        "basebal",
+        0.033
       ],
       [
-        "in",
-        0.0378
+        "player",
+        0.0311
       ],
       [
-        "of",
-        0.0351
+        "pitch",
+        0.0309
       ],
       [
-        "that",
-        0.034
+        "hit",
+        0.0291
       ],
       [
-        "is",
+        "pitcher",
+        0.0259
+      ],
+      [
+        "last",
+        0.0237
+      ],
+      [
+        "play",
+        0.0229
+      ]
+    ],
+    "rec.sport.hockey": [
+      [
+        "game",
+        0.0714
+      ],
+      [
+        "team",
+        0.0503
+      ],
+      [
+        "hockey",
+        0.039
+      ],
+      [
+        "play",
+        0.0389
+      ],
+      [
+        "playoff",
+        0.0327
+      ],
+      [
+        "player",
+        0.0309
+      ],
+      [
+        "nhl",
+        0.0258
+      ],
+      [
+        "win",
+        0.0251
+      ],
+      [
+        "season",
+        0.0251
+      ],
+      [
+        "goal",
+        0.0249
+      ]
+    ],
+    "sci.crypt": [
+      [
+        "key",
+        0.0555
+      ],
+      [
+        "encrypt",
+        0.0494
+      ],
+      [
+        "chip",
+        0.0397
+      ],
+      [
+        "clipper",
+        0.0377
+      ],
+      [
+        "secur",
         0.0322
       ],
       [
-        "his",
-        0.0276
+        "govern",
+        0.032
       ],
       [
-        "was",
-        0.0271
+        "use",
+        0.031
+      ],
+      [
+        "would",
+        0.0266
+      ],
+      [
+        "phone",
+        0.0264
+      ],
+      [
+        "system",
+        0.0247
+      ]
+    ],
+    "sci.electronics": [
+      [
+        "use",
+        0.0377
+      ],
+      [
+        "would",
+        0.0252
+      ],
+      [
+        "one",
+        0.0239
+      ],
+      [
+        "circuit",
+        0.0235
+      ],
+      [
+        "anyon",
+        0.0216
+      ],
+      [
+        "know",
+        0.0199
+      ],
+      [
+        "work",
+        0.0193
+      ],
+      [
+        "get",
+        0.0184
+      ],
+      [
+        "like",
+        0.0182
+      ],
+      [
+        "thank",
+        0.0178
       ]
     ],
     "sci.med": [
       [
-        "the",
-        0.0585
+        "one",
+        0.0247
       ],
       [
-        "to",
-        0.0509
+        "doctor",
+        0.0241
       ],
       [
-        "of",
-        0.0496
+        "medic",
+        0.0231
       ],
       [
-        "is",
-        0.0483
+        "diseas",
+        0.0231
       ],
       [
-        "and",
-        0.0441
+        "patient",
+        0.0228
       ],
       [
-        "it",
-        0.0412
+        "would",
+        0.0226
       ],
       [
-        "in",
-        0.0392
+        "effect",
+        0.0225
       ],
       [
-        "that",
-        0.0382
+        "caus",
+        0.0224
       ],
       [
-        "this",
-        0.0302
+        "know",
+        0.0207
       ],
       [
-        "for",
-        0.0301
+        "get",
+        0.02
       ]
     ],
     "sci.space": [
       [
-        "the",
-        0.0637
-      ],
-      [
-        "of",
-        0.0465
-      ],
-      [
-        "to",
-        0.0461
-      ],
-      [
-        "and",
-        0.0389
-      ],
-      [
         "space",
-        0.0377
+        0.05
       ],
       [
-        "in",
+        "orbit",
+        0.0331
+      ],
+      [
+        "would",
+        0.0267
+      ],
+      [
+        "launch",
+        0.0245
+      ],
+      [
+        "shuttl",
+        0.0229
+      ],
+      [
+        "nasa",
+        0.022
+      ],
+      [
+        "like",
+        0.0202
+      ],
+      [
+        "moon",
+        0.0193
+      ],
+      [
+        "use",
+        0.0182
+      ],
+      [
+        "earth",
+        0.0182
+      ]
+    ],
+    "soc.religion.christian": [
+      [
+        "god",
+        0.0661
+      ],
+      [
+        "christian",
+        0.0533
+      ],
+      [
+        "church",
+        0.0367
+      ],
+      [
+        "jesu",
+        0.0328
+      ],
+      [
+        "christ",
+        0.0306
+      ],
+      [
+        "would",
+        0.0302
+      ],
+      [
+        "one",
+        0.0291
+      ],
+      [
+        "believ",
+        0.0285
+      ],
+      [
+        "sin",
+        0.0275
+      ],
+      [
+        "say",
+        0.0275
+      ]
+    ],
+    "talk.politics.guns": [
+      [
+        "gun",
+        0.0462
+      ],
+      [
+        "would",
+        0.0276
+      ],
+      [
+        "fbi",
+        0.0276
+      ],
+      [
+        "fire",
+        0.0269
+      ],
+      [
+        "peopl",
+        0.0244
+      ],
+      [
+        "weapon",
+        0.0241
+      ],
+      [
+        "law",
+        0.0211
+      ],
+      [
+        "dont",
+        0.021
+      ],
+      [
+        "right",
+        0.0207
+      ],
+      [
+        "get",
+        0.0204
+      ]
+    ],
+    "talk.politics.mideast": [
+      [
+        "israel",
+        0.0443
+      ],
+      [
+        "arab",
+        0.0402
+      ],
+      [
+        "isra",
         0.037
       ],
       [
-        "it",
-        0.0369
+        "jew",
+        0.0358
       ],
       [
-        "is",
-        0.0359
+        "armenian",
+        0.0328
       ],
       [
-        "that",
-        0.0352
+        "peopl",
+        0.0289
       ],
       [
-        "for",
-        0.0301
+        "muslim",
+        0.0264
+      ],
+      [
+        "kill",
+        0.0251
+      ],
+      [
+        "jewish",
+        0.0218
+      ],
+      [
+        "turkish",
+        0.0215
       ]
     ],
     "talk.politics.misc": [
       [
-        "the",
-        0.0612
+        "peopl",
+        0.0316
       ],
       [
-        "to",
-        0.0492
+        "homosexu",
+        0.0248
       ],
       [
-        "of",
-        0.0474
+        "would",
+        0.0241
       ],
       [
-        "that",
-        0.045
+        "govern",
+        0.0229
       ],
       [
-        "and",
-        0.0424
+        "one",
+        0.0213
       ],
       [
-        "you",
-        0.0401
+        "us",
+        0.0207
       ],
       [
-        "in",
-        0.0398
+        "state",
+        0.0204
       ],
       [
-        "is",
-        0.0371
+        "dont",
+        0.0204
       ],
       [
-        "it",
-        0.0341
+        "like",
+        0.0189
       ],
       [
-        "this",
-        0.0311
+        "make",
+        0.0184
+      ]
+    ],
+    "talk.religion.misc": [
+      [
+        "god",
+        0.0381
+      ],
+      [
+        "christian",
+        0.035
+      ],
+      [
+        "jesu",
+        0.0285
+      ],
+      [
+        "say",
+        0.0252
+      ],
+      [
+        "one",
+        0.0227
+      ],
+      [
+        "would",
+        0.0219
+      ],
+      [
+        "bibl",
+        0.0215
+      ],
+      [
+        "think",
+        0.0213
+      ],
+      [
+        "believ",
+        0.0205
+      ],
+      [
+        "peopl",
+        0.0204
       ]
     ]
   },
-  "timestamp": "2026-09-23 07:44:28"
+  "timestamp": "2026-09-23 09:25:44"
 }

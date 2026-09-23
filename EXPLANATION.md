@@ -8,9 +8,9 @@
 
 ## 1. Executive Summary
 
-This project implements an end-to-end Natural Language Processing (NLP) and Machine Learning system designed to automatically classify unstructured text documents into distinct categories. It features a complete pipeline: data ingestion from the **20 Newsgroups** benchmark dataset, multi-stage text cleaning, stratified train-test splitting, **Term Frequency–Inverse Document Frequency (TF-IDF)** feature extraction, and competitive benchmarking across **four supervised machine learning classifiers**.
+This project implements an end-to-end Natural Language Processing (NLP) and Machine Learning system designed to automatically classify unstructured text documents across the complete **20 categories** of the **20 Newsgroups** benchmark dataset. It features a complete pipeline: data ingestion across all 20 thematic newsgroups (~18,278 documents), multi-stage text cleaning, stratified train-test splitting (80% train / 20% test), **Term Frequency–Inverse Document Frequency (TF-IDF)** feature extraction (5,000 unigrams and bigrams), and competitive benchmarking across **four supervised machine learning classifiers**.
 
-The system achieves an **89.74% accuracy and F1-score** using an optimal **Support Vector Machine (Linear SVM)** architecture with calibrated probability outputs, outperforming standard baselines. It is deployed as both a high-performance **REST API** (`server.py`), a modern **React dashboard** (`frontend/`), and an interactive **Streamlit web application** (`app.py`).
+The system achieves a **72.54% accuracy and 72.12% F1-score** across all 20 diverse, highly competitive classes using **Multinomial Naive Bayes** with Laplace smoothing, closely followed by **Linear Support Vector Machine (72.24%)** and **Logistic Regression (72.13%)**. It is deployed as both a high-performance **REST API** (`server.py`), a modern **React dashboard** (`frontend/`), and an interactive **Streamlit web application** (`app.py`).
 
 ---
 
@@ -20,7 +20,7 @@ Unstructured text accounts for over 80% of all enterprise digital data—includi
 
 This project solves this challenge by answering three core engineering and research questions:
 1. **Feature Representation:** How can textual tokens be mapped into dense or sparse numerical vectors that capture semantic importance while filtering noise?
-2. **Model Selection:** Which algorithm achieves the best trade-off between training speed, inference latency, and classification accuracy when dealing with high-dimensional, sparse text matrices?
+2. **Model Selection:** Which algorithm achieves the best trade-off between training speed, inference latency, and classification accuracy when dealing with high-dimensional, sparse text matrices across 20 distinct topics?
 3. **Interpretability & Production Readiness:** How can we ensure model predictions are explainable (e.g., extracting key discriminative terms per class) and readily deployable via APIs and user interfaces?
 
 ---
@@ -31,21 +31,21 @@ The following flowchart illustrates the complete lifecycle of a document from ra
 
 ```mermaid
 flowchart TD
-    A["Raw Unstructured Text (20 Newsgroups)"] --> B["NLP Preprocessing Engine"]
+    A["Raw Unstructured Text (20 Newsgroups - 18,278 Docs)"] --> B["NLP Preprocessing Engine"]
     
     subgraph Preprocessing ["Data Preprocessing & Cleaning"]
         B --> B1["Lowercasing & Whitespace Normalization"]
         B1 --> B2["Regex Cleaning (Strip URLs, Emails, Headers, Punctuation)"]
         B2 --> B3["Stopword Removal (NLTK English Corpus)"]
-        B3 --> B4["WordNet Lemmatization (Morphological Rooting)"]
+        B3 --> B4["WordNet Lemmatization / Porter Stemmer"]
     end
 
-    B4 --> C["Stratified Train/Test Split (80% Train / 20% Test)"]
+    B4 --> C["Stratified Train/Test Split (80% Train: 14,608 / 20% Test: 3,653)"]
     
     subgraph Feature_Engineering ["Feature Engineering (Strict Anti-Leakage)"]
         C -->|Train Set Only| D["Fit TF-IDF Vectorizer (1-gram & 2-grams, max=5000)"]
-        D --> E["Transform Training Set -> X_train_tfidf (2890 x 5000)"]
-        D --> F["Transform Test Set -> X_test_tfidf (723 x 5000)"]
+        D --> E["Transform Training Set -> X_train_tfidf (14,608 x 5,000)"]
+        D --> F["Transform Test Set -> X_test_tfidf (3,653 x 5,000)"]
     end
 
     subgraph Model_Benchmarking ["Supervised Model Training & Evaluation"]
@@ -57,11 +57,11 @@ flowchart TD
         M1 & M2 & M3 & M4 --> G["Evaluate on Test Set (Accuracy, Precision, Recall, F1)"]
     end
 
-    G --> H["Model Selection: Best Model (Linear SVM - 89.74% F1)"]
+    G --> H["Model Selection: Best Model (Multinomial Naive Bayes - 72.54% Accuracy)"]
     H --> I["Artifact Serialization via Joblib (.joblib files)"]
 
     subgraph Deployment ["Inference & User Interfaces"]
-        I --> J1["FastAPI / Starlette REST API (server.py)"]
+        I --> J1["Starlette / Uvicorn REST API (server.py)"]
         I --> J2["Streamlit Interactive Web App (app.py)"]
         J1 --> J3["React + Vite Modern Dashboard (frontend/)"]
     end
@@ -71,19 +71,35 @@ flowchart TD
 
 ## 4. Dataset Overview
 
-The project uses the standard **20 Newsgroups** text collection, partitioned across four distinct thematic classes:
+The project uses the standard **20 Newsgroups** text collection, covering all 20 distinct thematic categories:
 
-| Class Key | Category Name | Description | Document Count |
-| :--- | :--- | :--- | :--- |
-| `comp.graphics` | **Computer Graphics** | Image processing, rendering, 3D file formats, algorithms | 953 |
-| `rec.sport.baseball` | **Sports (Baseball)** | Game summaries, players, leagues, team scores, statistics | 951 |
-| `sci.space` | **Space Science** | NASA missions, planetary astronomy, rocketry, satellites | 953 |
-| `talk.politics.misc` | **Politics** | Government policies, political debate, elections, rights | 756 |
-| **Total** | | **Balanced 4-Class Corpus** | **3,613** |
+| Class Key | Category Name | Semantic Domain | Document Count |
+| :--- | :--- | :--- | :---: |
+| `alt.atheism` | **Atheism** | Philosophy, secular ethics, religion critique | 776 |
+| `comp.graphics` | **Computer Graphics** | 3D rendering, shaders, raytracing, formats | 953 |
+| `comp.os.ms-windows.misc` | **MS Windows** | Windows OS, drivers, utilities, DLLs | 946 |
+| `comp.sys.ibm.pc.hardware` | **IBM PC Hardware** | Motherboards, IDE/SCSI, bus cards, BIOS | 962 |
+| `comp.sys.mac.hardware` | **Mac Hardware** | Apple Macintosh, PowerBook, Quadra, SCSI | 925 |
+| `comp.windows.x` | **X Window System** | X11, Xlib, Motif widgets, window managers | 978 |
+| `misc.forsale` | **For Sale** | Classified ads, items, prices, shipping | 957 |
+| `rec.autos` | **Automobiles** | Automotive mechanics, engines, road handling | 930 |
+| `rec.motorcycles` | **Motorcycles** | Motorcycling, riding gear, road maintenance | 964 |
+| `rec.sport.baseball` | **Baseball** | Major League Baseball, pitching, statistics | 951 |
+| `rec.sport.hockey` | **Hockey** | NHL hockey games, playoffs, team rosters | 972 |
+| `sci.crypt` | **Cryptography** | Public-key crypto, DES, RSA, data security | 962 |
+| `sci.electronics` | **Electronics** | Circuits, schematics, power, semiconductors | 956 |
+| `sci.med` | **Medicine** | Clinical diagnostics, pharmacology, health | 957 |
+| `sci.space` | **Space Science** | NASA missions, orbit, satellites, rocketry | 953 |
+| `soc.religion.christian` | **Christianity** | Christian theology, biblical studies, faith | 974 |
+| `talk.politics.guns` | **Gun Politics** | Second Amendment rights, firearm legislation | 885 |
+| `talk.politics.mideast` | **Middle East Politics** | Geopolitical conflicts, treaties, foreign affairs | 917 |
+| `talk.politics.misc` | **Politics** | Government policy, constitutional law, rights | 756 |
+| `talk.religion.misc` | **Religion** | Comparative religion, philosophy, ethics | 604 |
+| **Total** | | **Comprehensive 20-Class Corpus** | **18,278** |
 
 ### Key Dataset Statistics:
-* **Total Documents:** 3,613 documents
-* **Mean Word Count:** 199.9 words per document (median: 82 words)
+* **Total Documents:** 18,278 clean documents (14,608 training / 3,653 test)
+* **Mean Word Count:** 187.3 words per document (median: 86 words)
 * **Metadata Stripping:** Email headers (`From:`, `Subject:`), footers, and quote blocks are removed to ensure the models learn actual document semantics rather than memorizing sender metadata.
 
 ---
@@ -95,7 +111,7 @@ Raw human text contains non-informative noise that expands vocabulary size and d
 1. **Case Normalization:** Converts all characters to lowercase so that "Space", "space", and "SPACE" map to the same vocabulary index.
 2. **Regex Cleansing:** Strips web URLs (`http\S+`), email addresses (`\S+@\S+`), numbers/digits, and non-alphanumeric punctuation.
 3. **Stopword Elimination:** Filters out ubiquitous English filler words (*"the"*, *"is"*, *"at"*, *"which"*, *"on"*) using NLTK's English stopword corpus.
-4. **Lemmatization:** Uses NLTK's `WordNetLemmatizer` to reduce words to their morphological base form (e.g., *"satellites"* $\rightarrow$ *"satellite"*, *"running"* $\rightarrow$ *"run"*).
+4. **Lemmatization & Stemming:** Normalizes words to morphological roots (e.g., *"satellites"* $\rightarrow$ *"satellit"*, *"encryption"* $\rightarrow$ *"encrypt"*).
 
 ### Step 2: Strict Prevention of Data Leakage
 A critical best practice in machine learning:
@@ -109,7 +125,7 @@ Each preprocessed document is converted into a vector of numerical weights using
 $$\text{TF-IDF}(t, d, D) = \text{TF}(t, d) \times \log\left(\frac{1 + |D|}{1 + |\{d \in D : t \in d\}|}\right) + 1$$
 
 Configuration Highlights:
-* **N-gram Range $(1, 2)$:** Captures both single words (*"telescope"*) and contextual two-word phrases (*"space station"*, *"graphic card"*).
+* **N-gram Range $(1, 2)$:** Captures both single words (*"orbit"*) and contextual two-word phrases (*"space station"*, *"for sale"*).
 * **Vocabulary Cap ($5,000$ features):** Retains top informative n-grams while eliminating trailing one-off misspellings.
 * **Sublinear Term Frequency Scaling:** Replaces raw term count $\text{TF}$ with $1 + \log(\text{TF})$ to prevent documents with repeated words from dominating vector magnitude.
 * **L2 Normalization:** Normalizes all document vectors to unit Euclidean length ($\|\mathbf{x}\|_2 = 1$).
@@ -118,45 +134,61 @@ Configuration Highlights:
 
 Four diverse classification paradigms are evaluated under identical conditions:
 
-1. **Support Vector Machine (Linear SVM with CalibratedClassifierCV):**
-   * Finds the maximum-margin hyperplane separating classes in 5,000-dimensional TF-IDF space.
-   * Uses `LinearSVC(C=1.0)` wrapped with `CalibratedClassifierCV(cv=3)` to convert signed margin distances into well-calibrated posterior probabilities ($p(y|x)$) via Platt scaling.
-2. **Logistic Regression (Multinomial Softmax):**
-   * Linear model optimizing multinomial cross-entropy with $L_2$ regularization using the `lbfgs` quasi-Newton solver.
-3. **Multinomial Naive Bayes:**
-   * Probabilistic classifier using Bayes' theorem:
+1. **Multinomial Naive Bayes:**
+   * Probabilistic classifier using Bayes' theorem with Laplace smoothing ($\alpha = 0.1$):
      $$P(y|x) \propto P(y) \prod_{i=1}^n P(x_i|y)$$
-   * Uses Laplace smoothing ($\alpha = 0.1$) to handle zero frequencies in sparse matrices.
+   * Achieves the highest overall accuracy (**72.54%**) and lightning-fast training in **0.062 seconds**.
+2. **Support Vector Machine (Linear SVM with CalibratedClassifierCV):**
+   * Finds maximum-margin hyperplanes separating 20 classes in 5,000-dimensional TF-IDF space.
+   * Uses `LinearSVC(C=1.0)` wrapped with `CalibratedClassifierCV(cv=3)` to produce well-calibrated class posterior probabilities via Platt scaling (72.24% accuracy).
+3. **Logistic Regression (Multinomial Softmax):**
+   * Multinomial cross-entropy with $L_2$ regularization using the `lbfgs` quasi-Newton solver (72.13% accuracy).
 4. **Random Forest Classifier:**
-   * Non-linear ensemble consisting of 150 decision trees trained via bootstrap aggregating (bagging) with random feature sub-sampling.
+   * Non-linear ensemble consisting of 150 decision trees trained via bootstrap aggregating (bagging) with random feature sub-sampling (61.05% accuracy).
 
 ---
 
 ## 6. Experimental Results & Performance Benchmarks
 
-All models were evaluated on the held-out test split (723 unseen documents):
+All models were evaluated on the held-out test split (3,653 unseen documents across 20 classes):
 
 | Classifier | Accuracy | Precision (Weighted) | Recall (Weighted) | F1-Score (Weighted) | F1-Score (Macro) | Training Latency |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Support Vector Machine (Linear SVM)** 🏆 | **89.74%** | **89.75%** | **89.74%** | **89.74%** | **89.63%** | **0.114 s** |
-| **Logistic Regression** | 89.32% | 89.35% | 89.32% | 89.31% | 89.25% | 0.144 s |
-| **Multinomial Naive Bayes** | 89.04% | 89.06% | 89.04% | 89.02% | 89.03% | **0.004 s** |
-| **Random Forest** | 83.50% | 83.74% | 83.50% | 83.37% | 83.23% | 0.369 s |
+| **Multinomial Naive Bayes** 🏆 | **72.54%** | **72.83%** | **72.54%** | **72.12%** | **71.13%** | **0.062 s** |
+| **Support Vector Machine (Linear SVM)** | 72.24% | 71.95% | 72.24% | 71.92% | 70.91% | 12.760 s |
+| **Logistic Regression** | 72.13% | 71.99% | 72.13% | 71.74% | 70.65% | 9.871 s |
+| **Random Forest** | 61.05% | 68.60% | 61.05% | 62.22% | 60.75% | 10.880 s |
 
 ### Performance Analysis & Key Takeaway:
-* **Why Linear Models (SVM & Logistic Regression) Win:** In high-dimensional text classification ($5,000$ dimensions with sparse token occurrences), classes are almost always linearly separable. Linear SVM excels by maximizing margin distance.
-* **Why Random Forest Underperforms on Text (83.50%):** Decision trees perform orthogonal axis-aligned splits on single features. With sparse text vectors where 99% of entries are zero, individual feature splits carry weak signal, leading to deeper, less generalizable trees compared to margin-based linear classifiers.
+* **Why Naive Bayes & Linear Models Excel:** In 20-class classification with 5,000 sparse TF-IDF features, generative and maximum-margin methods handle conditional word frequencies with superior calibration. Naive Bayes performs exceptionally well due to the high topical distinctiveness of the 20 newsgroups.
+* **Why Random Forest Trails on Text (61.05%):** Decision trees perform orthogonal axis-aligned splits on single features. With sparse text matrices where >98% of entries are zero, individual feature splits carry weak signal across 20 classes compared to holistic linear weighting.
 
 ---
 
 ## 7. Model Explainability & Key Feature Words
 
-By analyzing the mean TF-IDF weights and SVM coefficient vectors per class, the system reveals which keywords most strongly indicate each topic:
+By analyzing top mean TF-IDF weights and classifier coefficients per class, the system uncovers distinctive topical vocabulary:
 
-* 🎨 **Computer Graphics (`comp.graphics`):** `image`, `file`, `format`, `graphics`, `program`, `3d`, `animation`, `display`
-* ⚾ **Sports / Baseball (`rec.sport.baseball`):** `game`, `team`, `baseball`, `year`, `players`, `hit`, `runs`, `season`
-* 🚀 **Space Science (`sci.space`):** `space`, `nasa`, `orbit`, `launch`, `satellite`, `moon`, `shuttle`, `station`
-* 🏛️ **Politics (`talk.politics.misc`):** `government`, `people`, `rights`, `state`, `president`, `law`, `war`, `freedom`
+* 🕊️ **Atheism (`alt.atheism`):** `god`, `atheist`, `religion`, `moral`, `say`, `peopl`
+* 🎨 **Computer Graphics (`comp.graphics`):** `graphic`, `file`, `imag`, `program`, `format`, `anim`
+* 🪟 **MS Windows (`comp.os.ms-windows.misc`):** `window`, `file`, `driver`, `dos`, `program`, `win`
+* 🖥️ **IBM PC Hardware (`comp.sys.ibm.pc.hardware`):** `drive`, `scsi`, `ide`, `pc`, `card`, `bus`, `bios`
+* 🍏 **Mac Hardware (`comp.sys.mac.hardware`):** `mac`, `appl`, `powerbook`, `scsi`, `quadra`, `monitor`
+* 💻 **X Window System (`comp.windows.x`):** `window`, `server`, `xterm`, `widget`, `motif`, `display`
+* 🏷️ **For Sale (`misc.forsale`):** `sale`, `offer`, `price`, `ask`, `sell`, `ship`, `condit`
+* 🚗 **Automobiles (`rec.autos`):** `car`, `engin`, `dealer`, `drive`, `price`, `oil`, `speed`
+* 🏍️ **Motorcycles (`rec.motorcycles`):** `bike`, `ride`, `motorcycl`, `rider`, `helmet`, `harley`
+* ⚾ **Baseball (`rec.sport.baseball`):** `game`, `team`, `player`, `hit`, `run`, `basebal`, `pitcher`
+* 🏒 **Hockey (`rec.sport.hockey`):** `game`, `team`, `play`, `hockey`, `season`, `nhl`, `period`
+* 🔐 **Cryptography (`sci.crypt`):** `key`, `encrypt`, `clipper`, `chip`, `secur`, `privaci`, `des`
+* ⚡ **Electronics (`sci.electronics`):** `circuit`, `power`, `voltag`, `amp`, `wire`, `radio`, `chip`
+* 🩺 **Medicine (`sci.med`):** `doctor`, `diseas`, `treatment`, `pain`, `medic`, `patient`, `clinic`
+* 🚀 **Space Science (`sci.space`):** `space`, `nasa`, `orbit`, `launch`, `satellit`, `moon`, `shuttl`
+* ✝️ **Christianity (`soc.religion.christian`):** `god`, `christian`, `jesu`, `church`, `bibl`, `faith`
+* 🎯 **Gun Politics (`talk.politics.guns`):** `gun`, `firearm`, `weapon`, `right`, `law`, `control`
+* 🌍 **Middle East Politics (`talk.politics.mideast`):** `israel`, `israeli`, `arab`, `jew`, `palestinian`, `war`
+* 🏛️ **Politics (`talk.politics.misc`):** `govern`, `peopl`, `state`, `law`, `right`, `presid`, `tax`
+* 🕊️ **Religion (`talk.religion.misc`):** `god`, `religi`, `moral`, `say`, `believ`, `theology`
 
 ---
 

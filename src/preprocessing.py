@@ -15,20 +15,25 @@ try:
     from nltk.corpus import stopwords
     from nltk.stem import WordNetLemmatizer, PorterStemmer
 
-    # Download required NLTK corpuses quietly if not present
-    for resource in ['stopwords', 'wordnet', 'punkt', 'punkt_tab', 'omw-1.4']:
-        try:
-            nltk.download(resource, quiet=True)
-        except Exception:
-            pass
+    # Verify stopwords availability locally
+    try:
+        nltk.data.find('corpora/stopwords')
+        STOP_WORDS = set(stopwords.words('english'))
+    except LookupError:
+        from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
+        STOP_WORDS = set(ENGLISH_STOP_WORDS)
 
-    STOP_WORDS = set(stopwords.words('english'))
-    LEMMATIZER = WordNetLemmatizer()
+    # Verify WordNet availability locally, otherwise fallback to PorterStemmer
+    try:
+        nltk.data.find('corpora/wordnet')
+        LEMMATIZER = WordNetLemmatizer()
+    except LookupError:
+        LEMMATIZER = None
+
     STEMMER = PorterStemmer()
     HAS_NLTK = True
 except Exception:
     HAS_NLTK = False
-    # Standard English stopwords fallback
     from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
     STOP_WORDS = set(ENGLISH_STOP_WORDS)
     LEMMATIZER = None
