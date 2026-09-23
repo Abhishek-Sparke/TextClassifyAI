@@ -18,13 +18,29 @@ performance, and deploying the solution through modern interactive interfaces.
 2. DATASET SPECIFICATION
 --------------------------------------------------------------------------------
 - Corpus: 20 Newsgroups benchmark dataset (via scikit-learn).
-- Default Semantic Categories:
-    1. comp.graphics      - Computer Graphics, 3D Rendering, Algorithms, GPUs
-    2. rec.sport.baseball - Sports, Baseball, Teams, Players, Scores
-    3. sci.space          - Space Science, Astronomy, NASA, Orbit, Planetary
-    4. talk.politics.misc - Governance, Policy, International Relations, Law
-- Total Documents in Selected Subset: 3,613 documents
-- Document Length Range: 1 word to 9,196 words (Mean: ~200 words, Median: 82 words)
+- Full 20 Semantic Categories:
+     1. alt.atheism               - Atheism, secular ethics, philosophy
+     2. comp.graphics             - Computer Graphics, 3D rendering, shaders
+     3. comp.os.ms-windows.misc   - MS Windows OS, drivers, utilities
+     4. comp.sys.ibm.pc.hardware  - IBM PC Hardware, motherboards, IDE/SCSI
+     5. comp.sys.mac.hardware     - Mac Hardware, Apple architecture, SCSI
+     6. comp.windows.x            - X Window System, X11, window managers
+     7. misc.forsale              - Classifieds, buy/sell, commerce
+     8. rec.autos                 - Automobiles, mechanical engineering
+     9. rec.motorcycles           - Motorcycles, bikes, road safety
+    10. rec.sport.baseball        - Sports: Baseball, MLB, players, stats
+    11. rec.sport.hockey          - Sports: Hockey, NHL, games, rosters
+    12. sci.crypt                 - Cryptography, encryption, security, RSA
+    13. sci.electronics           - Electronics, circuits, semiconductors
+    14. sci.med                   - Medicine, medical sciences, clinical health
+    15. sci.space                 - Space Science, astronomy, NASA, rocketry
+    16. soc.religion.christian    - Christianity, biblical theology, faith
+    17. talk.politics.guns        - Gun Politics, 2nd Amendment, firearm law
+    18. talk.politics.mideast     - Middle East Politics, geopolitical treaties
+    19. talk.politics.misc        - Politics, government, constitutional law
+    20. talk.religion.misc        - Comparative religion, morality, ethics
+- Total Documents in Corpus: 18,278 documents (Stratified: 14,608 Train / 3,653 Test)
+- Document Length Range: 1 word to 11,765 words (Mean: ~187 words, Median: 86 words)
 - Data Leakage Prevention:
     * All newsgroup metadata ('headers', 'footers', 'quotes') is stripped out
       to prevent classifiers from taking shortcuts on email domains or signatures.
@@ -81,31 +97,34 @@ Four distinct supervised algorithms are trained and compared:
 1. Multinomial Naive Bayes (MultinomialNB)
    - Probabilistic generative model using Bayes' theorem with word independence.
    - Smoothing: Laplace smoothing (alpha = 0.1).
-   - Strengths: Extremely fast training (0.004s), low memory footprint.
+   - Strengths: Extremely fast training (0.062s), low memory footprint.
+   - Outcome: Best performing model across all 20 categories (72.54% accuracy).
 
-2. Logistic Regression (LogisticRegression)
-   - Linear discriminative classifier with cross-entropy loss.
-   - Regularization: L2 penalty (C = 1.0), solver = 'lbfgs'.
-   - Strengths: High interpretability, well-calibrated confidence probabilities.
-
-3. Support Vector Machine (LinearSVC + CalibratedClassifierCV)
+2. Support Vector Machine (LinearSVC + CalibratedClassifierCV)
    - Finds maximum-margin hyperplanes separating category vector clouds.
    - Calibration: Wrapped with CalibratedClassifierCV (sigmoid / Platt scaling)
      to generate calibrated class probabilities.
-   - Outcome: Best performing model across all evaluation metrics.
+   - Outcome: Strong runner-up with 72.24% accuracy and 71.92% F1-score.
+
+3. Logistic Regression (LogisticRegression)
+   - Linear discriminative classifier with cross-entropy loss.
+   - Regularization: L2 penalty (C = 1.0), solver = 'lbfgs'.
+   - Strengths: High interpretability, well-calibrated confidence probabilities.
+   - Outcome: Highly competitive with 72.13% accuracy and 71.74% F1-score.
 
 4. Random Forest (RandomForestClassifier)
-   - Ensemble of 150 randomized decision trees.
+   - Ensemble of 150 randomized decision trees (max_depth = 30).
    - Strengths: Non-linear decision boundaries, resists extreme outliers.
+   - Outcome: 61.05% accuracy and 62.22% F1-score.
 
 Experimental Results on 20% Test Split:
 +---------------------------+----------+-----------+--------+----------+---------------+
 | Model                     | Accuracy | Precision | Recall | F1-Score | Training Time |
 +---------------------------+----------+-----------+--------+----------+---------------+
-| Support Vector Machine    | 89.74%   | 89.75%    | 89.74% | 0.8974   | 0.114 s       |
-| Logistic Regression       | 89.32%   | 89.35%    | 89.32% | 0.8931   | 0.144 s       |
-| Multinomial Naive Bayes   | 89.04%   | 89.06%    | 89.04% | 0.8902   | 0.004 s       |
-| Random Forest             | 83.50%   | 83.74%    | 83.50% | 0.8337   | 0.369 s       |
+| Multinomial Naive Bayes   | 72.54%   | 72.83%    | 72.54% | 0.7212   | 0.062 s       |
+| Support Vector Machine    | 72.24%   | 71.95%    | 72.24% | 0.7192   | 12.76 s       |
+| Logistic Regression       | 72.13%   | 71.99%    | 72.13% | 0.7174   | 9.871 s       |
+| Random Forest             | 61.05%   | 68.60%    | 61.05% | 0.6222   | 10.88 s       |
 +---------------------------+----------+-----------+--------+----------+---------------+
 
 
@@ -127,7 +146,7 @@ A. Streamlit Web App (app.py)
    - Self-contained web interface with custom dark AI SaaS aesthetic.
    - Features:
        * Live document classification with confidence meters.
-       * Probability distribution breakdown across all 4 categories.
+       * Probability distribution breakdown across all 20 categories.
        * Top extracted keyword tags with TF-IDF weights.
        * Interactive Model Comparison & Benchmark tables.
        * Dataset Explorer with class distributions and length histograms.
@@ -166,7 +185,7 @@ mlproj/
 │   └── evaluate.py             # Evaluation metrics, confusion matrices, and plots
 │
 ├── models/                     # Saved joblib binaries and metadata
-│   ├── best_model.joblib       # Serialized Calibrated Linear SVM
+│   ├── best_model.joblib       # Serialized Multinomial Naive Bayes (alpha=0.1)
 │   ├── all_models.joblib       # Dictionary containing all 4 trained models
 │   ├── tfidf_vectorizer.joblib # Trained TF-IDF vectorizer (vocabulary & IDF)
 │   └── model_metadata.json     # Benchmark metrics, classes, and dataset statistics
