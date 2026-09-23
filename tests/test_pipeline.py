@@ -1,7 +1,10 @@
 import os
+import sys
 import json
 import numpy as np
 import joblib
+
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from src.preprocessing import clean_text, preprocess_document
 from src.features import get_top_tfidf_terms_for_document
@@ -127,5 +130,20 @@ def test_new_categories_inference():
     vec_crypt = vectorizer.transform([clean_crypt])
     pred_crypt = categories[model.predict(vec_crypt)[0]]
     assert pred_crypt == "sci.crypt"
+
+
+if __name__ == "__main__":
+    test_clean_text()
+    print("[PASS] test_clean_text")
+    test_preprocess_document()
+    print("[PASS] test_preprocess_document")
+    test_model_artifacts_exist()
+    print("[PASS] test_model_artifacts_exist")
+    test_model_inference_pipeline()
+    print("[PASS] test_model_inference_pipeline")
+    test_new_categories_inference()
+    print("[PASS] test_new_categories_inference")
+    print("\n[SUCCESS] All 5 pipeline test suites passed successfully!")
+
 
 
