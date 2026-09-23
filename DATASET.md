@@ -148,3 +148,12 @@ To ensure models generalize robustly in production:
 1. **Metadata Stripping:** All newsgroup headers (`From:`, `Lines:`, `Subject:`), footers, email addresses, and signature blocks are stripped prior to vector fitting.
 2. **Strict Chronological Anti-Leakage:** The TF-IDF vectorizer is strictly **fitted on the 80,000 training partition only**. Test documents and user live inputs are strictly **transformed** using the learned training IDF weights.
 3. **Sublinear Scaling:** Term frequencies are scaled using $1 + \log(\text{tf})$ to prevent long documents with repeated terms from biasing Euclidean distance calculations.
+
+---
+
+## 7. Navigation & Cross References
+* 🏠 **Main Project README:** [README.md](./README.md)
+* 📖 **In-Depth ML Engineering Documentation:** [EXPLANATION.md](./EXPLANATION.md)
+* 🌐 **Live Web Application Demo:** [https://abhishek-sparke.github.io/TextClassifyAI/](https://abhishek-sparke.github.io/TextClassifyAI/)
+* 💾 **Direct Parquet Dataset Download:** [`data/dataset_100k.parquet`](./data/dataset_100k.parquet)
+

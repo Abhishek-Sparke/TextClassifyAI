@@ -18,7 +18,7 @@
 ## Table of Contents
 1. [Project Overview & Abstract](#project-overview--abstract)
 2. [Workflow Architecture](#workflow-architecture)
-3. [Dataset Description](#dataset-description)
+3. [Dataset: Provenance, Structure & How It Is Used](#dataset-provenance-structure--how-it-is-used)
 4. [Data Preprocessing & Leakage Prevention](#data-preprocessing--leakage-prevention)
 5. [Feature Extraction: TF-IDF](#feature-extraction-tf-idf)
 6. [Machine Learning Classifiers](#machine-learning-classifiers)
@@ -43,7 +43,8 @@ This project delivers a complete, modular Machine Learning solution that automat
 
 ```text
                   +-----------------------------------+
-                  |      20 Newsgroups Dataset        |
+                  |   100k Multi-Domain Text Corpus   |
+                  |  (26 Categories, 1 Lakh Docs)     |
                   +-----------------------------------+
                                     |
                                     v
@@ -111,23 +112,147 @@ This project delivers a complete, modular Machine Learning solution that automat
 
 ---
 
-## Dataset Description
+## Dataset: Provenance, Structure & How It Is Used
 
-The project utilizes an enterprise-scale multi-domain text classification benchmark comprising **100,000 clean documents (1 Lakh)** partitioned across **26 distinct subject areas**, combining the standard **20 Newsgroups**, **AG News**, **Rotten Tomatoes**, and curated domain corpora. The complete dataset is serialized inside the repository at [`data/dataset_100k.parquet`](./data/dataset_100k.parquet) (25.33 MB).
+> [!TIP]
+> 📊 **Dedicated Dataset Documentation Page:**  
+> A dedicated, comprehensive dataset dictionary and provenance document is available in this repository: **[`DATASET.md`](./DATASET.md)**.  
+> It details class-by-class distributions, word length histograms, vocabulary statistics, and schema specifications.  
+> 💾 **Parquet Corpus Location:** Stored directly at **[`data/dataset_100k.parquet`](./data/dataset_100k.parquet)** (25.33 MB, fast-loading Snappy compression).
 
-For full class distributions, token statistics, and provenance, see **[`DATASET.md`](./DATASET.md)**.
+### 1. What the Dataset Is (Scale, Schema & Taxonomy)
 
-* **Global Affairs & News:** `world.news` (25,000 docs)
-* **Business & Economy:** `business.finance` (25,000 docs)
-* **Culture & Media:** `entertainment.arts` (8,000 docs)
-* **Healthcare & Wellness:** `health.wellness` (7,917 docs), `sci.med` (956 docs)
-* **Education & Academia:** `education.academics` (7,917 docs)
-* **Sustainability & Science:** `environment.climate` (7,919 docs), `sci.space` (953 docs), `sci.crypt` (962 docs), `sci.electronics` (955 docs)
-* **Computers & Tech:** `comp.graphics`, `comp.os.ms-windows.misc`, `comp.sys.ibm.pc.hardware`, `comp.sys.mac.hardware`, `comp.windows.x`
-* **Recreation & Sports:** `rec.autos`, `rec.motorcycles`, `rec.sport.baseball`, `rec.sport.hockey`
-* **Politics & Society:** `talk.politics.guns`, `talk.politics.mideast`, `talk.politics.misc`
-* **Religion & Philosophy:** `alt.atheism`, `soc.religion.christian`, `talk.religion.misc`
-* **Commerce:** `misc.forsale`
+TextClassifyAI is trained and evaluated on an enterprise-scale multi-domain corpus containing **100,000 clean documents (1 Lakh)** organized into **26 distinct semantic categories**. Unlike standard academic toy datasets restricted to a single domain, this corpus reflects the diversity of real-world text classification tasks—spanning journalism, technology, science, healthcare, academia, politics, culture, and religion.
+
+#### Schema & Serialization Format
+The entire corpus is serialized in columnar **Apache Parquet (`snappy` compressed)** format at [`data/dataset_100k.parquet`](./data/dataset_100k.parquet), reducing memory footprint while enabling sub-second load times into Pandas / PyArrow without unzipping.
+
+| Column Name | Data Type | Nullable | Description | Example |
+| :--- | :--- | :---: | :--- | :--- |
+| `text` | `string` | No | Pre-cleaned document text stripped of headers, footers, and metadata | `"Diplomatic envoys reached an accord on regional maritime boundaries..."` |
+| `category_name` | `string` | No | Canonical semantic category identifier | `"world.news"` |
+| `target` | `int64` | No | Zero-indexed numerical class label (`0` to `25`) | `0` |
+
+#### Key Corpus Metrics
+* **Total Clean Documents:** 100,000 (1 Lakh)
+* **Target Classes:** 26 categories
+* **Training Partition (80%):** 79,990 documents (stratified)
+* **Testing Partition (20%):** 19,998 documents (stratified)
+* **Average Document Length:** 65.7 words (median: 40.0 words, range: 1 to 11,765 words)
+* **Total Vocabulary:** 8,000 top discriminative unigrams and bigrams
+
+#### Complete 26-Category Taxonomy & Document Counts
+
+| # | Category ID | Human Display Name | Primary Domain | Document Count | Share of Corpus |
+| :-: | :--- | :--- | :--- | :-: | :-: |
+| 1 | `world.news` | World News | Global Affairs | 25,000 | 25.0% |
+| 2 | `business.finance` | Business & Finance | Economy & Markets | 25,000 | 25.0% |
+| 3 | `entertainment.arts` | Entertainment & Arts | Culture & Media | 8,000 | 8.0% |
+| 4 | `environment.climate` | Environment & Climate | Sustainability | 7,919 | 7.9% |
+| 5 | `health.wellness` | Health & Wellness | Healthcare & Medicine | 7,917 | 7.9% |
+| 6 | `education.academics` | Education & Academics | Academia & Research | 7,917 | 7.9% |
+| 7 | `comp.windows.x` | X Window System | Systems & UI | 976 | 1.0% |
+| 8 | `soc.religion.christian` | Christianity | Religion | 973 | 1.0% |
+| 9 | `rec.sport.hockey` | Hockey | Sports | 971 | 1.0% |
+| 10 | `comp.sys.ibm.pc.hardware` | IBM PC Hardware | Hardware | 962 | 1.0% |
+| 11 | `sci.crypt` | Cryptography | Security & Math | 962 | 1.0% |
+| 12 | `rec.motorcycles` | Motorcycles | Automotive & Sports | 962 | 1.0% |
+| 13 | `sci.med` | Medicine | Clinical Healthcare | 956 | 1.0% |
+| 14 | `sci.electronics` | Electronics | Engineering | 955 | 1.0% |
+| 15 | `misc.forsale` | For Sale | Commerce | 955 | 1.0% |
+| 16 | `sci.space` | Space Science | Aerospace | 953 | 1.0% |
+| 17 | `comp.graphics` | Computer Graphics | Visualization | 952 | 1.0% |
+| 18 | `comp.os.ms-windows.misc` | MS Windows | Operating Systems | 945 | 0.9% |
+| 19 | `rec.sport.baseball` | Baseball | Sports | 944 | 0.9% |
+| 20 | `rec.autos` | Automobiles | Automotive | 928 | 0.9% |
+| 21 | `comp.sys.mac.hardware` | Mac Hardware | Hardware | 923 | 0.9% |
+| 22 | `talk.politics.mideast` | Middle East Politics | Geopolitics | 914 | 0.9% |
+| 23 | `talk.politics.guns` | Gun Politics | Policy & Law | 884 | 0.9% |
+| 24 | `alt.atheism` | Atheism | Philosophy | 775 | 0.8% |
+| 25 | `talk.politics.misc` | Politics | Governance | 754 | 0.8% |
+| 26 | `talk.religion.misc` | Religion | Comparative Religion | 603 | 0.6% |
+| **Total** | | | | **100,000** | **100.0%** |
+
+---
+
+### 2. How the Dataset is Obtained (Provenance & Ingestion Pipeline)
+
+The dataset is assembled through an automated, repeatable ingestion pipeline implemented in [`src/data_loader_100k.py`](./src/data_loader_100k.py). It synthesizes four authoritative open-access NLP datasets:
+
+```mermaid
+pie title Dataset Composition by Provenance Source (100,000 Documents)
+    "AG News (World & Business)" : 50000
+    "Curated Domain Corpora (Health, Education, Climate)" : 23753
+    "20 Newsgroups (Tech, Science, Politics, Religion)" : 18247
+    "Rotten Tomatoes (Entertainment & Arts)" : 8000
+```
+
+1. **AG News Benchmark (`50,000` articles):**
+   - High-quality journalistic news articles collected from global press agencies.
+   - Contributes 25,000 articles to `world.news` (international relations, diplomatic summits, treaties) and 25,000 articles to `business.finance` (stock markets, central bank policy, corporate earnings, energy economics).
+2. **20 Newsgroups Corpus (`18,247` documents):**
+   - Sourced via `sklearn.datasets.fetch_20newsgroups`.
+   - Represents 20 technical and societal Usenet newsgroups.
+   - Crucially, newsgroup headers, email lines, signatures, and quotation quotes are stripped (`remove=('headers', 'footers', 'quotes')`) to eliminate metadata cues.
+3. **Rotten Tomatoes Cultural Corpus (`8,000` documents):**
+   - Contributes `entertainment.arts` cinema critiques, director storytelling analysis, artistic acting assessments, and theater reviews.
+4. **Curated Domain Corpora (`23,753` documents):**
+   - High-density modern domain texts covering:
+     - `health.wellness` (7,917 documents): Nutrition science, cardiovascular conditioning, physical therapy, and preventive medicine.
+     - `education.academics` (7,917 documents): Higher education curricula, university pedagogy, academic research, and classroom technology.
+     - `environment.climate` (7,919 documents): Atmospheric carbon modeling, renewable energy, ocean acidification, and conservation ecology.
+
+#### Ingestion Pipeline Workflow
+The automated builder script ([`src/data_loader_100k.py`](./src/data_loader_100k.py)):
+1. Downloads and extracts data from source repositories.
+2. Standardizes schema to `text`, `category_name`, and integer `target`.
+3. Performs quality cleansing: removes nulls, eliminates records shorter than 3 characters, filters foreign-character corruptions, and deduplicates text.
+4. Deterministically shuffles the corpus using `random_state=42` to eliminate source clustering.
+5. Saves the final consolidated dataframe to `data/dataset_100k.parquet` via PyArrow Snappy compression.
+
+---
+
+### 3. How the Dataset is Used Across the Project
+
+The 100,000 documents are systematically consumed throughout the end-to-end Machine Learning life cycle:
+
+```mermaid
+flowchart TD
+    A["data/dataset_100k.parquet<br/>(100,000 Documents, 26 Classes)"] --> B["Stratified 80/20 Train/Test Split<br/>(src/dataset.py)"]
+    B -->|79,990 Train Docs| C["TF-IDF Vectorizer<br/>(Fit Vocabulary & Weights)"]
+    B -->|19,998 Test Docs| D["TF-IDF Vectorizer<br/>(Transform Only - Zero Leakage)"]
+    C -->|79,990 x 8,000 Sparse Matrix| E["Model Training Engine<br/>(src/train.py)"]
+    E --> F["4 Supervised Classifiers<br/>(SVM, LogReg, Naive Bayes, RF)"]
+    D -->|19,998 x 8,000 Sparse Matrix| G["Evaluation & Benchmarking<br/>(src/evaluate.py)"]
+    F --> G
+    G --> H["Model Comparison Visualizations<br/>(visualizations/*.png)"]
+    F --> I["Serialized Production Artifacts<br/>(models/best_model.joblib)"]
+    I --> J["FastAPI REST Server<br/>(server.py /api/predict)"]
+    I --> K["Streamlit Web Application<br/>(app.py Interactive UI)"]
+```
+
+1. **Stratified Train / Test Partitioning (`src/dataset.py`):**
+   - The dataset is split into **79,990 training documents (80%)** and **19,998 testing documents (20%)** using `train_test_split(..., stratify=y, random_state=42)`.
+   - Stratification guarantees that each of the 26 categories is represented in the exact same proportion in both sets.
+2. **Leakage-Free TF-IDF Feature Extraction (`src/train.py`):**
+   - The `TfidfVectorizer` learns its 8,000 unigram/bigram vocabulary and inverse document frequency weights **strictly on the 79,990 training documents**.
+   - The 19,998 test documents are transformed using the fitted training state without re-computing IDF or learning test tokens, simulating real-world inference.
+3. **Supervised Classifier Training:**
+   - Four distinct algorithms are trained on the 79,990 training feature vectors:
+     - **Linear Support Vector Machine (`SGDClassifier` with hinge loss)**: Achieved top performance (**91.32% Accuracy, 91.08% Macro F1**).
+     - **Multinomial Logistic Regression**: Multi-class softmax cross-entropy (**90.64% Accuracy**).
+     - **Multinomial Naive Bayes**: Generative probabilistic baseline (**90.55% Accuracy**).
+     - **Random Forest**: Ensemble of 100 decision trees (**71.59% Accuracy**).
+4. **Comprehensive Diagnostic Benchmarking (`src/evaluate.py`):**
+   - The 19,998 held-out test documents are used to compute:
+     - Multi-class Accuracy, Macro Precision, Recall, and F1-Scores.
+     - 26x26 normalized Confusion Matrix heatmaps saved to [`visualizations/confusion_matrix.png`](./visualizations/confusion_matrix.png).
+     - Per-class discriminative keyword importances saved to [`visualizations/top_keywords_per_category.png`](./visualizations/top_keywords_per_category.png).
+5. **Real-Time Interactive Inference (Web Apps & API):**
+   - The serialized models (`models/best_model.joblib`, `models/tfidf_vectorizer.joblib`) power:
+     - **FastAPI Backend (`server.py`)**: REST endpoint `/api/predict` classifying text in $<15\text{ms}$.
+     - **Streamlit Interactive UI (`app.py`)**: Live dashboard with confidence probability bar charts across all 26 categories.
+     - **React / Vite Frontend**: Modern web dashboard with interactive confusion matrix and live text classification.
 
 ---
 
@@ -166,7 +291,7 @@ $$\text{TF-IDF}(t, d, D) = \text{TF}(t, d) \times \text{IDF}(t, D)$$
 - **Sublinear Term Frequency**: Replaces raw $\text{TF}$ with $1 + \log(\text{TF})$ to dampen the disproportionate impact of words that repeat many times in a single long document.
 - **$L_2$ Normalization**: Scales document vectors to unit norm ($\|v\|_2 = 1$), neutralizing the effect of varying document lengths.
 - **Minimum Document Frequency (`min_df=2`)**: Filters rare typos and singletons.
-- **`max_features=5000`**: Caps feature space to the most informative n-grams, reducing memory overhead.
+- **`max_features=8000`**: Caps feature space to the 8,000 most informative n-grams, preventing high-dimensional memory overhead while maintaining discriminative vocabulary across 26 distinct domains.
 
 ---
 
