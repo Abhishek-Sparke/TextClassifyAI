@@ -38,9 +38,10 @@ def get_models(random_state: int = 42) -> Dict[str, Any]:
     nb = MultinomialNB(alpha=0.1)
 
     # 2. Logistic Regression
-    # Softmax / multiclass regression with L2 regularization
+    # Softmax / multiclass regression with balanced class weights
     lr = LogisticRegression(
         C=1.0,
+        class_weight='balanced',
         max_iter=300,
         solver='lbfgs',
         random_state=random_state,
@@ -48,9 +49,9 @@ def get_models(random_state: int = 42) -> Dict[str, Any]:
     )
 
     # 3. Support Vector Machine (SVM)
-    # CalibratedClassifierCV wraps LinearSVC with Platt scaling / isotonic regression
+    # CalibratedClassifierCV wraps balanced LinearSVC with Platt scaling / isotonic regression
     # to provide calibrated class probabilities (predict_proba) for the UI
-    base_svm = LinearSVC(C=1.0, random_state=random_state, dual='auto')
+    base_svm = LinearSVC(C=1.0, class_weight='balanced', random_state=random_state, dual='auto')
     svm = CalibratedClassifierCV(estimator=base_svm, cv=2)
 
     # 4. Random Forest Classifier

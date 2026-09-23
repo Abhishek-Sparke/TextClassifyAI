@@ -88,14 +88,14 @@ const DOMAIN_VOCABULARIES = {
     name: "Baseball",
     badge: "Baseball",
     icon: "⚾",
-    keywords: ["baseball", "pitcher", "pitching", "inning", "hitter", "strikeout", "run", "homerun", "game", "team", "league", "bat", "sox", "yankees"],
+    keywords: ["baseball", "pitcher", "pitching", "inning", "innings", "hitter", "strikeout", "strikeouts", "homerun", "homeruns", "game", "team", "league", "sox", "yankees", "ballpark", "home run"],
     baseWeight: 1.2
   },
   "rec.sport.hockey": {
     name: "Hockey",
     badge: "Hockey",
     icon: "🏒",
-    keywords: ["hockey", "nhl", "team", "game", "goal", "playoff", "puck", "player", "ice", "season", "period", "stanley", "rangers"],
+    keywords: ["hockey", "nhl", "team", "game", "goal", "goals", "playoff", "playoffs", "puck", "player", "players", "ice", "season", "stanley cup", "rangers"],
     baseWeight: 1.2
   },
   "sci.crypt": {
@@ -116,8 +116,14 @@ const DOMAIN_VOCABULARIES = {
     name: "Medicine",
     badge: "Medicine",
     icon: "🩺",
-    keywords: ["medicine", "medical", "patient", "patients", "doctor", "disease", "symptom", "treatment", "clinical", "drug", "infection", "syndrome"],
-    baseWeight: 1.18
+    keywords: [
+      "medicine", "medical", "patient", "patients", "doctor", "doctors", "disease", "diseases",
+      "symptom", "symptoms", "treatment", "treatments", "clinical", "drug", "drugs", "infection",
+      "syndrome", "cardiovascular", "physician", "hospital", "therapy", "therapies", "biomarker",
+      "enzyme", "electrocardiogram", "antimicrobial", "blood", "serum", "cholesterol", "autoimmune",
+      "inflammatory", "assay", "assays", "trial", "trials", "pathology", "diagnosis", "pharmaceutical"
+    ],
+    baseWeight: 1.35
   },
   "sci.space": {
     name: "Space Science",
@@ -217,18 +223,27 @@ function runClientSideInference(text, modelName) {
   const foundKeywords = [];
 
   for (const [catId, domain] of Object.entries(DOMAIN_VOCABULARIES)) {
-    let score = 0.5; // prior baseline
+    let score = 0.05; // baseline prior
     for (const kw of domain.keywords) {
-      if (lowerText.includes(kw)) {
-        // Count occurrences
-        const count = words.filter(w => w === kw).length;
-        const termWeight = (count > 0 ? (1 + Math.log(count)) : 1) * domain.baseWeight;
-        score += termWeight * 2.5;
+      let count = 0;
+      if (kw.includes(' ')) {
+        // Multi-word phrase matching
+        if (lowerText.includes(kw)) {
+          count = 1;
+        }
+      } else {
+        // Strict whole-word token matching to eliminate substring false positives
+        count = words.filter(w => w === kw).length;
+      }
 
-        if (count > 0 && !foundKeywords.some(item => item.term === kw)) {
+      if (count > 0) {
+        const termWeight = (1 + Math.log(count)) * domain.baseWeight;
+        score += termWeight * 3.5;
+
+        if (!foundKeywords.some(item => item.term === kw)) {
           foundKeywords.push({
             term: kw,
-            weight: Number((termWeight * 0.28).toFixed(3))
+            weight: Number((termWeight * 0.35).toFixed(3))
           });
         }
       }
