@@ -62,7 +62,8 @@ def load_artifacts():
                     confidence_threshold=thresh.get("confidence_threshold", 0.58),
                     min_active_tfidf=thresh.get("min_active_tfidf", 0.05),
                     ambiguity_margin=thresh.get("ambiguity_margin", 0.32),
-                    topic_detection_threshold=thresh.get("topic_detection_threshold", 0.15)
+                    min_ambiguity_sum=thresh.get("min_ambiguity_sum", 0.60),
+                    topic_detection_threshold=thresh.get("topic_detection_threshold", 0.16)
                 )
 
 

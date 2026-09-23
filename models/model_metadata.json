@@ -14,7 +14,7 @@
     "talk.politics.misc": "Politics"
   },
   "dataset_statistics": {
-    "total_documents": 2769,
+    "total_documents": 2786,
     "num_classes": 4,
     "classes": [
       "comp.graphics",
@@ -23,15 +23,15 @@
       "talk.politics.misc"
     ],
     "class_distribution": {
-      "sci.space": 754,
-      "rec.sport.baseball": 693,
-      "comp.graphics": 675,
-      "talk.politics.misc": 647
+      "sci.space": 758,
+      "rec.sport.baseball": 697,
+      "comp.graphics": 680,
+      "talk.politics.misc": 651
     },
     "word_count_min": 1,
     "word_count_max": 9169,
-    "word_count_mean": 197.7,
-    "word_count_median": 59.0
+    "word_count_mean": 196.5,
+    "word_count_median": 58.0
   },
   "tfidf_config": {
     "max_features": 5000,
@@ -58,162 +58,166 @@
     "lemmatization": true
   },
   "confidence_thresholds": {
-    "confidence_threshold": 0.6,
+    "confidence_threshold": 0.58,
     "min_active_tfidf": 0.05,
     "ambiguity_margin": 0.32,
-    "min_ambiguity_sum": 0.68,
-    "topic_detection_threshold": 0.15
+    "min_ambiguity_sum": 0.6,
+    "topic_detection_threshold": 0.16
   },
   "metrics_table": [
     {
       "Model": "Multinomial Naive Bayes",
-      "Accuracy": 0.8659,
-      "Precision (Weighted)": 0.8665,
-      "Recall (Weighted)": 0.8659,
-      "F1-Score (Weighted)": 0.8657,
-      "F1-Score (Macro)": 0.8661,
-      "Training Time (s)": 0.005,
+      "Accuracy": 0.8703,
+      "Precision (Weighted)": 0.8704,
+      "Recall (Weighted)": 0.8703,
+      "F1-Score (Weighted)": 0.87,
+      "F1-Score (Macro)": 0.8708,
+      "Training Time (s)": 0.008,
       "Latency (ms/doc)": 0.002
     },
     {
       "Model": "Logistic Regression",
-      "Accuracy": 0.8388,
-      "Precision (Weighted)": 0.8432,
-      "Recall (Weighted)": 0.8388,
-      "F1-Score (Weighted)": 0.8391,
-      "F1-Score (Macro)": 0.8395,
-      "Training Time (s)": 0.222,
+      "Accuracy": 0.8541,
+      "Precision (Weighted)": 0.8583,
+      "Recall (Weighted)": 0.8541,
+      "F1-Score (Weighted)": 0.8547,
+      "F1-Score (Macro)": 0.8555,
+      "Training Time (s)": 0.155,
       "Latency (ms/doc)": 0.001
     },
     {
       "Model": "Support Vector Machine",
-      "Accuracy": 0.8315,
-      "Precision (Weighted)": 0.8373,
-      "Recall (Weighted)": 0.8315,
-      "F1-Score (Weighted)": 0.8326,
-      "F1-Score (Macro)": 0.8333,
-      "Training Time (s)": 0.15,
-      "Latency (ms/doc)": 0.01
+      "Accuracy": 0.8523,
+      "Precision (Weighted)": 0.8555,
+      "Recall (Weighted)": 0.8523,
+      "F1-Score (Weighted)": 0.853,
+      "F1-Score (Macro)": 0.8536,
+      "Training Time (s)": 0.099,
+      "Latency (ms/doc)": 0.006
     },
     {
       "Model": "Random Forest",
-      "Accuracy": 0.7754,
-      "Precision (Weighted)": 0.7932,
-      "Recall (Weighted)": 0.7754,
-      "F1-Score (Weighted)": 0.7789,
-      "F1-Score (Macro)": 0.7804,
-      "Training Time (s)": 0.386,
-      "Latency (ms/doc)": 0.105
+      "Accuracy": 0.7964,
+      "Precision (Weighted)": 0.8043,
+      "Recall (Weighted)": 0.7964,
+      "F1-Score (Weighted)": 0.7986,
+      "F1-Score (Macro)": 0.8006,
+      "Training Time (s)": 0.227,
+      "Latency (ms/doc)": 0.074
     }
   ],
   "top_features_per_class": {
     "comp.graphics": [
       [
         "thank",
-        0.0378
+        0.0386
       ],
       [
         "file",
-        0.0292
+        0.0283
       ],
       [
         "imag",
-        0.0269
+        0.0267
       ],
       [
         "use",
-        0.0261
-      ],
-      [
-        "pleas",
-        0.0244
+        0.0257
       ],
       [
         "graphic",
-        0.0236
+        0.025
       ],
       [
-        "would",
+        "pleas",
+        0.0237
+      ],
+      [
+        "help",
         0.0227
       ],
       [
         "program",
-        0.0226
+        0.0219
+      ],
+      [
+        "email",
+        0.0218
       ],
       [
         "know",
-        0.0222
-      ],
-      [
-        "help",
-        0.0221
+        0.0214
       ]
     ],
     "rec.sport.baseball": [
       [
         "game",
-        0.041
+        0.0401
       ],
       [
-        "hit",
-        0.0248
-      ],
-      [
-        "pitch",
-        0.0247
-      ],
-      [
-        "player",
-        0.0245
+        "year",
+        0.029
       ],
       [
         "basebal",
-        0.0241
+        0.0254
+      ],
+      [
+        "pitch",
+        0.0254
+      ],
+      [
+        "player",
+        0.0242
+      ],
+      [
+        "hit",
+        0.0238
       ],
       [
         "team",
-        0.0234
+        0.0237
       ],
       [
         "last",
-        0.0229
-      ],
-      [
-        "play",
-        0.0221
+        0.0222
       ],
       [
         "think",
-        0.0217
+        0.0213
       ],
       [
-        "run",
-        0.0197
+        "play",
+        0.0208
       ]
     ],
     "sci.space": [
       [
         "space",
-        0.0332
+        0.0318
       ],
       [
         "would",
-        0.0254
-      ],
-      [
-        "one",
-        0.0193
-      ],
-      [
-        "get",
-        0.0191
+        0.0251
       ],
       [
         "orbit",
-        0.0191
+        0.0207
+      ],
+      [
+        "one",
+        0.0197
       ],
       [
         "launch",
+        0.0192
+      ],
+      [
+        "get",
+        0.0183
+      ],
+      [
+        "like",
         0.0179
       ],
       [
@@ -222,21 +226,17 @@
       ],
       [
         "shuttl",
-        0.0166
+        0.0162
       ],
       [
         "think",
-        0.0162
-      ],
-      [
-        "also",
-        0.0162
+        0.016
       ]
     ],
     "talk.politics.misc": [
       [
         "peopl",
-        0.0302
+        0.0299
       ],
       [
         "would",
@@ -244,11 +244,11 @@
       ],
       [
         "govern",
-        0.0228
+        0.0223
       ],
       [
         "one",
-        0.0215
+        0.0206
       ],
       [
         "homosexu",
@@ -256,25 +256,25 @@
       ],
       [
         "state",
-        0.0204
-      ],
-      [
-        "us",
-        0.0196
+        0.0193
       ],
       [
         "dont",
-        0.0192
+        0.019
+      ],
+      [
+        "us",
+        0.019
       ],
       [
         "law",
-        0.0178
+        0.0182
       ],
       [
-        "make",
-        0.0176
+        "like",
+        0.0175
       ]
     ]
   },
-  "timestamp": "2026-09-23 15:28:50"
+  "timestamp": "2026-09-23 18:10:24"
 }

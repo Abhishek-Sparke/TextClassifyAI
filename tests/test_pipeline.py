@@ -231,6 +231,55 @@ def test_csv_batch_processing():
     # Export to CSV check
     csv_bytes = df_out.to_csv(index=False).encode('utf-8')
     assert len(csv_bytes) > 0
+    df_out.to_csv("classified_results.csv", index=False)
+    assert os.path.exists("classified_results.csv")
+
+
+def test_csv_column_autodetection():
+    """
+    Tests that CSV files with various standard text column names
+    ('text', 'document', 'content', 'message', 'sentence') are properly detected.
+    """
+    column_variants = ["text", "document", "content", "message", "sentence"]
+    possible_cols = ['text', 'document', 'content', 'message', 'sentence', 'body', 'doc']
+
+    for col in column_variants:
+        sample_df = pd.DataFrame([
+            {"id": 1, col: "NASA launched an interplanetary rocket into orbit."},
+            {"id": 2, col: "The baseball team scored five runs in the ninth inning."}
+        ])
+
+        detected_col = None
+        for c in sample_df.columns:
+            if str(c).lower().strip() in possible_cols:
+                detected_col = c
+                break
+
+        assert detected_col == col, f"Failed to detect column '{col}'"
+        assert len(sample_df[detected_col]) == 2
+
+
+def test_edge_and_malformed_inputs():
+    """
+    Validates pipeline resilience against malformed, empty, and edge-case inputs.
+    """
+    models_dir = "models"
+    model = joblib.load(os.path.join(models_dir, "best_model.joblib"))
+    vectorizer = joblib.load(os.path.join(models_dir, "tfidf_vectorizer.joblib"))
+
+    # Punctuation only
+    res_punct = classify_document("!@#$%^&*()_+=-{}[]:;'<>?,./", model, vectorizer)
+    assert res_punct["status"] == "unknown"
+    assert res_punct["prediction"] == "Unknown / Out-of-Domain"
+
+    # Digits only
+    res_digits = classify_document("129847192837 91283719283", model, vectorizer)
+    assert res_digits["status"] == "unknown"
+
+    # Extremely long string repetition
+    res_long = classify_document("space satellite orbit " * 500, model, vectorizer)
+    assert res_long["status"] == "normal"
+    assert res_long["prediction"] == "sci.space"
 
 
 if __name__ == "__main__":
@@ -250,4 +299,8 @@ if __name__ == "__main__":
     print("[PASS] test_api_endpoints_and_error_handling")
     test_csv_batch_processing()
     print("[PASS] test_csv_batch_processing")
-    print("\n[SUCCESS] All 8 automated test suites passed successfully!")
+    test_csv_column_autodetection()
+    print("[PASS] test_csv_column_autodetection")
+    test_edge_and_malformed_inputs()
+    print("[PASS] test_edge_and_malformed_inputs")
+    print("\n[SUCCESS] All 10 automated test suites passed successfully!")

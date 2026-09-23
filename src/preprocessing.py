@@ -39,17 +39,12 @@ except Exception:
     STEMMER = None
 
 # Ensure domain-critical words are never accidentally filtered
-PRESERVED_WORDS = {"3d", "2d", "4k", "cad", "gpu", "cpu", "nasa", "mars", "law", "hit", "run", "win"}
+PRESERVED_WORDS = {
+    "3d", "2d", "4k", "cad", "gpu", "cpu", "vulkan", "opengl", "shader",
+    "nasa", "mars", "moon", "orbit", "law", "hit", "run", "win", "era", "rbi"
+}
 STOP_WORDS = STOP_WORDS - PRESERVED_WORDS
 
-# Add standard non-topical conversational words that carry zero domain signal
-EXTRA_STOP_WORDS = {
-    "today", "yesterday", "tomorrow", "day", "week", "month", "year",
-    "went", "got", "ate", "eat", "eating", "bought", "buy", "buying",
-    "shopping", "shop", "shopped", "pizza", "favorite", "amazing",
-    "good", "bad", "thing", "things", "like", "really", "going", "goes"
-}
-STOP_WORDS = STOP_WORDS | EXTRA_STOP_WORDS
 
 
 def clean_text(text: Optional[str]) -> str:

@@ -363,6 +363,51 @@ STRESS_TEST_CASES = [
         "category": "edge_case",
         "text": "129847192837 91283719283",
         "expected_type": "unknown"
+    },
+
+    # -------------------------------------------------------------------------
+    # 10. Technical Statements & Additional Real-World Scenarios
+    # -------------------------------------------------------------------------
+    {
+        "id": "stmt_space_microgravity",
+        "category": "pure_space",
+        "text": "The astronaut conducted research on microgravity inside the International Space Station.",
+        "expected_type": "in_domain",
+        "target_class": "sci.space"
+    },
+    {
+        "id": "stmt_baseball_grand_slam",
+        "category": "pure_baseball",
+        "text": "The batter hit a grand slam into deep center field to tie the baseball game.",
+        "expected_type": "in_domain",
+        "target_class": "rec.sport.baseball"
+    },
+    {
+        "id": "stmt_politics_judiciary",
+        "category": "pure_politics",
+        "text": "The Senate judiciary committee reviewed presidential executive orders and constitutional law.",
+        "expected_type": "in_domain",
+        "target_class": "talk.politics.misc"
+    },
+    {
+        "id": "stmt_graphics_shaders",
+        "category": "pure_graphics",
+        "text": "OpenGL and Vulkan enable parallel GPU compute shaders for 3D ray tracing and mesh rendering.",
+        "expected_type": "in_domain",
+        "target_class": "comp.graphics"
+    },
+    {
+        "id": "technical_telemetry_space",
+        "category": "pure_space",
+        "text": "Orbital telemetry transmissions confirmed that the interplanetary probe entered Martian orbit successfully.",
+        "expected_type": "in_domain",
+        "target_class": "sci.space"
+    },
+    {
+        "id": "casual_groceries_dinner",
+        "category": "out_of_domain",
+        "text": "I need to buy groceries and cook dinner tonight.",
+        "expected_type": "unknown"
     }
 ]
 

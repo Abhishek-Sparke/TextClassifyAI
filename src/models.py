@@ -42,8 +42,7 @@ def get_models(random_state: int = 42) -> Dict[str, Any]:
         class_weight='balanced',
         max_iter=400,
         solver='lbfgs',
-        random_state=random_state,
-        n_jobs=-1
+        random_state=random_state
     )
 
     # 3. Support Vector Machine (SVM)

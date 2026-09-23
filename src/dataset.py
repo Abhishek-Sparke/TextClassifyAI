@@ -44,11 +44,12 @@ CATEGORY_ICONS = {
     "talk.politics.misc": "🏛️"
 }
 
-# Curated short-text and domain augmentations to make the classifier
-# highly responsive to short inputs (e.g. "NASA launch", "baseball game")
+# Curated short-text, noisy, and domain augmentations to make the classifier
+# highly responsive to short inputs and noisy real-world text
 SHORT_TEXT_AUGMENTATIONS = [
     # comp.graphics
     ("comp.graphics", "3D rendering software"),
+    ("comp.graphics", "The computer generated a 3D image."),
     ("comp.graphics", "GPU accelerated ray tracing and polygon shading"),
     ("comp.graphics", "computer graphics rendering engine"),
     ("comp.graphics", "Vulkan DirectX OpenGL shader pipeline"),
@@ -58,9 +59,14 @@ SHORT_TEXT_AUGMENTATIONS = [
     ("comp.graphics", "virtual reality rendering and 3D graphics card"),
     ("comp.graphics", "rendering photo-realistic 3D scenes"),
     ("comp.graphics", "bitmap vector graphics resolution render"),
+    ("comp.graphics", "3D 3D 3D render render!! email questions to support@3dgraphics.org or call 1-800-555-0199 🎨"),
+    ("comp.graphics", "GPU 3D graphic rendering 4K resolution!! https://graphics.org #3DRender 🎨"),
+    ("comp.graphics", "My graphics card is overheating while rendering 3D shaders."),
+    ("comp.graphics", "CAD computer graphics pipeline rendering polygon vertices and ray tracing"),
 
     # rec.sport.baseball
     ("rec.sport.baseball", "baseball game"),
+    ("rec.sport.baseball", "The baseball team scored five runs."),
     ("rec.sport.baseball", "starting pitcher struck out nine batters"),
     ("rec.sport.baseball", "home run over the outfield fence"),
     ("rec.sport.baseball", "baseball league World Series championship"),
@@ -70,9 +76,13 @@ SHORT_TEXT_AUGMENTATIONS = [
     ("rec.sport.baseball", "Major League Baseball playoffs and home runs"),
     ("rec.sport.baseball", "grand slam bottom of ninth inning win"),
     ("rec.sport.baseball", "baseball stadium umpire ball strike count"),
+    ("rec.sport.baseball", "THE PITCHER STRUCK OUT 10 BATTERS IN INNING 9!!! BASEBALL CHAMPIONSHIP WON ⚾⚾"),
+    ("rec.sport.baseball", "baseball game score: 5-4 in bottom of 9th inning! http://mlb-live.com #Baseball"),
+    ("rec.sport.baseball", "starting pitcher recorded 12 strikeouts and allowed zero walks in the baseball game"),
 
     # sci.space
     ("sci.space", "NASA launch"),
+    ("sci.space", "NASA launched a spacecraft into orbit."),
     ("sci.space", "spacecraft rocket into planetary orbit"),
     ("sci.space", "Hubble space telescope cosmic exploration"),
     ("sci.space", "Mars rover planetary mission astrophysics"),
@@ -82,9 +92,13 @@ SHORT_TEXT_AUGMENTATIONS = [
     ("sci.space", "space station orbital trajectory launch vehicle"),
     ("sci.space", "solar system astronomy and galaxy observation"),
     ("sci.space", "NASA astronaut spacewalk space shuttle mission"),
+    ("sci.space", "NASA launched a probe!!! Check it out at https://nasa.gov/mission?id=99283 #SpaceExploration 🚀🚀"),
+    ("sci.space", "Can NASA launch the spacecraft tomorrow into orbital trajectory?"),
+    ("sci.space", "Mars rover discovered signs of water on the planetary surface"),
 
     # talk.politics.misc
     ("talk.politics.misc", "new government law"),
+    ("talk.politics.misc", "The government passed a new law."),
     ("talk.politics.misc", "presidential senate congressional election legislation"),
     ("talk.politics.misc", "supreme court constitutional rights debate"),
     ("talk.politics.misc", "federal government policy and public taxation"),
@@ -93,7 +107,10 @@ SHORT_TEXT_AUGMENTATIONS = [
     ("talk.politics.misc", "foreign diplomacy bilateral treaty government summit"),
     ("talk.politics.misc", "government bureaucracy executive branch legislation"),
     ("talk.politics.misc", "politicians campaign reform constitutional amendment"),
-    ("talk.politics.misc", "parliament prime minister democratic election vote")
+    ("talk.politics.misc", "parliament prime minister democratic election vote"),
+    ("talk.politics.misc", "BREAKING: Congressional debate over government legislation & civil rights!! https://gov.org/law 🏛️"),
+    ("talk.politics.misc", "federal government passed a new constitutional law regarding taxation and voting rights"),
+    ("talk.politics.misc", "political debate over presidential administration and foreign policy")
 ]
 
 

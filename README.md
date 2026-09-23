@@ -72,10 +72,10 @@ Real-world text rarely fits cleanly into pre-determined buckets. This system def
 
 ## Dataset & Augmentation
 
-- **Source Corpus:** 20 Newsgroups filtered strictly to the 4 target classes (~2,729 clean documents).
-- **Short-Text Augmentations:** Curated short phrases ("NASA launch", "baseball game", "new government law", "3D rendering software") are augmented into the training set to prevent length-underflow.
+- **Source Corpus:** 20 Newsgroups filtered strictly to the 4 target classes (~2,786 clean documents).
+- **Short-Text Augmentations:** Curated short and noisy phrases ("NASA launch", "baseball game", "new government law", "3D rendering software") are augmented into the training set to prevent length-underflow.
 - **Data Hygiene:** Headers, footers, sender emails, and quote blocks are removed to prevent artificial leakage.
-- **Stratified Split:** 80% Training (2,204 samples) and 20% Testing (552 samples).
+- **Stratified Split:** 80% Training (2,218 samples) and 20% Testing (555 samples).
 
 ---
 
@@ -106,12 +106,12 @@ Four supervised algorithms were trained and evaluated on identical stratified te
 
 | Algorithm | Test Accuracy | Precision (Weighted) | Recall (Weighted) | F1-Score (Weighted) | Training Time | Latency (ms/doc) | Status |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Multinomial Naive Bayes** | **86.59%** | **0.8665** | **0.8659** | **0.8657** | **0.005s** | **0.002 ms** | 🏆 **Best Model** |
-| **Logistic Regression** | 83.88% | 0.8432 | 0.8388 | 0.8391 | 0.222s | 0.001 ms | Production Ready |
-| **Support Vector Machine (Linear SVM)** | 83.15% | 0.8373 | 0.8315 | 0.8326 | 0.150s | 0.010 ms | Calibrated CV |
-| **Random Forest** | 77.54% | 0.7932 | 0.7754 | 0.7789 | 0.386s | 0.105 ms | Ensemble Baseline |
+| **Multinomial Naive Bayes** | **87.03%** | **0.8704** | **0.8703** | **0.8700** | **0.008s** | **0.002 ms** | 🏆 **Best Model** |
+| **Logistic Regression** | 85.41% | 0.8583 | 0.8541 | 0.8547 | 0.155s | 0.001 ms | Production Ready |
+| **Support Vector Machine (Linear SVM)** | 85.23% | 0.8555 | 0.8523 | 0.8530 | 0.099s | 0.006 ms | Calibrated CV |
+| **Random Forest** | 79.64% | 0.8043 | 0.7964 | 0.7986 | 0.227s | 0.074 ms | Ensemble Baseline |
 
-*Selection Metric: Primary selection based on Weighted F1-Score, secondary on Accuracy. Multinomial Naive Bayes achieved the highest F1-Score (86.57%) and lowest prediction latency.*
+*Selection Metric: Primary selection based on Weighted F1-Score, secondary on Accuracy. Multinomial Naive Bayes achieved the highest F1-Score (87.00%) and lowest prediction latency.*
 
 ---
 

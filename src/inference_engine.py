@@ -46,7 +46,7 @@ class InferenceConfig:
     Configurable in one single place.
     """
     # If top probability is below this, classify as "Unknown / Out-of-Domain"
-    confidence_threshold: float = 0.60
+    confidence_threshold: float = 0.58
 
     # Minimum sum of active TF-IDF weights to consider text in-domain.
     min_active_tfidf: float = 0.05
@@ -56,10 +56,16 @@ class InferenceConfig:
 
     # Minimum sum of top-2 probabilities for a document to be considered multi-topic
     # Ensures flat/uniform distributions are marked as Unknown, not Ambiguous
-    min_ambiguity_sum: float = 0.68
+    min_ambiguity_sum: float = 0.60
+
+    # Minimum probability for top class in a multi-topic document
+    min_ambiguity_p1: float = 0.34
 
     # Minimum probability for a secondary topic to be counted as detected
-    topic_detection_threshold: float = 0.15
+    topic_detection_threshold: float = 0.16
+
+    # Minimum number of distinct domain keywords required for ambiguity
+    min_ambiguity_keywords: int = 2
 
     # Display names mapping
     category_display_names: Dict[str, str] = field(
@@ -197,12 +203,17 @@ def classify_document(
 
     # Multi-topic ambiguity condition:
     # Requires genuine competition between 2+ classes:
-    # 1. The top 2 classes together account for significant mass (p1 + p2 >= min_ambiguity_sum)
-    # 2. The second topic has substantial confidence (p2 >= topic_detection_threshold)
-    # 3. The gap between top 1 and top 2 is within the ambiguity margin
-    # 4. Pure single topics with high confidence (p1 >= 0.78) are excluded
+    # 1. Document has at least 2 distinct domain keywords (len(top_keywords) >= min_ambiguity_keywords)
+    # 2. Top class has sufficient signal (p1 >= min_ambiguity_p1)
+    # 3. Top 2 classes together account for significant mass (p1 + p2 >= min_ambiguity_sum)
+    # 4. Gap between top 1 and top 2 is within the ambiguity margin
+    # 5. Secondary topic has substantial confidence (p2 >= topic_detection_threshold)
+    # 6. Exclude pure single topics with very high confidence (p1 < 0.78)
+    # 7. At least 2 topics detected
     ambiguity_condition = (
-        (p1 + p2 >= config.min_ambiguity_sum)
+        (len(top_keywords) >= config.min_ambiguity_keywords)
+        and (p1 >= config.min_ambiguity_p1)
+        and (p1 + p2 >= config.min_ambiguity_sum)
         and (p1 - p2 <= config.ambiguity_margin)
         and (p2 >= config.topic_detection_threshold)
         and (p1 < 0.78)
