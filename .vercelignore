@@ -1,0 +1,17 @@
+# Ignore Python dependencies and ML runtime from Vercel Serverless Function build
+requirements.txt
+server.py
+app.py
+train.py
+src/
+data/
+models/
+visualizations/
+scratch/
+tests/
+Dockerfile
+.dockerignore
+.venv/
+__pycache__/
+*.joblib
+*.parquet
