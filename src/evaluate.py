@@ -1,12 +1,13 @@
 """
 Model Evaluation and Visualization Module
 
-Computes performance metrics (Accuracy, Precision, Recall, F1-score),
-generates comparison tables, plots confusion matrices and comparative charts.
+Computes performance metrics (Accuracy, Precision, Recall, Weighted F1, Macro F1),
+prediction latency, training duration, confusion matrices, and comparative plots.
 """
 
 from typing import Dict, Any, List, Tuple
 import os
+import time
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -20,7 +21,6 @@ from sklearn.metrics import (
     classification_report
 )
 
-# Apply sleek styling for charts
 sns.set_theme(style="whitegrid", palette="muted")
 plt.rcParams['font.family'] = 'sans-serif'
 plt.rcParams['font.size'] = 10
@@ -33,7 +33,7 @@ def evaluate_single_model(
     target_names: List[str]
 ) -> Dict[str, Any]:
     """
-    Computes all standard classification evaluation metrics for a single model.
+    Computes all standard classification evaluation metrics and per-sample latency.
 
     Parameters
     ----------
@@ -46,7 +46,11 @@ def evaluate_single_model(
     -------
     dict of metrics
     """
+    # Measure prediction latency across test set
+    start_pred = time.perf_counter()
     y_pred = model.predict(X_test)
+    pred_duration = time.perf_counter() - start_pred
+    per_doc_latency_ms = round((pred_duration / max(len(y_test), 1)) * 1000.0, 3)
 
     acc = accuracy_score(y_test, y_pred)
     prec_weighted = precision_score(y_test, y_pred, average='weighted', zero_division=0)
@@ -70,6 +74,7 @@ def evaluate_single_model(
         'f1_macro': float(f1_macro),
         'confusion_matrix': cm.tolist(),
         'classification_report': report,
+        'latency_ms_per_doc': per_doc_latency_ms,
         'predictions': y_pred.tolist()
     }
 
@@ -83,7 +88,7 @@ def evaluate_all_models(
 ) -> Tuple[pd.DataFrame, Dict[str, Dict[str, Any]], str]:
     """
     Evaluates all trained models, produces a comparison DataFrame, and identifies
-    the best performing model.
+    the best performing model based on Weighted F1-score (breaking ties with Accuracy).
 
     Returns
     -------
@@ -106,11 +111,12 @@ def evaluate_all_models(
             'Recall (Weighted)': round(metrics['recall_weighted'], 4),
             'F1-Score (Weighted)': round(metrics['f1_weighted'], 4),
             'F1-Score (Macro)': round(metrics['f1_macro'], 4),
-            'Training Time (s)': metrics['training_time']
+            'Training Time (s)': metrics['training_time'],
+            'Latency (ms/doc)': metrics['latency_ms_per_doc']
         })
 
     comparison_df = pd.DataFrame(rows)
-    # Sort by F1-Score (Weighted) then Accuracy
+    # Selection rule: Primary sort by Weighted F1-Score, secondary by Accuracy
     comparison_df = comparison_df.sort_values(
         by=['F1-Score (Weighted)', 'Accuracy'],
         ascending=False
@@ -146,11 +152,10 @@ def plot_model_comparison(comparison_df: pd.DataFrame, output_path: str):
     plt.title('Classifier Performance Comparison across Evaluation Metrics', fontsize=14, fontweight='bold', pad=15)
     plt.xlabel('Machine Learning Algorithm', fontsize=11, fontweight='semibold')
     plt.ylabel('Score (0.0 - 1.0)', fontsize=11, fontweight='semibold')
-    plt.ylim(0.0, 1.05)
+    plt.ylim(0.0, 1.08)
     plt.legend(bbox_to_anchor=(1.02, 1), loc='upper left', frameon=True)
-    plt.xticks(rotation=15, ha='right')
+    plt.xticks(rotation=10, ha='right')
 
-    # Value labels on top of bars
     for p in ax.patches:
         height = p.get_height()
         if height > 0:
@@ -158,7 +163,7 @@ def plot_model_comparison(comparison_df: pd.DataFrame, output_path: str):
                 f"{height:.2f}",
                 (p.get_x() + p.get_width() / 2., height),
                 ha='center', va='bottom',
-                fontsize=7.5, rotation=0, xytext=(0, 2),
+                fontsize=8, rotation=0, xytext=(0, 2),
                 textcoords='offset points'
             )
 
@@ -174,42 +179,14 @@ def plot_confusion_matrices(
 ):
     """
     Plots a 2x2 grid of confusion matrices for the 4 classifiers.
-    Adapts dynamic cell formatting and label resolution for up to 20 classes.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     model_names = list(evaluation_results.keys())
-    num_classes = len(target_names)
 
-    fig_size = (18, 16) if num_classes > 10 else (13, 11)
-    annot_size = 5.5 if num_classes > 10 else 11
-    tick_size = 7 if num_classes > 10 else 9
-
-    fig, axes = plt.subplots(2, 2, figsize=fig_size, dpi=300)
+    fig, axes = plt.subplots(2, 2, figsize=(11, 9), dpi=300)
     axes = axes.flatten()
 
-    display_map = {
-        'alt.atheism': 'Atheism',
-        'comp.graphics': 'Graphics',
-        'comp.os.ms-windows.misc': 'MS Win',
-        'comp.sys.ibm.pc.hardware': 'IBM PC',
-        'comp.sys.mac.hardware': 'Mac HW',
-        'comp.windows.x': 'Win X',
-        'misc.forsale': 'Sale',
-        'rec.autos': 'Autos',
-        'rec.motorcycles': 'Mcycles',
-        'rec.sport.baseball': 'Baseball',
-        'rec.sport.hockey': 'Hockey',
-        'sci.crypt': 'Crypt',
-        'sci.electronics': 'Electronics',
-        'sci.med': 'Medicine',
-        'sci.space': 'Space',
-        'soc.religion.christian': 'Christian',
-        'talk.politics.guns': 'Guns',
-        'talk.politics.mideast': 'Mideast',
-        'talk.politics.misc': 'Politics',
-        'talk.religion.misc': 'Religion'
-    }
-    short_labels = [display_map.get(name, name.split('.')[-1].capitalize()) for name in target_names]
+    short_labels = ['Graphics', 'Baseball', 'Space', 'Politics']
 
     for idx, name in enumerate(model_names[:4]):
         cm = np.array(evaluation_results[name]['confusion_matrix'])
@@ -224,15 +201,15 @@ def plot_confusion_matrices(
             xticklabels=short_labels,
             yticklabels=short_labels,
             ax=axes[idx],
-            annot_kws={"size": annot_size, "weight": "bold"}
+            annot_kws={"size": 11, "weight": "bold"}
         )
-        axes[idx].set_title(f"{name}\n(Accuracy: {acc*100:.1f}%)", fontsize=12, fontweight='bold', pad=10)
-        axes[idx].set_xlabel('Predicted Label', fontsize=10, fontweight='semibold')
-        axes[idx].set_ylabel('True Label', fontsize=10, fontweight='semibold')
-        axes[idx].tick_params(axis='x', rotation=45 if num_classes > 10 else 25, labelsize=tick_size)
-        axes[idx].tick_params(axis='y', rotation=0, labelsize=tick_size)
+        axes[idx].set_title(f"{name}\n(Accuracy: {acc*100:.1f}%)", fontsize=11, fontweight='bold', pad=10)
+        axes[idx].set_xlabel('Predicted Label', fontsize=9.5, fontweight='semibold')
+        axes[idx].set_ylabel('True Label', fontsize=9.5, fontweight='semibold')
+        axes[idx].tick_params(axis='x', rotation=15, labelsize=9)
+        axes[idx].tick_params(axis='y', rotation=0, labelsize=9)
 
-    plt.suptitle('Confusion Matrix Heatmaps for All Classification Models', fontsize=15, fontweight='bold', y=0.99)
+    plt.suptitle('Confusion Matrix Heatmaps for 4 Classifiers', fontsize=14, fontweight='bold', y=0.99)
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()
@@ -240,20 +217,18 @@ def plot_confusion_matrices(
 
 def plot_class_distribution(df: pd.DataFrame, target_names: List[str], output_path: str):
     """
-    Plots distribution of documents across classes.
+    Plots distribution of documents across the 4 classes.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    num_classes = len(target_names)
 
     counts = df['category_name'].value_counts()
-    fig_width = max(10, num_classes * 0.65)
-    plt.figure(figsize=(fig_width, 5.0), dpi=300)
+    plt.figure(figsize=(8, 4.5), dpi=300)
     ax = sns.barplot(x=counts.index, y=counts.values, hue=counts.index, palette='crest', legend=False)
 
-    plt.title('Dataset Class Distribution (Number of Documents per Category)', fontsize=13, fontweight='bold', pad=15)
-    plt.xlabel('Document Category', fontsize=11, fontweight='semibold')
-    plt.ylabel('Document Count', fontsize=11, fontweight='semibold')
-    plt.xticks(rotation=40 if num_classes > 8 else 20, ha='right', fontsize=8.5 if num_classes > 10 else 9.5)
+    plt.title('Dataset Class Distribution (4 Target Categories)', fontsize=13, fontweight='bold', pad=15)
+    plt.xlabel('Document Category', fontsize=10.5, fontweight='semibold')
+    plt.ylabel('Document Count', fontsize=10.5, fontweight='semibold')
+    plt.xticks(rotation=15, ha='right', fontsize=9.5)
 
     for p in ax.patches:
         height = p.get_height()
@@ -261,7 +236,7 @@ def plot_class_distribution(df: pd.DataFrame, target_names: List[str], output_pa
             f"{int(height)}",
             (p.get_x() + p.get_width() / 2., height),
             ha='center', va='bottom',
-            fontsize=7.5 if num_classes > 10 else 9, xytext=(0, 3),
+            fontsize=9, xytext=(0, 3),
             textcoords='offset points'
         )
 
@@ -275,31 +250,24 @@ def plot_top_keywords(top_features_dict: Dict[str, List[Tuple[str, float]]], out
     Plots top informative TF-IDF keywords per class.
     """
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    num_classes = len(top_features_dict)
-    cols = 4 if num_classes >= 12 else 2
-    rows = (num_classes + cols - 1) // cols
+    fig, axes = plt.subplots(2, 2, figsize=(11, 7.5), dpi=300)
+    axes = axes.flatten()
 
-    fig, axes = plt.subplots(rows, cols, figsize=(16 if cols == 4 else 12, 3.2 * rows), dpi=300)
-    axes = np.array(axes).flatten()
+    colors = ['#3b82f6', '#10b981', '#8b5cf6', '#f59e0b']
 
     for idx, (class_name, words) in enumerate(top_features_dict.items()):
         if idx >= len(axes):
             break
-        # Take top 8 words
         words = words[:8]
         terms = [w[0] for w in words][::-1]
         scores = [w[1] for w in words][::-1]
 
-        axes[idx].barh(terms, scores, color='#3b82f6', edgecolor='none')
-        axes[idx].set_title(f"{class_name}", fontsize=9.5, fontweight='bold')
-        axes[idx].set_xlabel('Mean TF-IDF Score', fontsize=8)
-        axes[idx].tick_params(labelsize=8)
+        axes[idx].barh(terms, scores, color=colors[idx % len(colors)], edgecolor='none')
+        axes[idx].set_title(f"{class_name}", fontsize=11, fontweight='bold')
+        axes[idx].set_xlabel('Mean TF-IDF Score', fontsize=9)
+        axes[idx].tick_params(labelsize=8.5)
 
-    # Hide unused subplots if any
-    for j in range(idx + 1, len(axes)):
-        fig.delaxes(axes[j])
-
-    plt.suptitle('Top Distinguishing TF-IDF Terms per Category', fontsize=14, fontweight='bold', y=0.99)
+    plt.suptitle('Top Distinguishing TF-IDF Terms per Category', fontsize=13, fontweight='bold', y=0.99)
     plt.tight_layout()
     plt.savefig(output_path, dpi=300)
     plt.close()

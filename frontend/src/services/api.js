@@ -280,21 +280,48 @@ function runClientSideInference(text, modelName) {
   }).sort((a, b) => b.probability - a.probability);
 
   const topCategory = probabilities[0];
+  const secondCategory = probabilities[1] || probabilities[0];
   const t1 = performance.now();
   const processingTime = Math.max(Number(((t1 - t0) / 1000 + 0.12).toFixed(2)), 0.14);
 
   // Sort keywords by weight
   foundKeywords.sort((a, b) => b.weight - a.weight);
 
+  // Determine status: unknown vs ambiguous vs normal
+  let status = "normal";
+  let finalCategory = topCategory.name;
+  let finalIcon = topCategory.icon;
+  const detectedTopics = probabilities
+    .filter(p => p.probability >= 15.0)
+    .map(p => p.name);
+
+  if (foundKeywords.length === 0 || topCategory.probability < 52.0) {
+    status = "unknown";
+    finalCategory = "Unknown / Out-of-Domain";
+    finalIcon = "❓";
+  } else if (
+    probabilities.length >= 2 &&
+    (topCategory.probability - secondCategory.probability <= 32.0) &&
+    secondCategory.probability >= 18.0 &&
+    topCategory.probability < 75.0
+  ) {
+    status = "ambiguous";
+    finalCategory = "Ambiguous / Multi-topic";
+    finalIcon = "⚠️";
+  }
+
   return {
-    category: topCategory.name,
+    category: finalCategory,
+    prediction: finalCategory,
     categoryId: topCategory.categoryId,
-    icon: topCategory.icon,
+    icon: finalIcon,
     confidence: topCategory.probability,
+    status,
+    detected_topics: detectedTopics,
     probabilities,
     topKeywords: foundKeywords.slice(0, 7),
     processingTime,
-    modelUsed: modelName || "Support Vector Machine",
+    modelUsed: modelName || "Multinomial Naive Bayes",
     isClientSide: true
   };
 }

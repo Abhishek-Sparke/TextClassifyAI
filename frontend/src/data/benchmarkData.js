@@ -4,15 +4,15 @@
  */
 
 export const DATASET_STATS = {
-  totalDocuments: 100000,
-  categoriesCount: 26,
-  trainingSamples: 79990,
-  testingSamples: 19998,
-  tfidfFeatures: 8000,
-  averageWordCount: 65.7,
-  medianWordCount: 40,
-  bestModelName: "Support Vector Machine",
-  bestAccuracy: "91.32%"
+  totalDocuments: 2769,
+  categoriesCount: 4,
+  trainingSamples: 2204,
+  testingSamples: 552,
+  tfidfFeatures: 5000,
+  averageWordCount: 197.7,
+  medianWordCount: 59,
+  bestModelName: "Multinomial Naive Bayes",
+  bestAccuracy: "86.59%"
 };
 
 export const CATEGORIES = [
@@ -399,11 +399,46 @@ export const CONFUSION_MATRIX = {
 
 export const SAMPLE_DOCUMENTS = [
   {
-    title: "International Diplomatic Summit & Global Treaties",
-    category: "World News",
-    icon: "🌐",
-    preview: "United Nations delegates and international ambassadors concluded a multi-lateral diplomatic summit...",
-    fullText: "United Nations delegates and international ambassadors concluded a multi-lateral diplomatic summit today in Geneva. The treaty establishes maritime security zones, bilateral trade compliance monitoring, and foreign aid allocations across developing economies."
+    title: "⚠️ Multi-Topic Ambiguity Benchmark",
+    category: "Ambiguous / Multi-topic",
+    icon: "⚠️",
+    preview: "The Chief Minister bought a Royal Enfield bike and went to Mars to see Jesus and play football.",
+    fullText: "The Chief Minister bought a Royal Enfield bike and went to Mars to see Jesus and play football."
+  },
+  {
+    title: "🚀 Deep Space Planetary Science",
+    category: "Space Science",
+    icon: "🚀",
+    preview: "NASA launched a spacecraft into orbit using cryogenic rocket propulsion...",
+    fullText: "NASA launched a spacecraft into orbit using advanced cryogenic rocket propulsion. Equipped with deep space telemetry, the planetary probe will traverse the solar system to analyze cosmic radiation and planetary atmospheric composition."
+  },
+  {
+    title: "⚾ Major League Baseball Championship",
+    category: "Baseball",
+    icon: "⚾",
+    preview: "The starting pitcher delivered nine strikeouts over seven scoreless innings...",
+    fullText: "The starting pitcher delivered a dominant performance with nine strikeouts over seven scoreless innings. In the bottom of the ninth, the clean-up hitter drove in two runs with a solid line drive over the outfield fence, securing the championship victory as the stadium erupted."
+  },
+  {
+    title: "🏛️ Congressional Legislation & Federal Law",
+    category: "Politics",
+    icon: "🏛️",
+    preview: "The government passed a new law regarding federal taxation and civil liberties...",
+    fullText: "The government passed a new law regarding federal taxation, national fiscal policy, and civil liberties. Congressional representatives held an extensive legislative debate concerning constitutional rights, judicial oversight, and executive administration."
+  },
+  {
+    title: "🎨 3D Real-time Raytracing & Shaders",
+    category: "Computer Graphics",
+    icon: "🎨",
+    preview: "Modern 3D graphics hardware accelerates real-time raytracing shaders and polygon rasterization...",
+    fullText: "Modern real-time ray tracing requires hardware-accelerated GPUs with dedicated shader cores. The 3D rendering pipeline transforms polygon meshes and texture maps using Vulkan and DirectX, computing vertex lighting, anti-aliasing, reflections, and shadow maps at high refresh rates."
+  },
+  {
+    title: "🍕 Out-of-Domain Detection Benchmark",
+    category: "Unknown / Out-of-Domain",
+    icon: "❓",
+    preview: "I ate pizza today and my laptop battery is low...",
+    fullText: "I ate pizza today and my laptop battery is low."
   },
   {
     title: "Wall Street Quarterly Earnings & Market Surge",

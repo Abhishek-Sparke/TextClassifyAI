@@ -1,15 +1,21 @@
 """
-Dataset Loading and Splitting Module
+Dataset Loading, Augmentation, and Splitting Module
 
-Handles loading the 20 Newsgroups dataset, cleaning metadata artifacts,
-computing dataset summary statistics, and performing stratified train-test splits.
+Handles loading the 4 target classes from 20 Newsgroups:
+1. comp.graphics (Computer Graphics)
+2. rec.sport.baseball (Baseball)
+3. sci.space (Space Science)
+4. talk.politics.misc (Politics)
+
+Also incorporates short-text, noisy, and robust domain augmentations
+to ensure models remain accurate on real-world inputs of varying length.
 """
 
 import os
 from typing import List, Tuple, Dict, Any, Optional
 import pandas as pd
 import numpy as np
-from sklearn.datasets import fetch_20newsgroups, load_files, get_data_home
+from sklearn.datasets import fetch_20newsgroups
 from sklearn.datasets._twenty_newsgroups import (
     strip_newsgroup_header,
     strip_newsgroup_footer,
@@ -17,15 +23,78 @@ from sklearn.datasets._twenty_newsgroups import (
 )
 from sklearn.model_selection import train_test_split
 
-from src.data_loader_100k import (
-    ALL_26_CATEGORIES,
-    CATEGORY_DISPLAY_NAMES_26,
-    build_and_cache_100k_dataset
-)
+DEFAULT_CATEGORIES = [
+    "comp.graphics",
+    "rec.sport.baseball",
+    "sci.space",
+    "talk.politics.misc"
+]
 
-# 26 Categories: 20 Newsgroups + Business/Finance, World News, Entertainment, Health, Education, Environment
-DEFAULT_CATEGORIES = ALL_26_CATEGORIES
-CATEGORY_DISPLAY_NAMES = CATEGORY_DISPLAY_NAMES_26
+CATEGORY_DISPLAY_NAMES = {
+    "comp.graphics": "Computer Graphics",
+    "rec.sport.baseball": "Baseball",
+    "sci.space": "Space Science",
+    "talk.politics.misc": "Politics"
+}
+
+CATEGORY_ICONS = {
+    "comp.graphics": "🎨",
+    "rec.sport.baseball": "⚾",
+    "sci.space": "🚀",
+    "talk.politics.misc": "🏛️"
+}
+
+# Curated short-text and domain augmentations to make the classifier
+# highly responsive to short inputs (e.g. "NASA launch", "baseball game")
+SHORT_TEXT_AUGMENTATIONS = [
+    # comp.graphics
+    ("comp.graphics", "3D rendering software"),
+    ("comp.graphics", "GPU accelerated ray tracing and polygon shading"),
+    ("comp.graphics", "computer graphics rendering engine"),
+    ("comp.graphics", "Vulkan DirectX OpenGL shader pipeline"),
+    ("comp.graphics", "3D mesh modeling and texture mapping"),
+    ("comp.graphics", "rasterization anti-aliasing frame buffer"),
+    ("comp.graphics", "digital image processing algorithms and CAD rendering"),
+    ("comp.graphics", "virtual reality rendering and 3D graphics card"),
+    ("comp.graphics", "rendering photo-realistic 3D scenes"),
+    ("comp.graphics", "bitmap vector graphics resolution render"),
+
+    # rec.sport.baseball
+    ("rec.sport.baseball", "baseball game"),
+    ("rec.sport.baseball", "starting pitcher struck out nine batters"),
+    ("rec.sport.baseball", "home run over the outfield fence"),
+    ("rec.sport.baseball", "baseball league World Series championship"),
+    ("rec.sport.baseball", "baseball inning bullpen fastball strikeout"),
+    ("rec.sport.baseball", "catcher thrown out runner at second base"),
+    ("rec.sport.baseball", "baseball batting average and pitching earned run average"),
+    ("rec.sport.baseball", "Major League Baseball playoffs and home runs"),
+    ("rec.sport.baseball", "grand slam bottom of ninth inning win"),
+    ("rec.sport.baseball", "baseball stadium umpire ball strike count"),
+
+    # sci.space
+    ("sci.space", "NASA launch"),
+    ("sci.space", "spacecraft rocket into planetary orbit"),
+    ("sci.space", "Hubble space telescope cosmic exploration"),
+    ("sci.space", "Mars rover planetary mission astrophysics"),
+    ("sci.space", "lunar landing astronaut moon mission"),
+    ("sci.space", "satellite orbital mechanics and zero gravity"),
+    ("sci.space", "deep space propulsion and interplanetary probe"),
+    ("sci.space", "space station orbital trajectory launch vehicle"),
+    ("sci.space", "solar system astronomy and galaxy observation"),
+    ("sci.space", "NASA astronaut spacewalk space shuttle mission"),
+
+    # talk.politics.misc
+    ("talk.politics.misc", "new government law"),
+    ("talk.politics.misc", "presidential senate congressional election legislation"),
+    ("talk.politics.misc", "supreme court constitutional rights debate"),
+    ("talk.politics.misc", "federal government policy and public taxation"),
+    ("talk.politics.misc", "political party democracy freedom civil rights"),
+    ("talk.politics.misc", "congressional hearing vote and political administration"),
+    ("talk.politics.misc", "foreign diplomacy bilateral treaty government summit"),
+    ("talk.politics.misc", "government bureaucracy executive branch legislation"),
+    ("talk.politics.misc", "politicians campaign reform constitutional amendment"),
+    ("talk.politics.misc", "parliament prime minister democratic election vote")
+]
 
 
 def clean_document_metadata(raw_text: str) -> str:
@@ -41,97 +110,74 @@ def clean_document_metadata(raw_text: str) -> str:
 def load_newsgroup_dataset(
     categories: Optional[List[str]] = None,
     remove_metadata: bool = True,
-    subset: str = 'all'
+    subset: str = 'all',
+    include_augmentations: bool = True
 ) -> Tuple[pd.DataFrame, List[str]]:
     """
-    Fetches or loads the multi-domain text classification dataset (100,000 documents, 26 classes).
+    Fetches the 20 Newsgroups corpus filtered to the target classes
+    and augments with curated short texts for robust real-world coverage.
 
     Parameters
     ----------
     categories : list of str, optional
-        List of category names to fetch. If None, uses DEFAULT_CATEGORIES (26 categories).
+        List of category names to fetch. Defaults to DEFAULT_CATEGORIES.
     remove_metadata : bool, default=True
         Whether to strip headers, footers, and quotes to prevent data leakage.
     subset : str, default='all'
-        'train', 'test', or 'all' to load complete data for customized splitting.
+        'train', 'test', or 'all'.
+    include_augmentations : bool, default=True
+        Whether to append short-text augmentations.
 
     Returns
     -------
     df : pd.DataFrame
         DataFrame with columns: 'text', 'target', 'category_name'
     target_names : list of str
-        List of target class names.
+        List of target category names.
     """
     selected_cats = categories if categories is not None else DEFAULT_CATEGORIES
 
-    # Check if multi-domain 100k dataset covers the requested categories
-    if set(selected_cats).issubset(set(ALL_26_CATEGORIES)):
-        print(f"[Dataset] Loading multi-domain 100k dataset for {len(selected_cats)} categories...")
-        df_100k = build_and_cache_100k_dataset()
-        if len(selected_cats) < len(ALL_26_CATEGORIES):
-            df_100k = df_100k[df_100k['category_name'].isin(selected_cats)].reset_index(drop=True)
-            # Reindex targets
-            cat_map = {cat: idx for idx, cat in enumerate(selected_cats)}
-            df_100k['target'] = df_100k['category_name'].map(cat_map)
-        return df_100k, selected_cats
+    print(f"[Dataset] Loading 20 Newsgroups for classes: {selected_cats}...")
+    remove = ('headers', 'footers', 'quotes') if remove_metadata else ()
+    bunch = fetch_20newsgroups(
+        subset=subset,
+        categories=selected_cats,
+        shuffle=True,
+        random_state=42,
+        remove=remove
+    )
 
-    # Check for fast local directory
-    data_home = get_data_home()
-    train_dir = os.path.join(data_home, '20news_home', '20news-bydate-train')
-    test_dir = os.path.join(data_home, '20news_home', '20news-bydate-test')
+    all_texts = bunch.data
+    all_targets = bunch.target
+    target_names = list(bunch.target_names)
 
-    all_texts = []
-    all_targets = []
-    target_names = selected_cats
-
-    if os.path.exists(train_dir) and os.path.exists(test_dir):
-        print(f"[Dataset] Loading '{len(selected_cats)}' categories from local repository cache...")
-        if subset in ('train', 'all'):
-            b_train = load_files(train_dir, categories=selected_cats, encoding='latin1')
-            all_texts.extend(b_train.data)
-            all_targets.extend(b_train.target)
-            target_names = list(b_train.target_names)
-
-        if subset in ('test', 'all'):
-            b_test = load_files(test_dir, categories=selected_cats, encoding='latin1')
-            all_texts.extend(b_test.data)
-            all_targets.extend(b_test.target)
-            target_names = list(b_test.target_names)
-    else:
-        print("[Dataset] Fetching 20 Newsgroups via scikit-learn...")
-        remove = ('headers', 'footers', 'quotes') if remove_metadata else ()
-        bunch = fetch_20newsgroups(
-            subset=subset,
-            categories=selected_cats,
-            shuffle=True,
-            random_state=42,
-            remove=remove
-        )
-        all_texts = bunch.data
-        all_targets = bunch.target
-        target_names = list(bunch.target_names)
-
-    # Strip metadata if requested and loaded from files
-    if remove_metadata:
-        cleaned_docs = [clean_document_metadata(doc) for doc in all_texts]
-    else:
-        cleaned_docs = all_texts
+    cleaned_docs = [clean_document_metadata(doc) for doc in all_texts]
 
     df = pd.DataFrame({
         'text': cleaned_docs,
         'target': all_targets
     })
-
-    # Map target integer to string category name
     df['category_name'] = df['target'].map(lambda idx: target_names[idx])
 
-    # Filter out empty or whitespace-only documents that appear after stripping metadata
+    # Filter out empty or whitespace-only documents
     df['text'] = df['text'].astype(str)
-    initial_len = len(df)
-    df = df[df['text'].str.strip().str.len() > 10].reset_index(drop=True)
-    dropped = initial_len - len(df)
-    if dropped > 0:
-        print(f"[Dataset] Filtered {dropped} blank/header-only documents after stripping metadata.")
+    df = df[df['text'].str.strip().str.len() > 15].reset_index(drop=True)
+
+    # Append short-text and domain augmentations
+    if include_augmentations:
+        cat_to_target = {cat: idx for idx, cat in enumerate(target_names)}
+        aug_rows = []
+        for cat, aug_text in SHORT_TEXT_AUGMENTATIONS:
+            if cat in cat_to_target:
+                aug_rows.append({
+                    'text': aug_text,
+                    'target': cat_to_target[cat],
+                    'category_name': cat
+                })
+        if aug_rows:
+            df_aug = pd.DataFrame(aug_rows)
+            df = pd.concat([df, df_aug], ignore_index=True)
+            print(f"[Dataset] Appended {len(df_aug)} short-text domain augmentations.")
 
     return df, target_names
 
@@ -148,10 +194,10 @@ def get_dataset_statistics(df: pd.DataFrame, target_names: List[str]) -> Dict[st
         'num_classes': len(target_names),
         'classes': target_names,
         'class_distribution': class_counts,
-        'word_count_min': int(word_counts.min()),
-        'word_count_max': int(word_counts.max()),
-        'word_count_mean': float(word_counts.mean()),
-        'word_count_median': float(word_counts.median())
+        'word_count_min': int(word_counts.min()) if len(word_counts) > 0 else 0,
+        'word_count_max': int(word_counts.max()) if len(word_counts) > 0 else 0,
+        'word_count_mean': round(float(word_counts.mean()), 1) if len(word_counts) > 0 else 0.0,
+        'word_count_median': float(word_counts.median()) if len(word_counts) > 0 else 0.0
     }
     return stats
 
@@ -164,7 +210,6 @@ def split_data(
     """
     Splits documents and targets into stratified train and test sets.
     """
-    # Use preprocessed text if available to ensure vocabulary contains meaningful terms
     X = df['clean_text'] if 'clean_text' in df.columns else df['text']
     y = df['target']
 

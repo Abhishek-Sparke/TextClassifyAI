@@ -1,0 +1,8 @@
+id,text,predicted_category,confidence,status
+1,NASA launched a spacecraft into orbit.,sci.space,99.8%,normal
+2,The starting pitcher struck out nine batters.,rec.sport.baseball,98.5%,normal
+3,The government passed a new federal taxation law.,talk.politics.misc,88.1%,normal
+4,The computer generated a 3D image with ray tracing.,comp.graphics,99.6%,normal
+5,I ate pizza today.,Unknown / Out-of-Domain,0.0%,unknown
+6,My laptop battery is low.,Unknown / Out-of-Domain,57.4%,unknown
+7,The Chief Minister bought a Royal Enfield bike and went to Mars to see Jesus and play football.,Ambiguous / Multi-topic,52.4%,ambiguous

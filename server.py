@@ -1,9 +1,9 @@
 """
 High-Performance Local Inference API Server
-Classifying Text Documents Using Machine Learning
+Classifying Text Documents Using Machine Learning (4 Classes)
 
-Provides REST API endpoints for real-time document classification,
-model comparison, and TF-IDF feature explainability using Starlette and Uvicorn.
+Provides REST API endpoints for document classification, model comparison,
+out-of-domain / unknown detection, and multi-topic ambiguity analysis.
 """
 
 import os
@@ -17,130 +17,28 @@ from starlette.routing import Route
 from starlette.middleware import Middleware
 from starlette.middleware.cors import CORSMiddleware
 
-from src.preprocessing import preprocess_document
-from src.features import get_top_tfidf_terms_for_document
-from src.models import get_prediction_probabilities
+from src.inference_engine import (
+    classify_document,
+    InferenceConfig,
+    DEFAULT_INFERENCE_CONFIG,
+    TARGET_4_CLASSES,
+    CATEGORY_DISPLAY_NAMES_4,
+    CATEGORY_ICONS_4
+)
 
-# -----------------------------------------------------------------------------
-# Global Asset Pre-loading
-# -----------------------------------------------------------------------------
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
-
-CATEGORY_ICONS = {
-    "alt.atheism": "🕊️",
-    "comp.graphics": "🎨",
-    "comp.os.ms-windows.misc": "🪟",
-    "comp.sys.ibm.pc.hardware": "🖥️",
-    "comp.sys.mac.hardware": "🍏",
-    "comp.windows.x": "💻",
-    "misc.forsale": "🏷️",
-    "rec.autos": "🚗",
-    "rec.motorcycles": "🏍️",
-    "rec.sport.baseball": "⚾",
-    "rec.sport.hockey": "🏒",
-    "sci.crypt": "🔐",
-    "sci.electronics": "⚡",
-    "sci.med": "🩺",
-    "sci.space": "🚀",
-    "soc.religion.christian": "✝️",
-    "talk.politics.guns": "🎯",
-    "talk.politics.mideast": "🌍",
-    "talk.politics.misc": "🏛️",
-    "talk.religion.misc": "🕊️",
-    "business.finance": "💼",
-    "world.news": "🌐",
-    "entertainment.arts": "🎬",
-    "health.wellness": "🧘",
-    "education.academics": "🎓",
-    "environment.climate": "🌱"
-}
-
-def get_category_icon(category_name: str, raw_class: str = "") -> str:
-    if raw_class in CATEGORY_ICONS:
-        return CATEGORY_ICONS[raw_class]
-    combined = f"{category_name} {raw_class}".lower()
-    if any(k in combined for k in ["atheism", "christian", "religion", "faith"]):
-        return "🕊️"
-    elif any(k in combined for k in ["crypt", "security", "cipher", "encryption"]):
-        return "🔐"
-    elif any(k in combined for k in ["gun", "weapon", "firearm", "defense"]):
-        return "🎯"
-    elif any(k in combined for k in ["hockey"]):
-        return "🏒"
-    elif any(k in combined for k in ["motorcycle", "bike"]):
-        return "🏍️"
-    elif any(k in combined for k in ["mac", "apple"]):
-        return "🍏"
-    elif any(k in combined for k in ["windows", "ms-win"]):
-        return "🪟"
-    elif any(k in combined for k in ["electronics", "circuit"]):
-        return "⚡"
-    elif any(k in combined for k in ["sale", "forsale", "price", "offer"]):
-        return "🏷️"
-    elif any(k in combined for k in ["business", "trade", "revenue", "profit", "finance"]):
-        return "💼"
-    elif any(k in combined for k in ["entertainment", "movie", "film", "cinema", "arts", "theatre", "music"]):
-        return "🎬"
-    elif any(k in combined for k in ["world", "global", "international", "diplomacy"]):
-        return "🌐"
-    elif any(k in combined for k in ["education", "academic", "university", "curriculum", "pedagogy"]):
-        return "🎓"
-    elif any(k in combined for k in ["environment", "climate", "solar", "renewable", "ecology", "carbon"]):
-        return "🌱"
-    elif any(k in combined for k in ["wellness", "med", "health", "doctor", "clinical", "disease"]):
-        return "🧘"
-    elif any(k in combined for k in ["tech", "computer", "hardware", "software", "sys", "pc"]):
-        return "🖥️"
-    elif any(k in combined for k in ["graphic", "rendering", "3d", "art", "design"]):
-        return "🎨"
-    elif any(k in combined for k in ["sport", "baseball", "game"]):
-        return "⚾"
-    elif any(k in combined for k in ["politic", "congress", "law", "government", "mideast"]):
-        return "🏛️"
-    elif any(k in combined for k in ["space", "nasa", "astronomy", "telescope", "orbit"]):
-        return "🚀"
-    elif any(k in combined for k in ["auto", "car", "engine", "vehicle"]):
-        return "🚗"
-    return "📄"
-
-CATEGORY_NAMES = {
-    "alt.atheism": "Atheism",
-    "comp.graphics": "Computer Graphics",
-    "comp.os.ms-windows.misc": "MS Windows",
-    "comp.sys.ibm.pc.hardware": "IBM PC Hardware",
-    "comp.sys.mac.hardware": "Mac Hardware",
-    "comp.windows.x": "X Window System",
-    "misc.forsale": "For Sale",
-    "rec.autos": "Automobiles",
-    "rec.motorcycles": "Motorcycles",
-    "rec.sport.baseball": "Baseball",
-    "rec.sport.hockey": "Hockey",
-    "sci.crypt": "Cryptography",
-    "sci.electronics": "Electronics",
-    "sci.med": "Medicine",
-    "sci.space": "Space Science",
-    "soc.religion.christian": "Christianity",
-    "talk.politics.guns": "Gun Politics",
-    "talk.politics.mideast": "Middle East Politics",
-    "talk.politics.misc": "Politics",
-    "talk.religion.misc": "Religion",
-    "business.finance": "Business & Finance",
-    "world.news": "World News",
-    "entertainment.arts": "Entertainment & Arts",
-    "health.wellness": "Health & Wellness",
-    "education.academics": "Education & Academics",
-    "environment.climate": "Environment & Climate"
-}
 
 vectorizer = None
 models_dict = {}
 best_model = None
-categories = []
+metadata = {}
+categories = TARGET_4_CLASSES
+inference_config = DEFAULT_INFERENCE_CONFIG
 
 
 def load_artifacts():
-    global vectorizer, models_dict, best_model, categories
-    
+    global vectorizer, models_dict, best_model, metadata, categories, inference_config
+
     vec_path = os.path.join(MODELS_DIR, "tfidf_vectorizer.joblib")
     if os.path.exists(vec_path):
         vectorizer = joblib.load(vec_path)
@@ -156,175 +54,225 @@ def load_artifacts():
     meta_path = os.path.join(MODELS_DIR, "model_metadata.json")
     if os.path.exists(meta_path):
         with open(meta_path, "r", encoding="utf-8") as f:
-            meta = json.load(f)
-            categories = meta.get("categories", [])
-            if "category_display_names" in meta:
-                CATEGORY_NAMES.update(meta["category_display_names"])
-    else:
-        categories = list(CATEGORY_NAMES.keys())
+            metadata = json.load(f)
+            categories = metadata.get("categories", TARGET_4_CLASSES)
+            thresh = metadata.get("confidence_thresholds", {})
+            if thresh:
+                inference_config = InferenceConfig(
+                    confidence_threshold=thresh.get("confidence_threshold", 0.58),
+                    min_active_tfidf=thresh.get("min_active_tfidf", 0.05),
+                    ambiguity_margin=thresh.get("ambiguity_margin", 0.32),
+                    topic_detection_threshold=thresh.get("topic_detection_threshold", 0.15)
+                )
 
 
 load_artifacts()
+
 
 # -----------------------------------------------------------------------------
 # Route Handlers
 # -----------------------------------------------------------------------------
 async def health_check(request):
+    """
+    GET /health and GET /api/health
+    """
     return JSONResponse({
         "status": "healthy",
-        "service": "Text Document Classifier API",
-        "categories": categories,
-        "models_available": list(models_dict.keys()) if models_dict else ["Support Vector Machine"]
+        "service": "Text Document Classifier API (4 Classes)",
+        "classes": categories,
+        "class_display_names": CATEGORY_DISPLAY_NAMES_4,
+        "models_available": list(models_dict.keys()) if models_dict else ["Multinomial Naive Bayes"],
+        "best_model": metadata.get("best_model_name", "Multinomial Naive Bayes"),
+        "confidence_threshold": inference_config.confidence_threshold,
+        "ambiguity_margin": inference_config.ambiguity_margin
     })
 
 
-async def classify_text(request):
+async def get_models(request):
+    """
+    GET /models and GET /api/models
+    """
+    return JSONResponse({
+        "best_model": metadata.get("best_model_name", "Multinomial Naive Bayes"),
+        "metrics_table": metadata.get("metrics_table", []),
+        "selection_metric": metadata.get("selection_metric", "Weighted F1-score"),
+        "categories": categories,
+        "models": list(models_dict.keys()) if models_dict else []
+    })
+
+
+async def predict_text(request):
+    """
+    POST /predict and POST /api/classify
+    Accepts: {"text": "...", "model": "..."}
+    Returns:
+    {
+        "text": "...",
+        "prediction": "...",
+        "confidence": 0.0,
+        "probabilities": {},
+        "status": "normal | ambiguous | unknown",
+        "detected_topics": [],
+        "top_keywords": []
+    }
+    """
+    # 1. Parse JSON body
     try:
         data = await request.json()
     except Exception:
-        return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
+        return JSONResponse({"error": "Invalid JSON body in request"}, status_code=400)
 
-    raw_text = data.get("text", "").strip()
-    model_id = data.get("model", "svm")
+    if not isinstance(data, dict):
+        return JSONResponse({"error": "Request body must be a JSON object"}, status_code=400)
 
+    # 2. Validate 'text' property
+    if "text" not in data:
+        return JSONResponse({"error": "Missing required field: 'text'"}, status_code=400)
+
+    raw_text = data.get("text")
+    if not isinstance(raw_text, str):
+        return JSONResponse({"error": "Field 'text' must be a string"}, status_code=400)
+
+    raw_text = raw_text.strip()
     if not raw_text:
-        return JSONResponse({"error": "Text payload cannot be empty"}, status_code=400)
+        return JSONResponse({"error": "Field 'text' cannot be empty or whitespace only"}, status_code=400)
 
-    start_time = time.time()
+    # 3. Handle extremely long inputs safely (> 100,000 characters)
+    max_len = 100000
+    if len(raw_text) > max_len:
+        raw_text = raw_text[:max_len]
 
-    # 1. NLP Preprocessing
-    clean_text = preprocess_document(raw_text, apply_lemmatization=True)
-    if not clean_text.strip():
-        clean_text = raw_text.lower()
-
-    # 2. Vectorize
-    vector = vectorizer.transform([clean_text])
-
-    # 3. Model selection
-    # Map frontend model IDs to model dictionary keys
-    id_mapping = {
+    # 4. Model selection
+    requested_model = data.get("model", "").strip()
+    model_mapping = {
         "svm": "Support Vector Machine",
         "logistic_regression": "Logistic Regression",
         "naive_bayes": "Multinomial Naive Bayes",
-        "random_forest": "Random Forest"
+        "random_forest": "Random Forest",
+        "linear svc": "Support Vector Machine"
     }
-    model_key = id_mapping.get(model_id, "Support Vector Machine")
+    model_key = model_mapping.get(requested_model.lower(), requested_model)
     model = models_dict.get(model_key, best_model)
 
-    # 4. Predict
-    prediction_idx = model.predict(vector)[0]
-    category_id = categories[prediction_idx] if prediction_idx < len(categories) else str(prediction_idx)
-    category_name = CATEGORY_NAMES.get(category_id, category_id)
-    icon = get_category_icon(category_name, category_id)
+    start_time = time.perf_counter()
 
-    # 5. Probabilities
-    probs = get_prediction_probabilities(model, vector)[0]
-    prob_distribution = []
-    for i, p in enumerate(probs):
-        c_id = categories[i] if i < len(categories) else f"cat_{i}"
-        c_name = CATEGORY_NAMES.get(c_id, c_id)
-        prob_distribution.append({
-            "categoryId": c_id,
-            "name": c_name,
-            "icon": get_category_icon(c_name, c_id),
-            "probability": round(float(p) * 100, 2)
-        })
+    # 5. Run Centralized Inference
+    res = classify_document(
+        raw_text=raw_text,
+        model=model,
+        vectorizer=vectorizer,
+        categories=categories,
+        config=inference_config
+    )
+
+    elapsed = round(time.perf_counter() - start_time, 4)
+    model_used_name = model_key if model_key in models_dict else metadata.get("best_model_name", "Multinomial Naive Bayes")
+
+    # Icon resolution
+    if res["status"] == "unknown":
+        icon = CATEGORY_ICONS_4["unknown"]
+    elif res["status"] == "ambiguous":
+        icon = CATEGORY_ICONS_4["ambiguous"]
+    else:
+        icon = CATEGORY_ICONS_4.get(res["raw_prediction"], "📄")
+
+    category_disp = CATEGORY_DISPLAY_NAMES_4.get(res["prediction"], res["prediction"])
+
+    # Probability distribution list for UI consumers
+    prob_distribution = [
+        {
+            "categoryId": cat,
+            "name": CATEGORY_DISPLAY_NAMES_4.get(cat, cat),
+            "icon": CATEGORY_ICONS_4.get(cat, "📄"),
+            "probability": round(p * 100, 2)
+        }
+        for cat, p in res["probabilities"].items()
+    ]
     prob_distribution.sort(key=lambda x: x["probability"], reverse=True)
 
-    confidence = prob_distribution[0]["probability"] if prob_distribution else 99.0
-
-    # 6. Top TF-IDF Keywords for Explainability
-    keywords_raw = get_top_tfidf_terms_for_document(vectorizer, vector, top_n=8)
-    top_keywords = [{"term": term, "weight": round(float(w), 3)} for term, w in keywords_raw]
-
-    elapsed = round(time.time() - start_time, 3)
-
     return JSONResponse({
-        "category": category_name,
-        "categoryId": category_id,
+        "text": raw_text[:300] + ("..." if len(raw_text) > 300 else ""),
+        "prediction": res["prediction"],
+        "category": category_disp,
+        "categoryId": res["raw_prediction"],
         "icon": icon,
-        "confidence": confidence,
-        "probabilities": prob_distribution,
-        "topKeywords": top_keywords,
-        "processingTime": max(elapsed, 0.005),
-        "modelUsed": model_key,
-        "cleanText": clean_text[:400] + ("..." if len(clean_text) > 400 else "")
+        "confidence": round(res["confidence"], 4),
+        "probabilities": res["probabilities"],
+        "probability_distribution": prob_distribution,
+        "status": res["status"],
+        "detected_topics": res["detected_topics"],
+        "top_keywords": res["top_keywords"],
+        "topKeywords": res["top_keywords"],
+        "is_out_of_domain": res["is_out_of_domain"],
+        "is_ambiguous": res["is_ambiguous"],
+        "reason": res["reason"],
+        "processingTime": max(elapsed, 0.001),
+        "modelUsed": model_used_name
     })
 
 
-async def classify_batch(request):
+async def predict_batch(request):
+    """
+    POST /predict-batch and POST /api/classify-batch
+    """
     try:
         data = await request.json()
     except Exception:
         return JSONResponse({"error": "Invalid JSON body"}, status_code=400)
 
     docs = data.get("documents", [])
-    model_id = data.get("model", "svm")
-
     if not isinstance(docs, list) or len(docs) == 0:
-        return JSONResponse({"error": "documents must be a non-empty list"}, status_code=400)
+        return JSONResponse({"error": "'documents' must be a non-empty list of text objects"}, status_code=400)
 
-    start_time = time.time()
-
-    id_mapping = {
-        "svm": "Support Vector Machine",
-        "logistic_regression": "Logistic Regression",
-        "naive_bayes": "Multinomial Naive Bayes",
-        "random_forest": "Random Forest"
-    }
-    model_key = id_mapping.get(model_id, "Support Vector Machine")
-    model = models_dict.get(model_key, best_model)
-
+    start_time = time.perf_counter()
     results = []
-    for doc in docs:
-        doc_id = doc.get("id") or doc.get("title") or f"doc_{len(results)+1}"
-        title = doc.get("title", f"Document {len(results)+1}")
-        raw_text = doc.get("text", "").strip()
 
-        if not raw_text:
+    for idx, item in enumerate(docs):
+        if isinstance(item, str):
+            row_text = item
+            row_id = idx + 1
+        elif isinstance(item, dict):
+            row_text = item.get("text") or item.get("document") or item.get("content") or item.get("message") or item.get("sentence") or ""
+            row_id = item.get("id", idx + 1)
+        else:
             continue
 
-        clean_text = preprocess_document(raw_text, apply_lemmatization=True)
-        if not clean_text.strip():
-            clean_text = raw_text.lower()
+        if not str(row_text).strip():
+            results.append({
+                "id": row_id,
+                "text": "",
+                "predicted_category": "Unknown / Out-of-Domain",
+                "confidence": 0.0,
+                "status": "unknown"
+            })
+            continue
 
-        vector = vectorizer.transform([clean_text])
-        prediction_idx = model.predict(vector)[0]
-        cat_id = categories[prediction_idx] if prediction_idx < len(categories) else str(prediction_idx)
-        cat_name = CATEGORY_NAMES.get(cat_id, cat_id)
-        icon = get_category_icon(cat_name, cat_id)
-
-        probs = get_prediction_probabilities(model, vector)[0]
-        confidence = round(float(np.max(probs)) * 100, 2) if len(probs) > 0 else 99.0
-
-        keywords_raw = get_top_tfidf_terms_for_document(vectorizer, vector, top_n=5)
-        top_keywords = [{"term": term, "weight": round(float(w), 3)} for term, w in keywords_raw]
-
-        word_count = len(raw_text.split())
-
+        res = classify_document(str(row_text), best_model, vectorizer, categories, inference_config)
         results.append({
-            "id": doc_id,
-            "title": title,
-            "category": cat_name,
-            "categoryId": cat_id,
-            "icon": icon,
-            "confidence": confidence,
-            "topKeywords": top_keywords,
-            "wordCount": word_count,
-            "snippet": raw_text[:180] + ("..." if len(raw_text) > 180 else "")
+            "id": row_id,
+            "text": str(row_text)[:120],
+            "predicted_category": res["prediction"],
+            "confidence": round(res["confidence"] * 100, 2),
+            "status": res["status"],
+            "detected_topics": res["detected_topics"]
         })
 
-    elapsed = round(time.time() - start_time, 3)
+    elapsed = round(time.perf_counter() - start_time, 3)
 
     return JSONResponse({
         "results": results,
         "total": len(results),
-        "modelUsed": model_key,
+        "successful_count": sum(1 for r in results if r["status"] == "normal"),
+        "ambiguous_count": sum(1 for r in results if r["status"] == "ambiguous"),
+        "unknown_count": sum(1 for r in results if r["status"] == "unknown"),
         "processingTime": elapsed
     })
 
 
 async def upload_document(request):
+    """
+    POST /api/upload
+    """
     try:
         form = await request.form()
         uploaded_file = form.get("file")
@@ -333,8 +281,7 @@ async def upload_document(request):
 
         contents = await uploaded_file.read()
         filename = uploaded_file.filename or "uploaded_document.txt"
-        
-        # Decode contents
+
         try:
             text = contents.decode("utf-8")
         except UnicodeDecodeError:
@@ -355,13 +302,18 @@ async def upload_document(request):
 
 
 # -----------------------------------------------------------------------------
-# Starlette Application Setup with CORS
+# Routes Setup
 # -----------------------------------------------------------------------------
 routes = [
+    Route("/health", health_check, methods=["GET"]),
     Route("/api/health", health_check, methods=["GET"]),
-    Route("/api/classify", classify_text, methods=["POST"]),
-    Route("/api/classify-batch", classify_batch, methods=["POST"]),
-    Route("/api/upload", upload_document, methods=["POST"]),
+    Route("/models", get_models, methods=["GET"]),
+    Route("/api/models", get_models, methods=["GET"]),
+    Route("/predict", predict_text, methods=["POST"]),
+    Route("/api/classify", predict_text, methods=["POST"]),
+    Route("/predict-batch", predict_batch, methods=["POST"]),
+    Route("/api/classify-batch", predict_batch, methods=["POST"]),
+    Route("/api/upload", upload_document, methods=["POST"])
 ]
 
 middleware = [
@@ -379,5 +331,6 @@ if __name__ == "__main__":
     import uvicorn
     print("=" * 70)
     print(" Starting TextClassify AI API Server on http://localhost:8000")
+    print(" Supported routes: /health, /models, /predict, /predict-batch")
     print("=" * 70)
     uvicorn.run(app, host="127.0.0.1", port=8000, log_level="info")

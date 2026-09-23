@@ -1,10 +1,10 @@
 """
 Machine Learning Models Module
 
-Defines and initializes the 4 classification algorithms:
+Defines, initializes, and provides probability inference for 4 classifiers:
 1. Multinomial Naive Bayes
 2. Logistic Regression
-3. Support Vector Machine (Linear SVM with probability calibration)
+3. Support Vector Machine (Linear SVM with CalibratedClassifierCV)
 4. Random Forest Classifier
 """
 
@@ -21,7 +21,7 @@ from sklearn.ensemble import RandomForestClassifier
 def get_models(random_state: int = 42) -> Dict[str, Any]:
     """
     Initializes and returns the 4 classification models with balanced,
-    production-ready hyperparameters.
+    production-grade hyperparameters.
 
     Parameters
     ----------
@@ -34,31 +34,29 @@ def get_models(random_state: int = 42) -> Dict[str, Any]:
         Dictionary mapping model names to scikit-learn estimator instances.
     """
     # 1. Multinomial Naive Bayes
-    # Fast probabilistic classifier; alpha=0.1 provides optimal smoothing for sparse TF-IDF text
     nb = MultinomialNB(alpha=0.1)
 
-    # 2. Logistic Regression
-    # Softmax / multiclass regression with balanced class weights
+    # 2. Logistic Regression with balanced class weights
     lr = LogisticRegression(
         C=1.0,
         class_weight='balanced',
-        max_iter=300,
+        max_iter=400,
         solver='lbfgs',
         random_state=random_state,
         n_jobs=-1
     )
 
     # 3. Support Vector Machine (SVM)
-    # CalibratedClassifierCV wraps balanced LinearSVC with Platt scaling / isotonic regression
-    # to provide calibrated class probabilities (predict_proba) for the UI
+    # CalibratedClassifierCV wraps LinearSVC with Platt scaling
+    # to yield calibrated class probabilities for out-of-domain/ambiguity detection
     base_svm = LinearSVC(C=1.0, class_weight='balanced', random_state=random_state, dual='auto')
-    svm = CalibratedClassifierCV(estimator=base_svm, cv=2)
+    svm = CalibratedClassifierCV(estimator=base_svm, cv=3)
 
     # 4. Random Forest Classifier
-    # High efficiency ensemble for 100,000 documents
     rf = RandomForestClassifier(
-        n_estimators=80,
+        n_estimators=100,
         max_depth=25,
+        class_weight='balanced',
         random_state=random_state,
         n_jobs=-1
     )
@@ -88,20 +86,6 @@ def train_all_models(
 ) -> Tuple[Dict[str, Any], Dict[str, float]]:
     """
     Trains all models in the dictionary.
-
-    Parameters
-    ----------
-    models : dict
-        Model name -> estimator.
-    X_train : sparse matrix or ndarray
-    y_train : pd.Series or ndarray
-
-    Returns
-    -------
-    trained_models : dict
-        Model name -> fitted estimator.
-    training_times : dict
-        Model name -> elapsed seconds.
     """
     trained_models = {}
     training_times = {}
@@ -119,7 +103,7 @@ def train_all_models(
 def get_prediction_probabilities(model, X_vector) -> np.ndarray:
     """
     Extracts class probability distribution for an input vector.
-    Falls back to softmax over decision_function if predict_proba is unavailable.
+    Falls back to numerically stable softmax over decision_function if predict_proba is unavailable.
     """
     if hasattr(model, "predict_proba"):
         return model.predict_proba(X_vector)
@@ -129,9 +113,9 @@ def get_prediction_probabilities(model, X_vector) -> np.ndarray:
         exp_d = np.exp(decisions - np.max(decisions, axis=1, keepdims=True))
         return exp_d / np.sum(exp_d, axis=1, keepdims=True)
     else:
-        # One-hot fallback
         preds = model.predict(X_vector)
-        probs = np.zeros((len(preds), len(model.classes_)))
+        num_classes = len(getattr(model, "classes_", [0, 1, 2, 3]))
+        probs = np.zeros((len(preds), num_classes))
         for i, p in enumerate(preds):
-            probs[i, p] = 1.0
+            probs[i, int(p)] = 1.0
         return probs

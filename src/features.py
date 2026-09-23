@@ -2,10 +2,12 @@
 Feature Extraction Module (TF-IDF)
 
 Implements TF-IDF vectorization with strict featurization ordering
-(fit on training data only) to prevent data leakage.
+(fit on training data only) to strictly prevent data leakage.
+Supports unigrams, bigrams, sublinear TF scaling, configurable max_features,
+and L2 normalization.
 """
 
-from typing import Tuple, List, Dict
+from typing import Tuple, List, Dict, Optional
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -27,7 +29,7 @@ def build_tfidf_vectorizer(
     ngram_range : tuple of (int, int), default=(1, 2)
         Extract both unigrams and bigrams (e.g., 'space' and 'space station').
     min_df : int, default=2
-        Ignore terms that appear in fewer than min_df documents (removes rare typos).
+        Ignore terms that appear in fewer than min_df documents (removes rare noise).
     sublinear_tf : bool, default=True
         Apply sublinear scaling 1 + log(tf) to dampen the effect of very frequent words.
 
@@ -48,12 +50,11 @@ def extract_features(
     vectorizer: TfidfVectorizer,
     X_train_raw: pd.Series,
     X_test_raw: pd.Series
-) -> Tuple[np.ndarray, np.ndarray, TfidfVectorizer]:
+) -> Tuple[Any, Any, TfidfVectorizer]:
     """
     Extracts TF-IDF features strictly adhering to ML best practices:
     - Fits the vectorizer ONLY on the training corpus (X_train_raw).
-    - Transforms both training and test corpora.
-    This strictly avoids data leakage from the test split.
+    - Transforms testing corpus without fitting to avoid data leakage.
 
     Parameters
     ----------
@@ -74,7 +75,7 @@ def extract_features(
 def get_top_tfidf_terms_for_document(
     vectorizer: TfidfVectorizer,
     text_tfidf_vector,
-    top_n: int = 10
+    top_n: int = 8
 ) -> List[Tuple[str, float]]:
     """
     Returns the top N terms with the highest TF-IDF weights for a given document vector.
@@ -85,19 +86,24 @@ def get_top_tfidf_terms_for_document(
         Fitted vectorizer.
     text_tfidf_vector : sparse matrix or 1D array
         TF-IDF vector for a single document.
-    top_n : int, default=10
+    top_n : int, default=8
         Number of top terms to return.
 
     Returns
     -------
     list of (term, weight) tuples
     """
+    if not hasattr(vectorizer, "vocabulary_") or len(vectorizer.vocabulary_) == 0:
+        return []
+
     feature_names = np.array(vectorizer.get_feature_names_out())
-    # Handle sparse row
     if hasattr(text_tfidf_vector, "toarray"):
         row = text_tfidf_vector.toarray().flatten()
     else:
         row = np.array(text_tfidf_vector).flatten()
+
+    if len(row) == 0:
+        return []
 
     top_indices = np.argsort(row)[::-1][:top_n]
     results = []
@@ -118,24 +124,6 @@ def get_top_features_per_category(
     """
     Computes average TF-IDF weights across all documents in each category
     and extracts the top distinguishing terms.
-
-    Parameters
-    ----------
-    vectorizer : TfidfVectorizer
-        Fitted vectorizer.
-    X_tfidf : sparse matrix
-        TF-IDF matrix.
-    y : pd.Series or np.ndarray
-        Labels.
-    target_names : list of str
-        Class names.
-    top_n : int
-        Number of terms per category.
-
-    Returns
-    -------
-    dict
-        Mapping category name -> list of (term, mean_weight)
     """
     feature_names = np.array(vectorizer.get_feature_names_out())
     y_array = np.array(y)

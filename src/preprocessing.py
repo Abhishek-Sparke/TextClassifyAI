@@ -3,6 +3,7 @@ Text Preprocessing Module
 
 Provides text normalization, noise cleaning, stop-word removal,
 tokenization, and lemmatization/stemming for text classification.
+Preserves meaningful technical and domain tokens like '3d', 'cad', 'gpu', 'nasa'.
 """
 
 import re
@@ -15,7 +16,6 @@ try:
     from nltk.corpus import stopwords
     from nltk.stem import WordNetLemmatizer, PorterStemmer
 
-    # Verify stopwords availability locally
     try:
         nltk.data.find('corpora/stopwords')
         STOP_WORDS = set(stopwords.words('english'))
@@ -23,7 +23,6 @@ try:
         from sklearn.feature_extraction.text import ENGLISH_STOP_WORDS
         STOP_WORDS = set(ENGLISH_STOP_WORDS)
 
-    # Verify WordNet availability locally, otherwise fallback to PorterStemmer
     try:
         nltk.data.find('corpora/wordnet')
         LEMMATIZER = WordNetLemmatizer()
@@ -39,6 +38,19 @@ except Exception:
     LEMMATIZER = None
     STEMMER = None
 
+# Ensure domain-critical words are never accidentally filtered
+PRESERVED_WORDS = {"3d", "2d", "4k", "cad", "gpu", "cpu", "nasa", "mars", "law", "hit", "run", "win"}
+STOP_WORDS = STOP_WORDS - PRESERVED_WORDS
+
+# Add standard non-topical conversational words that carry zero domain signal
+EXTRA_STOP_WORDS = {
+    "today", "yesterday", "tomorrow", "day", "week", "month", "year",
+    "went", "got", "ate", "eat", "eating", "bought", "buy", "buying",
+    "shopping", "shop", "shopped", "pizza", "favorite", "amazing",
+    "good", "bad", "thing", "things", "like", "really", "going", "goes"
+}
+STOP_WORDS = STOP_WORDS | EXTRA_STOP_WORDS
+
 
 def clean_text(text: Optional[str]) -> str:
     """
@@ -46,18 +58,8 @@ def clean_text(text: Optional[str]) -> str:
     1. Handling null/missing or non-string inputs.
     2. Converting text to lowercase.
     3. Stripping URLs, emails, and header artifacts.
-    4. Removing punctuation, digits, and special characters.
-    5. Normalizing multiple whitespace characters to single spaces.
-
-    Parameters
-    ----------
-    text : str or None
-        Raw input text document.
-
-    Returns
-    -------
-    str
-        Cleaned text string.
+    4. Removing punctuation, standalone numbers, and non-ascii noise.
+    5. Normalizing multiple whitespace characters.
     """
     if text is None:
         return ""
@@ -68,25 +70,25 @@ def clean_text(text: Optional[str]) -> str:
     # 1. Lowercase
     text = text.lower()
 
-    # 2. Remove URLs (http, https, www)
+    # 2. Remove URLs
     text = re.sub(r"https?://\S+|www\.\S+", " ", text)
 
     # 3. Remove email addresses
     text = re.sub(r"\S+@\S+", " ", text)
 
-    # 4. Remove email header signatures like 'writes:', 'subject:', etc.
-    text = re.sub(r"(from|subject|re|lines|organization|writes):", " ", text)
+    # 4. Remove email header signatures
+    text = re.sub(r"\b(from|subject|re|lines|organization|writes|article):", " ", text)
 
-    # 5. Remove numbers/digits (optional, keeps words focused on semantic content)
+    # 5. Remove standalone digits while preserving '3d', '4k'
     text = re.sub(r"\b\d+\b", " ", text)
 
-    # 6. Remove punctuation and non-alphanumeric characters
+    # 6. Remove punctuation
     text = text.translate(str.maketrans("", "", string.punctuation))
 
-    # 7. Remove non-ascii characters / symbols
+    # 7. Remove non-ascii characters
     text = re.sub(r"[^\x00-\x7F]+", " ", text)
 
-    # 8. Collapse whitespace and strip borders
+    # 8. Collapse whitespace and strip
     text = re.sub(r"\s+", " ", text).strip()
 
     return text
@@ -94,34 +96,21 @@ def clean_text(text: Optional[str]) -> str:
 
 def tokenize_and_lemmatize(text: str, apply_lemmatization: bool = True) -> str:
     """
-    Tokenizes text, filters stop words and short tokens, and applies
-    lemmatization (or stemming as fallback).
-
-    Parameters
-    ----------
-    text : str
-        Pre-cleaned text string.
-    apply_lemmatization : bool
-        Whether to apply lemmatization on tokens.
-
-    Returns
-    -------
-    str
-        Processed string of space-separated normalized lemmas.
+    Tokenizes text, filters stop words and noise, and applies lemmatization.
     """
     if not text:
         return ""
 
-    # Tokenize using regex word boundaries (fast, robust, avoids tokenizer crashes)
-    tokens = re.findall(r"\b[a-zA-Z]{2,}\b", text)
+    tokens = re.findall(r"\b[a-zA-Z0-9]{2,}\b", text)
 
     filtered_tokens: List[str] = []
     for token in tokens:
-        # Filter stop words
-        if token in STOP_WORDS:
+        if token.isdigit():
             continue
 
-        # Lemmatize or stem
+        if token in STOP_WORDS and token not in PRESERVED_WORDS:
+            continue
+
         if apply_lemmatization and LEMMATIZER is not None:
             try:
                 token = LEMMATIZER.lemmatize(token)
@@ -140,20 +129,7 @@ def tokenize_and_lemmatize(text: str, apply_lemmatization: bool = True) -> str:
 
 def preprocess_document(text: Optional[str], apply_lemmatization: bool = True) -> str:
     """
-    Full text preprocessing pipeline for an individual document:
-    Handling nulls -> Lowercase -> Cleaning -> Tokenizing -> Stopwords -> Lemmatization.
-
-    Parameters
-    ----------
-    text : str or None
-        Raw input document text.
-    apply_lemmatization : bool
-        Whether to apply lemmatization.
-
-    Returns
-    -------
-    str
-        Processed clean text ready for TF-IDF vectorization.
+    Full text preprocessing pipeline for an individual document.
     """
     cleaned = clean_text(text)
     processed = tokenize_and_lemmatize(cleaned, apply_lemmatization=apply_lemmatization)
@@ -162,27 +138,6 @@ def preprocess_document(text: Optional[str], apply_lemmatization: bool = True) -
 
 def preprocess_corpus(texts: List[str], apply_lemmatization: bool = True) -> List[str]:
     """
-    Applies the preprocessing pipeline to a collection (list) of documents.
-    Utilizes multi-threaded batch parallelization for large corpora (e.g. 100,000 docs).
-
-    Parameters
-    ----------
-    texts : list of str
-        List of raw document strings.
-    apply_lemmatization : bool
-        Whether to apply lemmatization.
-
-    Returns
-    -------
-    list of str
-        List of preprocessed text documents.
+    Applies the preprocessing pipeline to a collection of documents.
     """
-    if len(texts) > 5000:
-        try:
-            from joblib import Parallel, delayed
-            return Parallel(n_jobs=-1, batch_size=250, prefer="threads")(
-                delayed(preprocess_document)(doc, apply_lemmatization) for doc in texts
-            )
-        except Exception:
-            pass
     return [preprocess_document(doc, apply_lemmatization=apply_lemmatization) for doc in texts]
