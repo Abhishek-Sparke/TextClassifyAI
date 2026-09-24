@@ -7,7 +7,7 @@
     "frontend"
   ],
   "scripts": {
-    "build": "cd frontend && npm install && npm run build",
+    "build": "cd frontend && npm install && npm run build && node -e \"require('fs').cpSync('dist', '../dist', {recursive: true})\"",
     "start": "cd frontend && npm run preview"
   }
 }
