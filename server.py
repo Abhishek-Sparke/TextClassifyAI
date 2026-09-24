@@ -59,11 +59,13 @@ def load_artifacts():
             thresh = metadata.get("confidence_thresholds", {})
             if thresh:
                 inference_config = InferenceConfig(
-                    confidence_threshold=thresh.get("confidence_threshold", 0.58),
-                    min_active_tfidf=thresh.get("min_active_tfidf", 0.05),
-                    ambiguity_margin=thresh.get("ambiguity_margin", 0.32),
-                    min_ambiguity_sum=thresh.get("min_ambiguity_sum", 0.60),
-                    topic_detection_threshold=thresh.get("topic_detection_threshold", 0.16)
+                    confidence_threshold=thresh.get("confidence_threshold", DEFAULT_INFERENCE_CONFIG.confidence_threshold),
+                    min_active_tfidf=thresh.get("min_active_tfidf", DEFAULT_INFERENCE_CONFIG.min_active_tfidf),
+                    ambiguity_margin=thresh.get("ambiguity_margin", DEFAULT_INFERENCE_CONFIG.ambiguity_margin),
+                    min_ambiguity_sum=thresh.get("min_ambiguity_sum", DEFAULT_INFERENCE_CONFIG.min_ambiguity_sum),
+                    min_ambiguity_p1=thresh.get("min_ambiguity_p1", DEFAULT_INFERENCE_CONFIG.min_ambiguity_p1),
+                    topic_detection_threshold=thresh.get("topic_detection_threshold", DEFAULT_INFERENCE_CONFIG.topic_detection_threshold),
+                    min_ambiguity_keywords=thresh.get("min_ambiguity_keywords", DEFAULT_INFERENCE_CONFIG.min_ambiguity_keywords)
                 )
 
 
@@ -233,7 +235,16 @@ async def predict_batch(request):
             row_text = item
             row_id = idx + 1
         elif isinstance(item, dict):
-            row_text = item.get("text") or item.get("document") or item.get("content") or item.get("message") or item.get("sentence") or ""
+            row_text = ""
+            for field in ["text", "document", "content", "message", "sentence", "body", "doc"]:
+                val = item.get(field)
+                if val is not None:
+                    if isinstance(val, float) and np.isnan(val):
+                        continue
+                    str_val = str(val).strip()
+                    if str_val and str_val.lower() != "nan":
+                        row_text = str_val
+                        break
             row_id = item.get("id", idx + 1)
         else:
             continue

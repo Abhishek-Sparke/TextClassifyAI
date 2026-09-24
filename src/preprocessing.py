@@ -41,9 +41,25 @@ except Exception:
 # Ensure domain-critical words are never accidentally filtered
 PRESERVED_WORDS = {
     "3d", "2d", "4k", "cad", "gpu", "cpu", "vulkan", "opengl", "shader",
-    "nasa", "mars", "moon", "orbit", "law", "hit", "run", "win", "era", "rbi"
+    "nasa", "mars", "moon", "orbit", "law", "hit", "run", "win", "era", "rbi",
+    "pitcher", "batter", "strikeout", "spacecraft", "satellite", "render"
 }
-STOP_WORDS = STOP_WORDS - PRESERVED_WORDS
+
+# Expand standard stop words with conversational non-domain terms to prevent
+# out-of-domain conversational text from triggering false topical matches
+CONVERSATIONAL_STOP_WORDS = {
+    "today", "yesterday", "tomorrow", "tonight", "went", "go", "going", "gone",
+    "came", "come", "coming", "bought", "buy", "buying", "ate", "eat", "eating",
+    "got", "get", "getting", "saw", "see", "seen", "seeing", "looked", "look",
+    "said", "say", "saying", "told", "tell", "telling", "asked", "ask", "asking",
+    "wanted", "want", "wanting", "tried", "try", "trying", "favorite", "favourite",
+    "amazing", "awesome", "movie", "shopping", "battery", "laptop", "phone",
+    "really", "very", "much", "many", "good", "bad", "great", "nice", "fine",
+    "also", "even", "still", "always", "never", "maybe", "probably", "actually",
+    "thing", "things", "people", "person", "day", "days", "year", "years", "time"
+}
+
+STOP_WORDS = (STOP_WORDS | CONVERSATIONAL_STOP_WORDS) - PRESERVED_WORDS
 
 
 

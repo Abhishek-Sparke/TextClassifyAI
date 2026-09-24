@@ -52,14 +52,13 @@ class InferenceConfig:
     min_active_tfidf: float = 0.05
 
     # Maximum probability difference between top 1 and top 2 for ambiguity
-    ambiguity_margin: float = 0.32
+    ambiguity_margin: float = 0.38
 
     # Minimum sum of top-2 probabilities for a document to be considered multi-topic
-    # Ensures flat/uniform distributions are marked as Unknown, not Ambiguous
     min_ambiguity_sum: float = 0.60
 
     # Minimum probability for top class in a multi-topic document
-    min_ambiguity_p1: float = 0.34
+    min_ambiguity_p1: float = 0.30
 
     # Minimum probability for a secondary topic to be counted as detected
     topic_detection_threshold: float = 0.16
@@ -190,12 +189,13 @@ def classify_document(
 
     raw_predicted_cat = categories[top1_idx]
 
-    detected_topics = []
+    # Candidate topics that cross the secondary detection threshold
+    candidate_topics = []
     for idx in sorted_indices:
         if probs[idx] >= config.topic_detection_threshold:
             cat_name = categories[idx]
             disp = config.category_display_names.get(cat_name, cat_name)
-            detected_topics.append(disp)
+            candidate_topics.append(disp)
 
     # 5. Apply Decision Rules: Out-of-Domain vs Ambiguous vs Normal
     is_out_of_domain = False
@@ -203,13 +203,13 @@ def classify_document(
 
     # Multi-topic ambiguity condition:
     # Requires genuine competition between 2+ classes:
-    # 1. Document has at least 2 distinct domain keywords (len(top_keywords) >= min_ambiguity_keywords)
+    # 1. Document has at least 2 distinct domain keywords
     # 2. Top class has sufficient signal (p1 >= min_ambiguity_p1)
     # 3. Top 2 classes together account for significant mass (p1 + p2 >= min_ambiguity_sum)
     # 4. Gap between top 1 and top 2 is within the ambiguity margin
     # 5. Secondary topic has substantial confidence (p2 >= topic_detection_threshold)
     # 6. Exclude pure single topics with very high confidence (p1 < 0.78)
-    # 7. At least 2 topics detected
+    # 7. At least 2 candidate topics detected
     ambiguity_condition = (
         (len(top_keywords) >= config.min_ambiguity_keywords)
         and (p1 >= config.min_ambiguity_p1)
@@ -217,25 +217,28 @@ def classify_document(
         and (p1 - p2 <= config.ambiguity_margin)
         and (p2 >= config.topic_detection_threshold)
         and (p1 < 0.78)
-        and (len(detected_topics) >= 2)
+        and (len(candidate_topics) >= 2)
     )
 
     if ambiguity_condition:
         is_ambiguous = True
         status = "ambiguous"
         prediction = "Ambiguous / Multi-topic"
-        reason = f"Multiple competing topics detected ({', '.join(detected_topics)}): top-2 probability gap {abs(p1 - p2):.2%}"
+        final_detected_topics = candidate_topics
+        reason = f"Multiple competing topics detected ({', '.join(candidate_topics)}): top-2 probability gap {abs(p1 - p2):.2%}"
 
     elif p1 < config.confidence_threshold:
         is_out_of_domain = True
         status = "unknown"
         prediction = "Unknown / Out-of-Domain"
+        final_detected_topics = []
         reason = f"Model confidence ({p1:.2%}) below confidence threshold ({config.confidence_threshold:.2%})"
 
     else:
         status = "normal"
         prediction = raw_predicted_cat
-        reason = "Dominant topic clearly identified"
+        final_detected_topics = [config.category_display_names.get(raw_predicted_cat, raw_predicted_cat)]
+        reason = f"Dominant topic clearly identified: {config.category_display_names.get(raw_predicted_cat, raw_predicted_cat)} ({p1:.1%})"
 
     return {
         "text": raw_text,
@@ -245,7 +248,7 @@ def classify_document(
         "confidence": round(p1, 4),
         "probabilities": prob_dict,
         "status": status,
-        "detected_topics": detected_topics if detected_topics else [config.category_display_names.get(raw_predicted_cat, raw_predicted_cat)],
+        "detected_topics": final_detected_topics,
         "top_keywords": top_keywords,
         "is_out_of_domain": is_out_of_domain,
         "is_ambiguous": is_ambiguous,

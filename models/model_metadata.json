@@ -60,65 +60,67 @@
   "confidence_thresholds": {
     "confidence_threshold": 0.58,
     "min_active_tfidf": 0.05,
-    "ambiguity_margin": 0.32,
-    "min_ambiguity_sum": 0.6,
-    "topic_detection_threshold": 0.16
+    "ambiguity_margin": 0.38,
+    "min_ambiguity_sum": 0.60,
+    "min_ambiguity_p1": 0.30,
+    "topic_detection_threshold": 0.16,
+    "min_ambiguity_keywords": 2
   },
   "metrics_table": [
     {
       "Model": "Multinomial Naive Bayes",
       "Accuracy": 0.8703,
-      "Precision (Weighted)": 0.8704,
+      "Precision (Weighted)": 0.8703,
       "Recall (Weighted)": 0.8703,
-      "F1-Score (Weighted)": 0.87,
-      "F1-Score (Macro)": 0.8708,
-      "Training Time (s)": 0.008,
-      "Latency (ms/doc)": 0.002
-    },
-    {
-      "Model": "Logistic Regression",
-      "Accuracy": 0.8541,
-      "Precision (Weighted)": 0.8583,
-      "Recall (Weighted)": 0.8541,
-      "F1-Score (Weighted)": 0.8547,
-      "F1-Score (Macro)": 0.8555,
-      "Training Time (s)": 0.155,
-      "Latency (ms/doc)": 0.001
+      "F1-Score (Weighted)": 0.8698,
+      "F1-Score (Macro)": 0.8706,
+      "Training Time (s)": 0.042,
+      "Latency (ms/doc)": 0.01
     },
     {
       "Model": "Support Vector Machine",
+      "Accuracy": 0.8541,
+      "Precision (Weighted)": 0.8581,
+      "Recall (Weighted)": 0.8541,
+      "F1-Score (Weighted)": 0.855,
+      "F1-Score (Macro)": 0.8562,
+      "Training Time (s)": 1.754,
+      "Latency (ms/doc)": 0.153
+    },
+    {
+      "Model": "Logistic Regression",
       "Accuracy": 0.8523,
-      "Precision (Weighted)": 0.8555,
+      "Precision (Weighted)": 0.8557,
       "Recall (Weighted)": 0.8523,
-      "F1-Score (Weighted)": 0.853,
-      "F1-Score (Macro)": 0.8536,
-      "Training Time (s)": 0.099,
-      "Latency (ms/doc)": 0.006
+      "F1-Score (Weighted)": 0.8529,
+      "F1-Score (Macro)": 0.8539,
+      "Training Time (s)": 2.107,
+      "Latency (ms/doc)": 0.013
     },
     {
       "Model": "Random Forest",
-      "Accuracy": 0.7964,
-      "Precision (Weighted)": 0.8043,
-      "Recall (Weighted)": 0.7964,
-      "F1-Score (Weighted)": 0.7986,
-      "F1-Score (Macro)": 0.8006,
-      "Training Time (s)": 0.227,
-      "Latency (ms/doc)": 0.074
+      "Accuracy": 0.782,
+      "Precision (Weighted)": 0.7975,
+      "Recall (Weighted)": 0.782,
+      "F1-Score (Weighted)": 0.7854,
+      "F1-Score (Macro)": 0.7871,
+      "Training Time (s)": 3.443,
+      "Latency (ms/doc)": 0.942
     }
   ],
   "top_features_per_class": {
     "comp.graphics": [
       [
         "thank",
-        0.0386
+        0.0383
       ],
       [
         "file",
-        0.0283
+        0.0295
       ],
       [
         "imag",
-        0.0267
+        0.0272
       ],
       [
         "use",
@@ -126,83 +128,83 @@
       ],
       [
         "graphic",
-        0.025
+        0.0251
       ],
       [
         "pleas",
-        0.0237
+        0.0239
       ],
       [
-        "help",
+        "would",
         0.0227
       ],
       [
-        "program",
-        0.0219
+        "help",
+        0.0226
       ],
       [
-        "email",
-        0.0218
+        "program",
+        0.0225
       ],
       [
         "know",
-        0.0214
+        0.0223
       ]
     ],
     "rec.sport.baseball": [
       [
         "game",
-        0.0401
-      ],
-      [
-        "year",
-        0.029
+        0.0415
       ],
       [
         "basebal",
-        0.0254
+        0.0262
       ],
       [
         "pitch",
-        0.0254
+        0.0262
       ],
       [
         "player",
-        0.0242
+        0.0248
       ],
       [
         "hit",
-        0.0238
+        0.0246
       ],
       [
         "team",
-        0.0237
+        0.0243
       ],
       [
         "last",
-        0.0222
+        0.0234
       ],
       [
         "think",
-        0.0213
+        0.0222
       ],
       [
         "play",
-        0.0208
+        0.0216
+      ],
+      [
+        "run",
+        0.0206
       ]
     ],
     "sci.space": [
       [
         "space",
-        0.0318
+        0.0324
       ],
       [
         "would",
-        0.0251
+        0.0256
       ],
       [
         "orbit",
-        0.0207
+        0.021
       ],
       [
         "one",
@@ -210,71 +212,71 @@
       ],
       [
         "launch",
-        0.0192
-      ],
-      [
-        "get",
-        0.0183
+        0.0195
       ],
       [
         "like",
-        0.0179
+        0.0185
       ],
       [
         "use",
-        0.0168
+        0.0172
       ],
       [
         "shuttl",
-        0.0162
+        0.0166
       ],
       [
         "think",
-        0.016
+        0.0165
+      ],
+      [
+        "nasa",
+        0.015
       ]
     ],
     "talk.politics.misc": [
       [
-        "peopl",
-        0.0299
-      ],
-      [
         "would",
-        0.0237
+        0.0242
       ],
       [
         "govern",
-        0.0223
+        0.0226
       ],
       [
         "one",
-        0.0206
+        0.0211
       ],
       [
         "homosexu",
-        0.0205
+        0.0209
       ],
       [
         "state",
-        0.0193
+        0.0196
       ],
       [
         "dont",
-        0.019
+        0.0194
       ],
       [
         "us",
-        0.019
+        0.0194
       ],
       [
         "law",
-        0.0182
+        0.0185
       ],
       [
         "like",
-        0.0175
+        0.018
+      ],
+      [
+        "make",
+        0.0168
       ]
     ]
   },
-  "timestamp": "2026-09-23 18:10:24"
+  "timestamp": "2026-09-24 18:45:56"
 }

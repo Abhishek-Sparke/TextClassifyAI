@@ -1,5 +1,5 @@
 id,text,predicted_category,confidence,status
 1,NASA launched a spacecraft into orbit.,sci.space,0.9986,normal
-2,The starting pitcher struck out nine batters in the baseball game.,rec.sport.baseball,0.9984,normal
-3,I ate pizza today.,Unknown / Out-of-Domain,0.364,unknown
-4,The Chief Minister bought a Royal Enfield bike and went to Mars to see Jesus and play football.,Ambiguous / Multi-topic,0.3824,ambiguous
+2,The starting pitcher struck out nine batters in the baseball game.,rec.sport.baseball,0.9986,normal
+3,I ate pizza today.,Unknown / Out-of-Domain,0.0,unknown
+4,The Chief Minister bought a Royal Enfield bike and went to Mars to see Jesus and play football.,Ambiguous / Multi-topic,0.5379,ambiguous

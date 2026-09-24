@@ -63,10 +63,10 @@ Real-world text rarely fits cleanly into pre-determined buckets. This system def
 ### Example: Benchmark Multi-Topic Test Case
 > **Input:** *"The Chief Minister bought a Royal Enfield bike and went to Mars to see Jesus and play football."*
 - **Status:** `Ambiguous / Multi-topic`
-- **Confidence:** `52.42%`
-- **Detected Topics:** `Baseball` (Sports), `Politics`, `Space Science`
-- **Probabilities:** Baseball: 52.42%, Politics: 21.52%, Space: 15.80%, Graphics: 10.27%
-- **Top Keywords:** `['chief', 'minist', 'footbal', 'royal', 'mar', 'play']`
+- **Confidence:** `53.79%`
+- **Detected Topics:** `Baseball` (Sports), `Space Science`, `Politics`
+- **Probabilities:** Baseball: 53.79%, Space Science: 17.78%, Politics: 17.73%, Computer Graphics: 10.70%
+- **Top Keywords:** `['minist', 'chief', 'footbal', 'royal', 'mar', 'play']`
 
 ---
 
@@ -75,7 +75,7 @@ Real-world text rarely fits cleanly into pre-determined buckets. This system def
 - **Source Corpus:** 20 Newsgroups filtered strictly to the 4 target classes (~2,786 clean documents).
 - **Short-Text Augmentations:** Curated short and noisy phrases ("NASA launch", "baseball game", "new government law", "3D rendering software") are augmented into the training set to prevent length-underflow.
 - **Data Hygiene:** Headers, footers, sender emails, and quote blocks are removed to prevent artificial leakage.
-- **Stratified Split:** 80% Training (2,218 samples) and 20% Testing (555 samples).
+- **Stratified Split:** 80% Training (2,216 samples) and 20% Testing (555 samples).
 
 ---
 
@@ -106,12 +106,12 @@ Four supervised algorithms were trained and evaluated on identical stratified te
 
 | Algorithm | Test Accuracy | Precision (Weighted) | Recall (Weighted) | F1-Score (Weighted) | Training Time | Latency (ms/doc) | Status |
 | :--- | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
-| **Multinomial Naive Bayes** | **87.03%** | **0.8704** | **0.8703** | **0.8700** | **0.008s** | **0.002 ms** | 🏆 **Best Model** |
-| **Logistic Regression** | 85.41% | 0.8583 | 0.8541 | 0.8547 | 0.155s | 0.001 ms | Production Ready |
-| **Support Vector Machine (Linear SVM)** | 85.23% | 0.8555 | 0.8523 | 0.8530 | 0.099s | 0.006 ms | Calibrated CV |
-| **Random Forest** | 79.64% | 0.8043 | 0.7964 | 0.7986 | 0.227s | 0.074 ms | Ensemble Baseline |
+| **Multinomial Naive Bayes** | **87.03%** | **0.8703** | **0.8703** | **0.8698** | **0.042s** | **0.010 ms** | 🏆 **Best Model** |
+| **Support Vector Machine (Linear SVM)** | 85.41% | 0.8581 | 0.8541 | 0.8550 | 1.754s | 0.153 ms | Calibrated CV |
+| **Logistic Regression** | 85.23% | 0.8557 | 0.8523 | 0.8529 | 2.107s | 0.013 ms | Production Ready |
+| **Random Forest** | 78.20% | 0.7975 | 0.7820 | 0.7854 | 3.443s | 0.942 ms | Ensemble Baseline |
 
-*Selection Metric: Primary selection based on Weighted F1-Score, secondary on Accuracy. Multinomial Naive Bayes achieved the highest F1-Score (87.00%) and lowest prediction latency.*
+*Selection Metric: Primary selection based on Weighted F1-Score, secondary on Accuracy. Multinomial Naive Bayes achieved the highest F1-Score (86.98%) and lowest prediction latency.*
 
 ---
 
