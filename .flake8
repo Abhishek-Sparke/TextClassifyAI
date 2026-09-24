@@ -1,0 +1,11 @@
+[flake8]
+exclude = 
+    .git,
+    __pycache__,
+    .venv,
+    node_modules,
+    build,
+    dist,
+    .pytest_cache
+max-line-length = 127
+ignore = E203, W503
