@@ -1,6 +1,8 @@
 {
-  "best_model_name": "Multinomial Naive Bayes",
+  "model_version": "2.0.0",
+  "best_model_name": "Logistic Regression",
   "selection_metric": "F1-Score (Weighted) primary, Accuracy secondary",
+  "random_seed": 42,
   "categories": [
     "comp.graphics",
     "rec.sport.baseball",
@@ -14,7 +16,9 @@
     "talk.politics.misc": "Politics"
   },
   "dataset_statistics": {
-    "total_documents": 2786,
+    "total_documents": 2754,
+    "unique_documents": 2754,
+    "duplicate_count": 0,
     "num_classes": 4,
     "classes": [
       "comp.graphics",
@@ -23,15 +27,42 @@
       "talk.politics.misc"
     ],
     "class_distribution": {
-      "sci.space": 758,
-      "rec.sport.baseball": 697,
-      "comp.graphics": 680,
-      "talk.politics.misc": 651
+      "sci.space": 746,
+      "rec.sport.baseball": 688,
+      "comp.graphics": 673,
+      "talk.politics.misc": 647
     },
+    "fingerprint": "15c0a10bf2fa2b17",
+    "vocabulary_size": 34076,
+    "char_length_min": 11,
+    "char_length_max": 50000,
+    "char_length_mean": 1226.7,
     "word_count_min": 1,
-    "word_count_max": 9169,
-    "word_count_mean": 196.5,
-    "word_count_median": 58.0
+    "word_count_max": 8006,
+    "word_count_mean": 194.9,
+    "word_count_median": 59.0,
+    "word_count_std": 653.7
+  },
+  "data_audit_report": {
+    "initial_documents": 3729,
+    "final_documents": 2697,
+    "documents_removed": 1032,
+    "null_labels_found": 0,
+    "invalid_labels_found": 0,
+    "empty_documents_found": 856,
+    "extremely_short_found": 137,
+    "extremely_long_found": 8,
+    "exact_duplicates_found": 31,
+    "normalized_duplicates_found": 39,
+    "audit_log": [
+      "Removed 856 documents with empty, null, or whitespace-only content.",
+      "Removed 137 extremely short documents (< 15 characters) lacking semantic domain signal.",
+      "Detected 8 extremely long documents (> 50000 characters). Truncated to 50000 chars to prevent denial of service and memory spikes.",
+      "Removed 39 duplicate documents (retaining first occurrence).",
+      "Appended 57 short-text and domain augmentations to enhance real-world responsiveness.",
+      "Removed 9 duplicate documents post-preprocessing to guarantee zero train/test data leakage."
+    ],
+    "augmentations_added": 57
   },
   "tfidf_config": {
     "max_features": 5000,
@@ -40,148 +71,541 @@
       2
     ],
     "min_df": 2,
+    "max_df": 1.0,
     "sublinear_tf": true,
     "norm": "l2"
   },
+  "tfidf_experiments": [
+    {
+      "Configuration": "Unigram Baseline",
+      "N-Gram Range": "(1, 1)",
+      "Max Features": 5000,
+      "Min DF": 2,
+      "Sublinear TF": true,
+      "CV Mean Accuracy": 0.8578,
+      "CV Std Dev": 0.0115
+    },
+    {
+      "Configuration": "High-Capacity Bigram (10K)",
+      "N-Gram Range": "(1, 2)",
+      "Max Features": 10000,
+      "Min DF": 2,
+      "Sublinear TF": true,
+      "CV Mean Accuracy": 0.8547,
+      "CV Std Dev": 0.0088
+    },
+    {
+      "Configuration": "Linear TF (No Sublinear Scaling)",
+      "N-Gram Range": "(1, 2)",
+      "Max Features": 5000,
+      "Min DF": 2,
+      "Sublinear TF": false,
+      "CV Mean Accuracy": 0.8537,
+      "CV Std Dev": 0.0082
+    },
+    {
+      "Configuration": "Unigram + Bigram (Optimal 5K)",
+      "N-Gram Range": "(1, 2)",
+      "Max Features": 5000,
+      "Min DF": 2,
+      "Sublinear TF": true,
+      "CV Mean Accuracy": 0.851,
+      "CV Std Dev": 0.0092
+    },
+    {
+      "Configuration": "High Min-DF Filter (min_df=5)",
+      "N-Gram Range": "(1, 2)",
+      "Max Features": 5000,
+      "Min DF": 5,
+      "Sublinear TF": true,
+      "CV Mean Accuracy": 0.8501,
+      "CV Std Dev": 0.0132
+    },
+    {
+      "Configuration": "Compact Bigram (3K)",
+      "N-Gram Range": "(1, 2)",
+      "Max Features": 3000,
+      "Min DF": 2,
+      "Sublinear TF": true,
+      "CV Mean Accuracy": 0.8446,
+      "CV Std Dev": 0.0163
+    }
+  ],
   "preprocessing_config": {
     "lowercase": true,
     "strip_urls": true,
     "strip_emails": true,
-    "remove_standalone_digits": true,
-    "preserve_alphanumeric": [
-      "3d",
-      "gpu",
+    "strip_email_headers": true,
+    "normalize_repeated_chars": true,
+    "remove_standalone_numbers": true,
+    "remove_punctuation": true,
+    "remove_non_ascii": true,
+    "strip_whitespace": true,
+    "remove_stopwords": true,
+    "apply_lemmatization": true,
+    "preserved_words": [
+      "law",
+      "strikeout",
+      "satellite",
+      "render",
+      "hit",
+      "rbi",
       "nasa",
+      "opengl",
+      "3d",
+      "pitcher",
+      "spacecraft",
+      "orbit",
+      "mars",
+      "vulkan",
+      "win",
       "cad",
-      "law"
-    ],
-    "lemmatization": true
+      "shader",
+      "4k",
+      "gpu",
+      "2d",
+      "batter",
+      "era",
+      "run",
+      "cpu",
+      "moon"
+    ]
+  },
+  "hyperparameters": {
+    "Multinomial Naive Bayes": {
+      "alpha": 0.5
+    },
+    "Complement Naive Bayes": {
+      "alpha": 0.1,
+      "norm": true
+    },
+    "Logistic Regression": {
+      "C": 1.0
+    },
+    "SGDClassifier": {
+      "alpha": 0.0005,
+      "penalty": "l2"
+    },
+    "Ridge Classifier": {
+      "alpha": 5.0
+    },
+    "Linear SVM": {
+      "C": 0.1
+    },
+    "Random Forest": {
+      "n_estimators": 100,
+      "max_depth": 25
+    }
   },
   "confidence_thresholds": {
     "confidence_threshold": 0.58,
     "min_active_tfidf": 0.05,
     "ambiguity_margin": 0.38,
-    "min_ambiguity_sum": 0.60,
-    "min_ambiguity_p1": 0.30,
+    "min_ambiguity_sum": 0.58,
+    "min_ambiguity_p1": 0.28,
     "topic_detection_threshold": 0.16,
-    "min_ambiguity_keywords": 2
+    "min_ambiguity_keywords": 1
   },
-  "metrics_table": [
+  "cross_validation_results": [
     {
-      "Model": "Multinomial Naive Bayes",
-      "Accuracy": 0.8703,
-      "Precision (Weighted)": 0.8703,
-      "Recall (Weighted)": 0.8703,
-      "F1-Score (Weighted)": 0.8698,
-      "F1-Score (Macro)": 0.8706,
-      "Training Time (s)": 0.042,
-      "Latency (ms/doc)": 0.01
+      "Model": "Complement Naive Bayes",
+      "CV Mean F1 (Weighted)": 0.8729,
+      "CV Std F1": 0.0094,
+      "CV Mean Accuracy": 0.8739,
+      "CV Std Accuracy": 0.0098
     },
     {
-      "Model": "Support Vector Machine",
-      "Accuracy": 0.8541,
-      "Precision (Weighted)": 0.8581,
-      "Recall (Weighted)": 0.8541,
-      "F1-Score (Weighted)": 0.855,
-      "F1-Score (Macro)": 0.8562,
-      "Training Time (s)": 1.754,
-      "Latency (ms/doc)": 0.153
+      "Model": "Multinomial Naive Bayes",
+      "CV Mean F1 (Weighted)": 0.8574,
+      "CV Std F1": 0.0075,
+      "CV Mean Accuracy": 0.8579,
+      "CV Std Accuracy": 0.0077
+    },
+    {
+      "Model": "Linear SVM",
+      "CV Mean F1 (Weighted)": 0.8445,
+      "CV Std F1": 0.0111,
+      "CV Mean Accuracy": 0.8446,
+      "CV Std Accuracy": 0.0113
+    },
+    {
+      "Model": "Ridge Classifier",
+      "CV Mean F1 (Weighted)": 0.844,
+      "CV Std F1": 0.0116,
+      "CV Mean Accuracy": 0.8441,
+      "CV Std Accuracy": 0.0117
+    },
+    {
+      "Model": "SGDClassifier",
+      "CV Mean F1 (Weighted)": 0.8439,
+      "CV Std F1": 0.0109,
+      "CV Mean Accuracy": 0.8441,
+      "CV Std Accuracy": 0.0111
     },
     {
       "Model": "Logistic Regression",
-      "Accuracy": 0.8523,
-      "Precision (Weighted)": 0.8557,
-      "Recall (Weighted)": 0.8523,
-      "F1-Score (Weighted)": 0.8529,
-      "F1-Score (Macro)": 0.8539,
-      "Training Time (s)": 2.107,
-      "Latency (ms/doc)": 0.013
+      "CV Mean F1 (Weighted)": 0.8418,
+      "CV Std F1": 0.0132,
+      "CV Mean Accuracy": 0.8419,
+      "CV Std Accuracy": 0.0133
     },
     {
       "Model": "Random Forest",
-      "Accuracy": 0.782,
-      "Precision (Weighted)": 0.7975,
-      "Recall (Weighted)": 0.782,
-      "F1-Score (Weighted)": 0.7854,
-      "F1-Score (Macro)": 0.7871,
-      "Training Time (s)": 3.443,
-      "Latency (ms/doc)": 0.942
+      "CV Mean F1 (Weighted)": 0.7816,
+      "CV Std F1": 0.0118,
+      "CV Mean Accuracy": 0.7797,
+      "CV Std Accuracy": 0.0117
     }
   ],
+  "cv_details": {
+    "Multinomial Naive Bayes": {
+      "fold_f1_scores": [
+        0.8645,
+        0.8673,
+        0.8533,
+        0.8468,
+        0.855
+      ],
+      "mean_f1": 0.8574,
+      "std_f1": 0.0075,
+      "fold_accuracy_scores": [
+        0.8653,
+        0.8676,
+        0.8539,
+        0.8467,
+        0.8558
+      ],
+      "mean_accuracy": 0.8579,
+      "std_accuracy": 0.0077
+    },
+    "Complement Naive Bayes": {
+      "fold_f1_scores": [
+        0.8707,
+        0.867,
+        0.8873,
+        0.8604,
+        0.8792
+      ],
+      "mean_f1": 0.8729,
+      "std_f1": 0.0094,
+      "fold_accuracy_scores": [
+        0.8721,
+        0.8676,
+        0.8881,
+        0.8604,
+        0.881
+      ],
+      "mean_accuracy": 0.8739,
+      "std_accuracy": 0.0098
+    },
+    "Logistic Regression": {
+      "fold_f1_scores": [
+        0.822,
+        0.8628,
+        0.838,
+        0.8402,
+        0.846
+      ],
+      "mean_f1": 0.8418,
+      "std_f1": 0.0132,
+      "fold_accuracy_scores": [
+        0.8219,
+        0.863,
+        0.8379,
+        0.8398,
+        0.8467
+      ],
+      "mean_accuracy": 0.8419,
+      "std_accuracy": 0.0133
+    },
+    "SGDClassifier": {
+      "fold_f1_scores": [
+        0.8287,
+        0.8626,
+        0.8446,
+        0.8401,
+        0.8436
+      ],
+      "mean_f1": 0.8439,
+      "std_f1": 0.0109,
+      "fold_accuracy_scores": [
+        0.8288,
+        0.863,
+        0.8447,
+        0.8398,
+        0.8444
+      ],
+      "mean_accuracy": 0.8441,
+      "std_accuracy": 0.0111
+    },
+    "Ridge Classifier": {
+      "fold_f1_scores": [
+        0.8285,
+        0.8604,
+        0.8494,
+        0.8334,
+        0.8485
+      ],
+      "mean_f1": 0.844,
+      "std_f1": 0.0116,
+      "fold_accuracy_scores": [
+        0.8288,
+        0.8607,
+        0.8493,
+        0.833,
+        0.849
+      ],
+      "mean_accuracy": 0.8441,
+      "std_accuracy": 0.0117
+    },
+    "Linear SVM": {
+      "fold_f1_scores": [
+        0.8285,
+        0.8604,
+        0.8493,
+        0.8358,
+        0.8484
+      ],
+      "mean_f1": 0.8445,
+      "std_f1": 0.0111,
+      "fold_accuracy_scores": [
+        0.8288,
+        0.8607,
+        0.8493,
+        0.8352,
+        0.849
+      ],
+      "mean_accuracy": 0.8446,
+      "std_accuracy": 0.0113
+    },
+    "Random Forest": {
+      "fold_f1_scores": [
+        0.7702,
+        0.8,
+        0.7749,
+        0.7719,
+        0.7908
+      ],
+      "mean_f1": 0.7816,
+      "std_f1": 0.0118,
+      "fold_accuracy_scores": [
+        0.7694,
+        0.7991,
+        0.774,
+        0.7689,
+        0.7872
+      ],
+      "mean_accuracy": 0.7797,
+      "std_accuracy": 0.0117
+    }
+  },
+  "metrics_table": [
+    {
+      "Model": "Logistic Regression",
+      "Accuracy": 0.8629,
+      "Precision (Weighted)": 0.8633,
+      "Recall (Weighted)": 0.8629,
+      "F1-Score (Weighted)": 0.863,
+      "F1-Score (Macro)": 0.8635,
+      "Training Time (s)": 0.908,
+      "Latency (ms/doc)": 0.001,
+      "Model Size (KB)": 157.1
+    },
+    {
+      "Model": "SGDClassifier",
+      "Accuracy": 0.8629,
+      "Precision (Weighted)": 0.8632,
+      "Recall (Weighted)": 0.8629,
+      "F1-Score (Weighted)": 0.8629,
+      "F1-Score (Macro)": 0.8634,
+      "Training Time (s)": 0.478,
+      "Latency (ms/doc)": 0.001,
+      "Model Size (KB)": 157.4
+    },
+    {
+      "Model": "Ridge Classifier",
+      "Accuracy": 0.8629,
+      "Precision (Weighted)": 0.8629,
+      "Recall (Weighted)": 0.8629,
+      "F1-Score (Weighted)": 0.8628,
+      "F1-Score (Macro)": 0.8632,
+      "Training Time (s)": 0.273,
+      "Latency (ms/doc)": 0.008,
+      "Model Size (KB)": 628.6
+    },
+    {
+      "Model": "Linear SVM",
+      "Accuracy": 0.8611,
+      "Precision (Weighted)": 0.8611,
+      "Recall (Weighted)": 0.8611,
+      "F1-Score (Weighted)": 0.861,
+      "F1-Score (Macro)": 0.8614,
+      "Training Time (s)": 0.214,
+      "Latency (ms/doc)": 0.005,
+      "Model Size (KB)": 628.0
+    },
+    {
+      "Model": "Multinomial Naive Bayes",
+      "Accuracy": 0.8592,
+      "Precision (Weighted)": 0.8593,
+      "Recall (Weighted)": 0.8592,
+      "F1-Score (Weighted)": 0.859,
+      "F1-Score (Macro)": 0.8596,
+      "Training Time (s)": 4.165,
+      "Latency (ms/doc)": 0.001,
+      "Model Size (KB)": 313.3
+    },
+    {
+      "Model": "Complement Naive Bayes",
+      "Accuracy": 0.8556,
+      "Precision (Weighted)": 0.8592,
+      "Recall (Weighted)": 0.8556,
+      "F1-Score (Weighted)": 0.8552,
+      "F1-Score (Macro)": 0.8558,
+      "Training Time (s)": 0.229,
+      "Latency (ms/doc)": 0.001,
+      "Model Size (KB)": 352.4
+    },
+    {
+      "Model": "Random Forest",
+      "Accuracy": 0.7934,
+      "Precision (Weighted)": 0.8053,
+      "Recall (Weighted)": 0.7934,
+      "F1-Score (Weighted)": 0.7951,
+      "F1-Score (Macro)": 0.797,
+      "Training Time (s)": 0.227,
+      "Latency (ms/doc)": 0.055,
+      "Model Size (KB)": 2643.1
+    }
+  ],
+  "error_analysis_summary": {
+    "total_test_samples": 547,
+    "total_errors": 75,
+    "overall_error_rate": 0.1371,
+    "confused_class_pairs": [
+      {
+        "actual_class": "comp.graphics",
+        "predicted_class": "sci.space",
+        "error_count": 10
+      },
+      {
+        "actual_class": "sci.space",
+        "predicted_class": "talk.politics.misc",
+        "error_count": 9
+      },
+      {
+        "actual_class": "talk.politics.misc",
+        "predicted_class": "sci.space",
+        "error_count": 9
+      },
+      {
+        "actual_class": "rec.sport.baseball",
+        "predicted_class": "comp.graphics",
+        "error_count": 8
+      },
+      {
+        "actual_class": "sci.space",
+        "predicted_class": "comp.graphics",
+        "error_count": 8
+      }
+    ],
+    "length_slice_metrics": {
+      "short (< 25 words)": {
+        "total_documents": 244,
+        "error_count": 57,
+        "error_rate": 0.2336
+      },
+      "medium (25-120 words)": {
+        "total_documents": 217,
+        "error_count": 15,
+        "error_rate": 0.0691
+      },
+      "long (> 120 words)": {
+        "total_documents": 86,
+        "error_count": 3,
+        "error_rate": 0.0349
+      }
+    },
+    "confidence_breakdown": {
+      "low_confidence_errors_under_60pct": 69,
+      "overconfident_errors_over_80pct": 0,
+      "medium_confidence_errors_60_to_80pct": 6
+    }
+  },
   "top_features_per_class": {
     "comp.graphics": [
       [
         "thank",
-        0.0383
+        0.0362
       ],
       [
         "file",
-        0.0295
+        0.0302
       ],
       [
         "imag",
-        0.0272
+        0.0274
       ],
       [
         "use",
-        0.0257
-      ],
-      [
-        "graphic",
-        0.0251
-      ],
-      [
-        "pleas",
-        0.0239
-      ],
-      [
-        "would",
-        0.0227
+        0.0269
       ],
       [
         "help",
-        0.0226
+        0.0251
+      ],
+      [
+        "graphic",
+        0.0249
+      ],
+      [
+        "pleas",
+        0.0247
       ],
       [
         "program",
-        0.0225
+        0.0221
+      ],
+      [
+        "would",
+        0.022
       ],
       [
         "know",
-        0.0223
+        0.0206
       ]
     ],
     "rec.sport.baseball": [
       [
         "game",
-        0.0415
-      ],
-      [
-        "basebal",
-        0.0262
+        0.0436
       ],
       [
         "pitch",
-        0.0262
-      ],
-      [
-        "player",
-        0.0248
-      ],
-      [
-        "hit",
-        0.0246
+        0.026
       ],
       [
         "team",
-        0.0243
+        0.0258
+      ],
+      [
+        "player",
+        0.0251
+      ],
+      [
+        "basebal",
+        0.0247
       ],
       [
         "last",
-        0.0234
+        0.0229
       ],
       [
         "think",
+        0.0228
+      ],
+      [
+        "hit",
         0.0222
       ],
       [
@@ -189,22 +613,22 @@
         0.0216
       ],
       [
-        "run",
-        0.0206
+        "pitcher",
+        0.0215
       ]
     ],
     "sci.space": [
       [
         "space",
-        0.0324
+        0.0335
       ],
       [
         "would",
-        0.0256
+        0.0252
       ],
       [
         "orbit",
-        0.021
+        0.0222
       ],
       [
         "one",
@@ -212,71 +636,79 @@
       ],
       [
         "launch",
-        0.0195
+        0.0194
       ],
       [
         "like",
-        0.0185
+        0.0183
       ],
       [
         "use",
-        0.0172
+        0.0173
       ],
       [
         "shuttl",
-        0.0166
-      ],
-      [
-        "think",
-        0.0165
+        0.0156
       ],
       [
         "nasa",
-        0.015
+        0.0156
+      ],
+      [
+        "could",
+        0.0149
       ]
     ],
     "talk.politics.misc": [
       [
         "would",
-        0.0242
+        0.0222
       ],
       [
         "govern",
-        0.0226
-      ],
-      [
-        "one",
-        0.0211
+        0.0218
       ],
       [
         "homosexu",
-        0.0209
+        0.0206
       ],
       [
-        "state",
-        0.0196
-      ],
-      [
-        "dont",
-        0.0194
-      ],
-      [
-        "us",
-        0.0194
-      ],
-      [
-        "law",
-        0.0185
+        "one",
+        0.0199
       ],
       [
         "like",
+        0.019
+      ],
+      [
+        "dont",
+        0.0189
+      ],
+      [
+        "state",
+        0.0182
+      ],
+      [
+        "right",
         0.018
       ],
       [
-        "make",
-        0.0168
+        "us",
+        0.0179
+      ],
+      [
+        "law",
+        0.0178
       ]
     ]
   },
-  "timestamp": "2026-09-24 18:45:56"
+  "system_environment": {
+    "python_version": "3.14.7",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "sklearn_version": "1.9.1",
+    "pandas_version": "3.0.6",
+    "numpy_version": "2.5.3",
+    "joblib_version": "1.6.0"
+  },
+  "timestamp": "2026-09-25 17:49:42"
 }

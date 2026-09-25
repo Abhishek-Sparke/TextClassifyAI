@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # 1. High-Performance REST API Server
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: textclassify-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PORT=8000
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  # 2. Interactive Streamlit ML Dashboard
+  streamlit:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: textclassify-streamlit
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+
+  # 3. React / Vite Frontend
+  frontend:
+    image: node:20-alpine
+    container_name: textclassify-frontend
+    working_dir: /app
+    volumes:
+      - ./frontend:/app
+    command: sh -c "npm install && npm run dev -- --host 0.0.0.0"
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:8000
+    depends_on:
+      api:
+        condition: service_healthy

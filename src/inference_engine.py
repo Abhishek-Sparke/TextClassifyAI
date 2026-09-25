@@ -1,9 +1,16 @@
 """
 Inference and Decision Engine Module
+Classifying Text Documents Using Machine Learning (4 Classes)
 
-Centralizes all classification decision logic, confidence scoring,
-out-of-domain (Unknown) detection, and multi-topic (Ambiguous) detection.
-All thresholds are centrally defined and configurable here.
+Centralizes all classification decision logic, confidence calibration,
+out-of-domain (UNKNOWN) detection, low-confidence warning (LOW_CONFIDENCE),
+and multi-topic ambiguity analysis (AMBIGUOUS).
+
+Supported Decision Statuses:
+- NORMAL: High-confidence prediction belonging unambiguously to a single target category.
+- LOW_CONFIDENCE: In-domain text with vocabulary overlap, but model confidence is marginal.
+- UNKNOWN: Out-of-Domain text with zero or near-zero vocabulary overlap with target categories.
+- AMBIGUOUS: Multi-topic or mixed-domain text with competing probability masses across multiple classes.
 """
 
 from dataclasses import dataclass, field
@@ -35,33 +42,34 @@ CATEGORY_ICONS_4 = {
     "sci.space": "🚀",
     "talk.politics.misc": "🏛️",
     "unknown": "❓",
-    "ambiguous": "⚠️"
+    "ambiguous": "⚠️",
+    "low_confidence": "⚡"
 }
 
 
 @dataclass
 class InferenceConfig:
     """
-    Central configuration for classification and confidence thresholds.
+    Central configuration for classification, out-of-domain, and ambiguity thresholds.
     Configurable in one single place.
     """
-    # If top probability is below this, classify as "Unknown / Out-of-Domain"
+    # If top probability is below this, check for LOW_CONFIDENCE or UNKNOWN
     confidence_threshold: float = 0.58
 
-    # Minimum sum of active TF-IDF weights to consider text in-domain.
+    # Minimum sum of active TF-IDF weights to consider text in-domain
     min_active_tfidf: float = 0.05
 
     # Maximum probability difference between top 1 and top 2 for ambiguity
-    ambiguity_margin: float = 0.38
+    ambiguity_margin: float = 0.60
 
     # Minimum sum of top-2 probabilities for a document to be considered multi-topic
-    min_ambiguity_sum: float = 0.60
+    min_ambiguity_sum: float = 0.55
 
     # Minimum probability for top class in a multi-topic document
-    min_ambiguity_p1: float = 0.30
+    min_ambiguity_p1: float = 0.28
 
     # Minimum probability for a secondary topic to be counted as detected
-    topic_detection_threshold: float = 0.16
+    topic_detection_threshold: float = 0.15
 
     # Minimum number of distinct domain keywords required for ambiguity
     min_ambiguity_keywords: int = 2
@@ -84,7 +92,7 @@ def classify_document(
 ) -> Dict[str, Any]:
     """
     Executes end-to-end inference on a single text document with
-    unknown and ambiguous detection heuristics.
+    unknown, low-confidence, and ambiguous detection heuristics.
 
     Parameters
     ----------
@@ -121,10 +129,12 @@ def classify_document(
             "probabilities": {cat: 0.0 for cat in categories},
             "status": "unknown",
             "detected_topics": [],
+            "competing_classes": [],
             "top_keywords": [],
             "is_out_of_domain": True,
             "is_ambiguous": False,
-            "reason": "Empty or whitespace-only input"
+            "reason": "Empty or whitespace-only input",
+            "active_tfidf_sum": 0.0
         }
 
     # 2. Text Preprocessing
@@ -139,10 +149,12 @@ def classify_document(
             "probabilities": {cat: 0.0 for cat in categories},
             "status": "unknown",
             "detected_topics": [],
+            "competing_classes": [],
             "top_keywords": [],
             "is_out_of_domain": True,
             "is_ambiguous": False,
-            "reason": "Text contains no domain vocabulary"
+            "reason": "Text contains no domain vocabulary or valid alphanumeric tokens",
+            "active_tfidf_sum": 0.0
         }
 
     # 3. TF-IDF Vectorization
@@ -154,7 +166,7 @@ def classify_document(
     top_kw_raw = get_top_tfidf_terms_for_document(vectorizer, vec, top_n=6)
     top_keywords = [{"term": term, "weight": round(weight, 4)} for term, weight in top_kw_raw]
 
-    # If zero vocabulary terms match the fitted vectorizer
+    # If zero vocabulary terms match the fitted vectorizer: UNKNOWN (Out-of-Domain)
     if active_tfidf_sum < config.min_active_tfidf or len(top_keywords) == 0:
         return {
             "text": raw_text,
@@ -162,13 +174,14 @@ def classify_document(
             "prediction": "Unknown / Out-of-Domain",
             "raw_prediction": categories[0] if categories else "comp.graphics",
             "confidence": 0.0,
-            "probabilities": {cat: 0.25 for cat in categories},
+            "probabilities": {cat: round(1.0 / len(categories), 4) for cat in categories},
             "status": "unknown",
             "detected_topics": [],
+            "competing_classes": [],
             "top_keywords": [],
             "is_out_of_domain": True,
             "is_ambiguous": False,
-            "reason": f"Zero vocabulary overlap with domain (active TF-IDF: {active_tfidf_sum:.4f})",
+            "reason": f"Out-of-Domain: Zero vocabulary overlap with target domains (active TF-IDF: {active_tfidf_sum:.4f})",
             "active_tfidf_sum": round(active_tfidf_sum, 4)
         }
 
@@ -191,36 +204,41 @@ def classify_document(
 
     # Candidate topics that cross the secondary detection threshold
     candidate_topics = []
+    competing_classes_list = []
     for idx in sorted_indices:
         if probs[idx] >= config.topic_detection_threshold:
             cat_name = categories[idx]
             disp = config.category_display_names.get(cat_name, cat_name)
             candidate_topics.append(disp)
+            competing_classes_list.append({
+                "category": cat_name,
+                "display_name": disp,
+                "probability": round(float(probs[idx]), 4)
+            })
 
-    # 5. Apply Decision Rules: Out-of-Domain vs Ambiguous vs Normal
+    # 5. Apply Decision Rules: Out-of-Domain vs Ambiguous vs Low-Confidence vs Normal
     is_out_of_domain = False
     is_ambiguous = False
 
-    # Multi-topic ambiguity condition:
-    # Requires genuine competition between 2+ classes:
-    # 1. Document has at least 2 distinct domain keywords
-    # 2. Top class has sufficient signal (p1 >= min_ambiguity_p1)
-    # 3. Top 2 classes together account for significant mass (p1 + p2 >= min_ambiguity_sum)
-    # 4. Gap between top 1 and top 2 is within the ambiguity margin
-    # 5. Secondary topic has substantial confidence (p2 >= topic_detection_threshold)
-    # 6. Exclude pure single topics with very high confidence (p1 < 0.78)
-    # 7. At least 2 candidate topics detected
-    ambiguity_condition = (
-        (len(top_keywords) >= config.min_ambiguity_keywords)
-        and (p1 >= config.min_ambiguity_p1)
-        and (p1 + p2 >= config.min_ambiguity_sum)
-        and (p1 - p2 <= config.ambiguity_margin)
-        and (p2 >= config.topic_detection_threshold)
-        and (p1 < 0.78)
-        and (len(candidate_topics) >= 2)
-    )
+    # Check for near-uniform / high entropy out-of-domain distribution
+    # If the highest probability is below 0.35, or the spread between highest and lowest class is tiny (< 0.12),
+    # the classifier has no distinctive topical signal for any class (e.g. "Pizza is my favorite food", "low battery")
+    if p1 < 0.35 or (p1 - float(np.min(probs))) < 0.12:
+        is_out_of_domain = True
+        status = "unknown"
+        prediction = "Unknown / Out-of-Domain"
+        final_detected_topics = []
+        reason = f"Out-of-Domain: Model confidence is nearly uniform across all classes (max {p1:.1%}, spread {p1 - float(np.min(probs)):.1%})"
 
-    if ambiguity_condition:
+    # Multi-topic ambiguity condition:
+    # Requires genuine competition between 2+ classes with multiple domain keywords
+    elif (
+        len(top_keywords) >= config.min_ambiguity_keywords
+        and p2 >= config.topic_detection_threshold
+        and (p1 - p2) <= config.ambiguity_margin
+        and p1 < 0.82
+        and len(candidate_topics) >= 2
+    ):
         is_ambiguous = True
         status = "ambiguous"
         prediction = "Ambiguous / Multi-topic"
@@ -228,11 +246,18 @@ def classify_document(
         reason = f"Multiple competing topics detected ({', '.join(candidate_topics)}): top-2 probability gap {abs(p1 - p2):.2%}"
 
     elif p1 < config.confidence_threshold:
-        is_out_of_domain = True
-        status = "unknown"
-        prediction = "Unknown / Out-of-Domain"
-        final_detected_topics = []
-        reason = f"Model confidence ({p1:.2%}) below confidence threshold ({config.confidence_threshold:.2%})"
+        # If active TF-IDF is barely above threshold or keywords are minimal
+        if active_tfidf_sum < 0.15 or len(top_keywords) < 2:
+            is_out_of_domain = True
+            status = "unknown"
+            prediction = "Unknown / Out-of-Domain"
+            final_detected_topics = []
+            reason = f"Out-of-Domain: Low topical signal (active TF-IDF {active_tfidf_sum:.3f}, confidence {p1:.1%})"
+        else:
+            status = "low_confidence"
+            prediction = raw_predicted_cat
+            final_detected_topics = [config.category_display_names.get(raw_predicted_cat, raw_predicted_cat)]
+            reason = f"Low confidence prediction ({p1:.1%}) below standard threshold ({config.confidence_threshold:.1%})"
 
     else:
         status = "normal"
@@ -249,6 +274,7 @@ def classify_document(
         "probabilities": prob_dict,
         "status": status,
         "detected_topics": final_detected_topics,
+        "competing_classes": competing_classes_list,
         "top_keywords": top_keywords,
         "is_out_of_domain": is_out_of_domain,
         "is_ambiguous": is_ambiguous,

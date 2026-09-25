@@ -1,0 +1,37 @@
+# Production Dockerfile for TextClassify AI REST API (Cloud Run / AWS ECS)
+FROM python:3.12-slim
+
+# Prevent bytecode generation and enable unbuffered logging
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PORT=8000
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python requirements
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Pre-download required NLTK data into image
+RUN python -c "import nltk; nltk.download('stopwords', quiet=True); nltk.download('wordnet', quiet=True); nltk.download('punkt', quiet=True); nltk.download('punkt_tab', quiet=True); nltk.download('omw-1.4', quiet=True)"
+
+# Copy application code and trained artifacts
+COPY src/ ./src/
+COPY models/ ./models/
+COPY server.py .
+
+# Expose target port (Cloud Run sets $PORT dynamically)
+EXPOSE 8000
+
+# Health check probe
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:${PORT:-8000}/health || exit 1
+
+# Start Uvicorn server respecting Cloud Run / ECS $PORT
+CMD ["sh", "-c", "uvicorn server:app --host 0.0.0.0 --port ${PORT:-8000} --workers 2"]

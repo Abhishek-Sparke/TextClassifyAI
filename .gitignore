@@ -1,17 +1,38 @@
+# Virtual environments
 .venv/
 venv/
 env/
+
+# Python cache & build
 __pycache__/
 *.py[cod]
-*.class
+*.pyo
+*.pyd
+*.so
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+
+# Environment variables & secrets
 .env
+.env.*
+!.env.example
+
+# OS artifacts
 .DS_Store
 Thumbs.db
-frontend/node_modules/
+desktop.ini
+
+# Node & Frontend builds
 node_modules/
-frontend/.next/
+frontend/node_modules/
+dist/
 frontend/dist/
 frontend/build/
-dist/
-scratch/
+frontend/.next/
 
+# Large raw datasets & temporary scratch outputs
+data/*.parquet
+scratch/
+classified_results.csv

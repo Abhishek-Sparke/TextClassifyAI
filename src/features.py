@@ -1,23 +1,33 @@
 """
-Feature Extraction Module (TF-IDF)
+Feature Extraction and Engineering Module (TF-IDF)
+Classifying Text Documents Using Machine Learning (4 Classes)
 
 Implements TF-IDF vectorization with strict featurization ordering
 (fit on training data only) to strictly prevent data leakage.
-Supports unigrams, bigrams, sublinear TF scaling, configurable max_features,
-and L2 normalization.
+Supports:
+- Unigram and bigram tokenization
+- Configurable vocabulary sizing (max_features)
+- Frequency thresholding (min_df, max_df)
+- Sublinear term-frequency dampening (1 + log(tf))
+- L1/L2 vector normalization
+- Cross-validated feature engineering parameter experimentation on training set
 """
 
-from typing import Tuple, List, Dict, Optional, Any
+from typing import Tuple, List, Dict, Any
 import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.model_selection import StratifiedKFold
+from sklearn.naive_bayes import MultinomialNB
 
 
 def build_tfidf_vectorizer(
     max_features: int = 5000,
     ngram_range: Tuple[int, int] = (1, 2),
     min_df: int = 2,
-    sublinear_tf: bool = True
+    max_df: float = 1.0,
+    sublinear_tf: bool = True,
+    norm: str = 'l2'
 ) -> TfidfVectorizer:
     """
     Constructs a configured TfidfVectorizer.
@@ -27,11 +37,15 @@ def build_tfidf_vectorizer(
     max_features : int, default=5000
         Maximum vocabulary size to retain the most frequent informative n-grams.
     ngram_range : tuple of (int, int), default=(1, 2)
-        Extract both unigrams and bigrams (e.g., 'space' and 'space station').
-    min_df : int, default=2
-        Ignore terms that appear in fewer than min_df documents (removes rare noise).
+        Extract unigrams and/or bigrams.
+    min_df : int or float, default=2
+        Ignore terms that appear in fewer than min_df documents (filters rare noise).
+    max_df : float, default=1.0
+        Ignore terms that appear in more than max_df portion of documents (corpus-wide stops).
     sublinear_tf : bool, default=True
         Apply sublinear scaling 1 + log(tf) to dampen the effect of very frequent words.
+    norm : {'l1', 'l2', None}, default='l2'
+        Vector norm.
 
     Returns
     -------
@@ -41,8 +55,9 @@ def build_tfidf_vectorizer(
         max_features=max_features,
         ngram_range=ngram_range,
         min_df=min_df,
+        max_df=max_df,
         sublinear_tf=sublinear_tf,
-        norm='l2'
+        norm=norm
     )
 
 
@@ -72,6 +87,121 @@ def extract_features(
     return X_train_tfidf, X_test_tfidf, vectorizer
 
 
+def experiment_tfidf_configurations(
+    X_train: pd.Series,
+    y_train: pd.Series,
+    cv: int = 5,
+    random_state: int = 42
+) -> pd.DataFrame:
+    """
+    Systematically benchmarks multiple TF-IDF configurations using stratified
+    cross-validation on the training data ONLY. Never peeks at the test set.
+
+    Evaluates:
+    - Unigram vs Unigram+Bigram
+    - Vocabulary size variations (3000, 5000, 10000)
+    - Sublinear TF vs standard linear TF
+    - Min-DF filtering (1, 2, 5)
+
+    Returns
+    -------
+    pd.DataFrame containing CV mean score, std dev, and parameter settings.
+    """
+    experiments = [
+        {
+            "name": "Unigram Baseline",
+            "ngram_range": (1, 1),
+            "max_features": 5000,
+            "min_df": 2,
+            "sublinear_tf": True,
+            "norm": "l2"
+        },
+        {
+            "name": "Unigram + Bigram (Optimal 5K)",
+            "ngram_range": (1, 2),
+            "max_features": 5000,
+            "min_df": 2,
+            "sublinear_tf": True,
+            "norm": "l2"
+        },
+        {
+            "name": "High-Capacity Bigram (10K)",
+            "ngram_range": (1, 2),
+            "max_features": 10000,
+            "min_df": 2,
+            "sublinear_tf": True,
+            "norm": "l2"
+        },
+        {
+            "name": "Compact Bigram (3K)",
+            "ngram_range": (1, 2),
+            "max_features": 3000,
+            "min_df": 2,
+            "sublinear_tf": True,
+            "norm": "l2"
+        },
+        {
+            "name": "Linear TF (No Sublinear Scaling)",
+            "ngram_range": (1, 2),
+            "max_features": 5000,
+            "min_df": 2,
+            "sublinear_tf": False,
+            "norm": "l2"
+        },
+        {
+            "name": "High Min-DF Filter (min_df=5)",
+            "ngram_range": (1, 2),
+            "max_features": 5000,
+            "min_df": 5,
+            "sublinear_tf": True,
+            "norm": "l2"
+        }
+    ]
+
+    skf = StratifiedKFold(n_splits=cv, shuffle=True, random_state=random_state)
+    results = []
+
+    for exp in experiments:
+        vec = build_tfidf_vectorizer(
+            max_features=exp["max_features"],
+            ngram_range=exp["ngram_range"],
+            min_df=exp["min_df"],
+            sublinear_tf=exp["sublinear_tf"],
+            norm=exp["norm"]
+        )
+
+        fold_scores = []
+        for train_idx, val_idx in skf.split(X_train, y_train):
+            X_tr_fold = X_train.iloc[train_idx]
+            y_tr_fold = y_train.iloc[train_idx]
+            X_val_fold = X_train.iloc[val_idx]
+            y_val_fold = y_train.iloc[val_idx]
+
+            X_tr_tfidf = vec.fit_transform(X_tr_fold)
+            X_val_tfidf = vec.transform(X_val_fold)
+
+            clf = MultinomialNB(alpha=0.1)
+            clf.fit(X_tr_tfidf, y_tr_fold)
+            score = clf.score(X_val_tfidf, y_val_fold)
+            fold_scores.append(score)
+
+        mean_acc = float(np.mean(fold_scores))
+        std_acc = float(np.std(fold_scores))
+
+        results.append({
+            "Configuration": exp["name"],
+            "N-Gram Range": str(exp["ngram_range"]),
+            "Max Features": exp["max_features"],
+            "Min DF": exp["min_df"],
+            "Sublinear TF": exp["sublinear_tf"],
+            "CV Mean Accuracy": round(mean_acc, 4),
+            "CV Std Dev": round(std_acc, 4)
+        })
+
+    df_results = pd.DataFrame(results).sort_values(by="CV Mean Accuracy", ascending=False).reset_index(drop=True)
+    return df_results
+
+
 def get_top_tfidf_terms_for_document(
     vectorizer: TfidfVectorizer,
     text_tfidf_vector,
@@ -79,19 +209,6 @@ def get_top_tfidf_terms_for_document(
 ) -> List[Tuple[str, float]]:
     """
     Returns the top N terms with the highest TF-IDF weights for a given document vector.
-
-    Parameters
-    ----------
-    vectorizer : TfidfVectorizer
-        Fitted vectorizer.
-    text_tfidf_vector : sparse matrix or 1D array
-        TF-IDF vector for a single document.
-    top_n : int, default=8
-        Number of top terms to return.
-
-    Returns
-    -------
-    list of (term, weight) tuples
     """
     if not hasattr(vectorizer, "vocabulary_") or len(vectorizer.vocabulary_) == 0:
         return []
@@ -163,7 +280,7 @@ TF-IDF is a statistical numerical statistic designed to reflect how important a 
 2. **Inverse Document Frequency (IDF)**:
    Measures the informational value of the word across the entire corpus of $N$ documents:
    $$\\text{IDF}(t) = \\log\\left(\\frac{1 + N}{1 + |\\{d \\in D : t \\in d\\}|}\\right) + 1$$
-   Common words (e.g., "the", "is", "article") appear across all documents and receive low IDF. Rare domain-specific terms (e.g., "orbit", "pitcher", "gpu") receive high IDF.
+   Common words appear across all documents and receive low IDF. Rare domain-specific terms (e.g., "orbit", "pitcher", "gpu") receive high IDF.
 
 3. **TF-IDF Weight**:
    $$\\text{TF-IDF}(t, d) = \\text{TF}(t, d) \\times \\text{IDF}(t)$$
